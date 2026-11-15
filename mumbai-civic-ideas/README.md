@@ -1,8 +1,8 @@
 # Mumbai civic ideas: the full list
 
-Forty ideas for the Claude Impact Lab Mumbai challenge: see where public money goes, track whether promises are kept, hold the right people and systems accountable.
+Forty-one ideas for the Claude Impact Lab Mumbai challenge: see where public money goes, track whether promises are kept, hold the right people and systems accountable.
 
-Ideas 1 to 5 are planned in detail in [../mumbai-civic-graph/](../mumbai-civic-graph/). Ideas 6 to 40 are new and described in this folder. All of them can sit on the same foundation: the civic ontology and graph, the agent desks, and the tender portal pipeline already designed there.
+Ideas 1 to 5 are planned in detail in [../mumbai-civic-graph/](../mumbai-civic-graph/). Ideas 6 to 41 are new and described in this folder. All of them can sit on the same foundation: the civic ontology and graph, the agent desks, and the tender portal pipeline already designed there.
 
 ## How to read the ratings
 
@@ -80,6 +80,14 @@ The ratings are my judgement, not measurements. Treat them as a starting point f
 | 39 | Open Publishing Kit | A format and tool that lets BMC publish tenders and works as data | High | Low | Ask | Months |
 | 40 | Public Data Service | The graph as an open API that any app or assistant can query | Medium | Medium | n/a | Weeks |
 
+### In the news
+
+| # | Idea | One line | Value | Feasibility | Data | First version |
+|---|---|---|---|---|---|---|
+| 41 | Ek Plot, Ek Record | A neutral, shared register of redevelopment approvals across BMC and SRA, with transit homes owed and delivered | High | Medium | Partly | Days for one ward |
+
+Idea 41 responds to the November 2026 dispute between BMC and SRA over schemes on non-slum plots. It has its own folder with a full plan: [bmc-sra-jurisdiction/](bmc-sra-jurisdiction/).
+
 ## Shortlists
 
 **Buildable on the day, from published data, with clear value**
@@ -126,6 +134,7 @@ All six read from and write to the same graph.
 | [03-services.md](03-services.md) | 23 to 28 |
 | [04-accountability.md](04-accountability.md) | 29 to 36 |
 | [05-access-and-adoption.md](05-access-and-adoption.md) | 37 to 40 |
+| [bmc-sra-jurisdiction/](bmc-sra-jurisdiction/) | 41, with a detailed implementation plan |
 
 ## Rules that apply to every idea
 
