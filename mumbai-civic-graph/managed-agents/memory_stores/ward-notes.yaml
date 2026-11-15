@@ -1,0 +1,6 @@
+name: Ward notes
+description: >-
+  What the team has learned about each ward, one file per ward: local road
+  names and aliases, roads owned by agencies other than BMC, corrections
+  confirmed by a human reviewer, and open questions. Check the ward's file
+  before working on it; add only facts a source or a reviewer has confirmed.
