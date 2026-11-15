@@ -9,8 +9,8 @@ claude-lock.json. This script only starts sessions and answers their tool calls.
     python civic_client.py audit "K/West"
     python civic_client.py ask "Who is responsible for the potholes on SV Road near Andheri station?"
 
-Credentials come from the environment (ANTHROPIC_API_KEY or an `ant auth login`
-profile). The graph is reached over Bolt, so HydraDB and Neo4j both work:
+Credentials come from the environment: ANTHROPIC_API_KEY or an `ant auth login`
+profile, or on AWS an IAM role with AWS_REGION and ANTHROPIC_AWS_WORKSPACE_ID set. The graph is reached over Bolt, so HydraDB and Neo4j both work:
 GRAPH_URI, GRAPH_USER, GRAPH_PASSWORD.
 """
 
@@ -34,7 +34,9 @@ SCHEMA = (HERE / "schema.md").read_text()
 LABELS = set(re.findall(r"`([A-Z][A-Za-z]+)`", SCHEMA.split("## Node labels")[1].split("## Edge types")[0]))
 EDGE_TYPES = set(re.findall(r"`([A-Z_]+)`", SCHEMA.split("## Edge types")[1]))
 
-client = anthropic.Anthropic()
+# On AWS, set AWS_REGION and ANTHROPIC_AWS_WORKSPACE_ID and the task's IAM role signs the requests.
+# Anywhere else, the standard client reads ANTHROPIC_API_KEY or an `ant auth login` profile.
+client = anthropic.AnthropicAWS() if os.environ.get("ANTHROPIC_AWS_WORKSPACE_ID") else anthropic.Anthropic()
 _driver = None
 
 

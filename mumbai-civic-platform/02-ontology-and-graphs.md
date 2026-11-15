@@ -157,7 +157,7 @@ From these files a build step generates: the record schema the extractor agents 
 
 | Store | Holds | Choice |
 |---|---|---|
-| Property graph | All ten graphs, for traversal | HydraDB over Bolt, with Neo4j as a drop-in fallback |
+| Property graph | All ten graphs, for traversal | On AWS: Neptune Database Serverless or Neo4j Community by profile, with HydraDB on trial; see [architecture/adr/0004-graph-database.md](architecture/adr/0004-graph-database.md) |
 | Triple store | The same data as linked open data, for publishing and SPARQL | Apache Jena Fuseki or Oxigraph, fed by export |
 | Relational and spatial | Geometry, subscriptions, review queues, metric tables | Postgres with PostGIS |
 | Text and vector index | Document passages and node summaries | See [03-semantic-and-search-layer.md](03-semantic-and-search-layer.md) |

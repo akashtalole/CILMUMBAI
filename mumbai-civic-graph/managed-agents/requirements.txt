@@ -1,4 +1,4 @@
-anthropic>=1.13.0
+anthropic[aws]>=1.13.0
 neo4j>=5.20
 pymupdf>=1.24
 langgraph>=1.2
