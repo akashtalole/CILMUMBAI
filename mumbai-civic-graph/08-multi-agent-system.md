@@ -115,7 +115,7 @@ The same audit run, pointed at a deadline, answers questions the city asks every
 | Custom tools | Graph queries are answered by `civic_client.py` on your machine, so the database needs no public address for the hackathon. |
 | Session budgets | Hard cap per session: $25 for an intake batch, $15 for a ward audit, $2 for one citizen question. |
 | Limited networking | The sandbox has no outbound hosts and the web tools are off on every agent. |
-| Scheduled deployments | Production only; see section 8. |
+| Scheduled deployments | Production only; see section 9. |
 
 ### About dynamic workflows
 
@@ -168,7 +168,45 @@ To change an agent, edit its file and run `ant apply` again. Running sessions ke
 - The graph queries inside `civic_client.py` assume the property names in [00-shared-foundation.md](00-shared-foundation.md). Adjust them to the data you actually load.
 - The rubrics are starters. Tune them after the first real batch.
 
-## 8. Hackathon slice and what comes after
+## 8. Orchestration with LangGraph
+
+Managed Agents decides what happens *inside* a desk: the lead plans, delegates and revises. Something still has to decide what happens *between* desks, and that part should not be left to a model. It is a fixed pipeline with gates, and two of the gates are people.
+
+[managed-agents/orchestrator.py](managed-agents/orchestrator.py) is that pipeline as a LangGraph state graph:
+
+```
+intake ──► check quotes and load ──► audit (one branch per ward, in parallel) ──► release ──► publish
+                    │                         ▲                                     ▲
+                    └── too many held? ──► review facts (person)          editor or lawyer (person)
+```
+
+| Layer | Owns | Why there |
+|---|---|---|
+| LangGraph | Order of steps, the quote-check gate, fan-out across wards, pauses for people, saved state | Deterministic, inspectable, resumable. A reviewer may take days; the run waits in SQLite and survives a restart. |
+| Managed Agents | The agentic work in each step: reading, verifying, auditing, challenging, drafting | Anthropic runs the loop and the sandbox; the lead decides how to split the work. |
+| Plain code | Quote check, schema whitelist, graph writes, copying approved files | No model should be trusted with these. |
+
+Each LangGraph node that needs judgement starts one Managed Agents session through `civic_client.py` and waits for it. Claude is still called only through the Anthropic SDK; LangGraph adds no model wrapper of its own.
+
+What LangGraph adds that the client script alone did not have:
+
+- **Human gates as first-class steps.** `review_facts` pauses when more than 20% of a batch fails the quote check. `release` always pauses: nothing is copied to the public folder until someone answers, and they can approve some wards and hold others.
+- **Durable runs.** Every step is checkpointed under a thread id, so a batch can be started on Monday and released on Thursday from a different terminal.
+- **Parallel wards.** One audit session per ward runs side by side and the results are merged before release.
+- **One place to see where a batch is.** `status` prints the steps taken and what the run is waiting for.
+
+```sh
+python orchestrator.py run --thread batch-1 --ward "K/West" --ward "H/West" ../data/raw/*.pdf
+python orchestrator.py status --thread batch-1
+python orchestrator.py resume --thread batch-1 --answer continue        # after reviewing held facts
+python orchestrator.py resume --thread batch-1 --answer "K/West,"       # release one ward, hold the rest
+```
+
+Add `--dry-run` after `orchestrator.py` to walk the pipeline with stand-in steps and no API calls. That path was run here and behaved as designed: it paused at both gates, resumed from a new process, published only the approved ward, and ended cleanly on "stop". The real path, with live sessions, has not been run.
+
+The same graph is where later steps belong: a node that ingests an uploaded RTI reply and re-runs the audit for the ward it touches, a node that sends the liability list to the ward office, a router in front of the Citizen desk for WhatsApp messages.
+
+## 9. Hackathon slice and what comes after
 
 **On the day**, build the Intake desk and the Citizen desk first. That gives the demo: documents go in, a sourced graph comes out, a resident's question is answered with a drafted complaint. Add the Audit desk if time allows, for one ward, and show one case file with its challenge review.
 
@@ -193,8 +231,9 @@ To change an agent, edit its file and run `ant apply` again. Running sessions ke
    ```
 
    A nightly intake run over newly archived documents works the same way.
-3. **Put a person in the publishing path.** A small review screen where an editor or lawyer approves each case file, with the Challenger's review beside it, and where the named party's reply is attached.
+3. **Put a person in the publishing path.** A small review screen on top of the `release` step in the LangGraph pipeline, where an editor or lawyer approves each case file, with the Challenger's review beside it, and where the named party's reply is attached.
 
-## 9. Sources
+## 10. Sources
 
+- [LangGraph](https://github.com/langchain-ai/langgraph) 1.2, used for the pipeline in section 8
 - Claude Managed Agents documentation: [multiagent orchestration](https://platform.claude.com/docs/en/managed-agents/multiagent-orchestration.md), [define outcomes](https://platform.claude.com/docs/en/managed-agents/define-outcomes.md)

@@ -269,7 +269,7 @@ def known_entities() -> Path:
     return path
 
 
-def ingest(paths: list[str]) -> None:
+def ingest(paths: list[str]) -> Path:
     resources = [upload(Path(p), f"/corpus/{Path(p).name}") for p in paths]
     resources += [upload(HERE / "schema.md", "/schema.md"), upload(known_entities(), "/entities.jsonl")]
     session = start("ingest-lead", f"Ingest {len(paths)} documents", resources + memory("read_write"), dollars=25)
@@ -282,6 +282,7 @@ def ingest(paths: list[str]) -> None:
     })
     out = download_outputs(session.id, HERE.parent / "data" / "extracted" / session.id)
     print(f"\nFinished ({reason}). Check quotes and load with: python civic_client.py load {out / 'facts.jsonl'}")
+    return out / "facts.jsonl"
 
 
 def quote_on_page(pdf: Path, page: int, quote: str) -> bool | None:
@@ -295,7 +296,7 @@ def quote_on_page(pdf: Path, page: int, quote: str) -> bool | None:
     return None if not text else " ".join(quote.split()) in text
 
 
-def load(facts_path: str, corpus: str) -> None:
+def load(facts_path: str, corpus: str) -> tuple[int, int]:
     """Check every quote against its source page, then write the facts that pass to the graph."""
     records = [json.loads(line) for line in Path(facts_path).read_text().splitlines() if line.strip()]
     good, held = [], []
@@ -322,9 +323,10 @@ def load(facts_path: str, corpus: str) -> None:
                 s.run(f"UNWIND $rows AS row MATCH (a {{id: row.from}}), (b {{id: row.to}}) "
                       f"MERGE (a)-[e:{edge_type}]->(b) SET e += row.props", rows=rows)
     print(f"loaded {len(good)} records; {len(held)} held for review in held.jsonl")
+    return len(good), len(held)
 
 
-def audit(ward: str) -> None:
+def audit(ward: str) -> Path:
     session = start("audit-lead", f"Ward audit {ward}", [upload(HERE / "schema.md", "/schema.md")] + memory("read_write"), dollars=15)
     reason = run(session.id, {
         "type": "user.define_outcome",
@@ -333,8 +335,9 @@ def audit(ward: str) -> None:
         "rubric": {"type": "text", "content": (HERE / "rubrics" / "ward-audit.md").read_text()},
         "max_iterations": 3,
     })
-    download_outputs(session.id, HERE.parent / "data" / "audits" / session.id)
+    out = download_outputs(session.id, HERE.parent / "data" / "audits" / session.id)
     print(f"\nFinished ({reason}). A person reviews these files before anything is published.")
+    return out
 
 
 def ask(question: str) -> None:

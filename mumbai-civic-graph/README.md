@@ -18,7 +18,7 @@ Plans for the Claude Impact Lab Mumbai hackathon, 21 November 2026.
 | [05-ward-lens.md](05-ward-lens.md) | Ward scorecards: spend against outcomes, with citizen-verified ground truth. |
 | [06-prep-and-day-plan.md](06-prep-and-day-plan.md) | What to do between now and the 21st, and an hour-by-hour plan for the day. |
 | [08-multi-agent-system.md](08-multi-agent-system.md) | The agent team behind the ideas, on Claude Managed Agents: intake, audit and citizen desks, safeguards, and how to run it. |
-| [managed-agents/](managed-agents/) | Agent definitions, rubrics and the Python client that runs sessions. Not yet applied or run. |
+| [managed-agents/](managed-agents/) | Agent definitions, rubrics, the Python client that runs sessions, and a LangGraph pipeline that orders the steps and pauses for human review. Not yet applied or run against the API. |
 | [07-tender-portals.md](07-tender-portals.md) | What the BMC tender portal and Mahatenders publish, their identifiers, how they map to the graph, and how to collect from them. |
 
 ## The five ideas, ranked
