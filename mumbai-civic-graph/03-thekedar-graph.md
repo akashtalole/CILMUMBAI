@@ -95,7 +95,7 @@ The same firm appears as "M/s ABC Infra Pvt Ltd", "ABC Infrastructure" and "A.B.
 
 | Phase | Work | Done when |
 |---|---|---|
-| 1. Award corpus | Extract Awards, Contractors and values from committee resolutions and the concretisation dashboard | 200+ awards loaded |
+| 1. Award corpus | Awards, Contractors and values from Mahatenders AOC records, then committee resolutions and the concretisation dashboard | 200+ awards loaded |
 | 2. Penalty corpus | Extract Penalty and Blacklisting events from BMC press notes and news, with dates and amounts | Each event has an official or reported source |
 | 3. Entity resolution | Pipeline above with a review screen | Reviewed contractor list for the demo scope |
 | 4. Company layer | Add Company, Director, Address for the top 30 contractors by value, from public company records | Manual for the hackathon; automate later |
@@ -103,7 +103,7 @@ The same firm appears as "M/s ABC Infra Pvt Ltd", "ABC Infrastructure" and "A.B.
 | 6. UI | Profile page, flag list with filters, network view | Demo script runs |
 | 7. Legal pass | Lawyer reviews every label and sentence on screen | Sign-off before anything public |
 
-Bid-level data (who bid and lost) is often not public. If it is unavailable, drop the flags that need it (shared identity among co-bidders, single bidder, rotation) and say so. The award-after-penalty and reappearing-director flags need only award and penalty data.
+Mahatenders is the source for awards (Results of Tenders) and blacklisting (Debarment List); see [07-tender-portals.md](07-tender-portals.md). Bid-level data (who bid and lost) depends on whether its Tenders Status pages list all bidders, which must be confirmed. If it is unavailable, drop the flags that need it (shared identity among co-bidders, single bidder, rotation) and say so. The award-after-penalty and reappearing-director flags need only award and penalty data.
 
 ## Publication rules
 

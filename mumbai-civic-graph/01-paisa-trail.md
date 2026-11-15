@@ -35,6 +35,8 @@ The BMC budget is published by budget head. Works are tendered by tender number.
 (Payment)-[:UNDER_CONTRACT]->(Contract)
 ```
 
+`Tender.id` is the Mahatenders id (for example `2026_MCGM_1303610_1`); `Tender.bmc_bid_no` is the ten-digit number on the BMC notice. Award value and contractor come from Mahatenders' Results of Tenders. See [07-tender-portals.md](07-tender-portals.md).
+
 Key properties: `Allocation.amount_be`, `amount_re`, `amount_actual`; `Tender.estimated_cost`, `tender_no`, `published_on`; `Contract.value`, `signed_on`, `due_on`; `Work.status`, `category`.
 
 ## Example queries
@@ -83,7 +85,7 @@ Never present a step 2 or 3 link as certain.
 |---|---|
 | Pick the demo ward and department (roads) | A named scope |
 | Collect the roads budget pages for 2026-27 and 2025-26 | 2 PDFs, archived with hashes |
-| Collect 40 to 60 tender notices and any committee resolutions for that ward | Raw corpus |
+| Collect 40 to 60 tenders for that ward from Mahatenders (detail and AOC pages) with the matching BMC notice PDFs, plus any committee resolutions | Raw corpus |
 | Draft `mco.ttl` and the extraction schema for BudgetHead, Allocation, Tender, Work, Contract, Contractor | Schema v0 |
 | Stand up HydraDB and Neo4j; run the same five queries on both | Database decision |
 | Hand-label 10 documents | Gold set for measuring extraction |
@@ -95,7 +97,7 @@ Never present a step 2 or 3 link as certain.
 | 1. Budget tree | Parse budget tables into BudgetHead hierarchy and Allocations; reconcile sub-totals to the printed totals | Sum of leaves equals printed department total |
 | 2. Tender extraction | Claude extracts Tender and Work with quote and page; SHACL validation | 90% field accuracy on the gold set |
 | 3. Asset matching | Match road names in tenders to OpenStreetMap ways within the ward; store geometry | 80% of works placed on the map |
-| 4. Award and contract | Extract from committee resolutions and the concretisation dashboard; resolve contractor names | Contractor attached to at least half of the works |
+| 4. Award and contract | Take AOC records from Mahatenders; fill gaps from committee resolutions and the concretisation dashboard; resolve contractor names | Contractor attached to at least half of the works |
 | 5. Budget linker | Three-step linker above | Every work has a link or an explicit "unlinked" flag |
 | 6. MCP tools | `find_entity`, `locate`, `trace_money`, `get_source` | Agent answers the 30 evaluation questions with citations |
 | 7. UI | Map, trail view as a horizontal chain of cards, chat panel, source drawer | Demo script runs offline |

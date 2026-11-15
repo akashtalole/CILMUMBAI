@@ -17,6 +17,7 @@ Plans for the Claude Impact Lab Mumbai hackathon, 21 November 2026.
 | [04-jawabdar.md](04-jawabdar.md) | "Who is responsible for this?" Photo to responsible agency, officer post, contractor and a drafted complaint or RTI. |
 | [05-ward-lens.md](05-ward-lens.md) | Ward scorecards: spend against outcomes, with citizen-verified ground truth. |
 | [06-prep-and-day-plan.md](06-prep-and-day-plan.md) | What to do between now and the 21st, and an hour-by-hour plan for the day. |
+| [07-tender-portals.md](07-tender-portals.md) | What the BMC tender portal and Mahatenders publish, their identifiers, how they map to the graph, and how to collect from them. |
 
 ## The five ideas, ranked
 
@@ -44,7 +45,8 @@ Thekedar Graph and Ward Lens are worth pitching as the roadmap, not building on 
 Facts in these plans were checked on 15 November 2026 where possible. Items to confirm before relying on them:
 
 - **HydraDB details** come from its GitHub README. It is a young project (v0.3) and the Cypher subset it accepts must be checked against its `cypher-compat.md` before committing. Every plan here keeps Neo4j as a drop-in fallback over the same Bolt driver.
-- **Data source availability** (which BMC portals expose what, and in which format) was not tested end to end. [06-prep-and-day-plan.md](06-prep-and-day-plan.md) starts with a data spike for exactly this reason.
+- **Tender portals** were examined directly; see [07-tender-portals.md](07-tender-portals.md). Listing pages on Mahatenders sit behind a captcha, so tender detail and award pages were not opened.
+- **Other data source availability** was not tested end to end. [06-prep-and-day-plan.md](06-prep-and-day-plan.md) starts with a data spike for exactly this reason.
 - **Budget figures** are from press coverage of the 2026-27 BMC budget, not from the budget books themselves.
 
 ## Sources
@@ -59,3 +61,4 @@ Facts in these plans were checked on 15 November 2026 where possible. Items to c
 - [BMC road concretisation dashboard, Mumbai Live](https://www.mumbailive.com/en/infrastructure/bmc-must-upgrade-dashboard-allow-citizens-to-put-complaints-urges-bjp-minister-ashish-shelar-90143)
 - [MumbaiSpend, IndiaSpend (2017)](https://www.indiaspend.com/mumbaispend-now-you-can-track-how-mumbai-spends-its-money-31981)
 - [Graph database benchmark, AIMultiple](https://aimultiple.com/graph-databases)
+- [Mahatenders](https://mahatenders.gov.in/nicgep/app) and [BMC tender notices](https://www.mcgm.gov.in/irj/go/km/docs/documents/Tenders-New/ETH/ETH_8000113000_110826.pdf); full list in [07-tender-portals.md](07-tender-portals.md)

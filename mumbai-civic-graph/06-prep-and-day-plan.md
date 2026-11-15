@@ -8,11 +8,11 @@ The single biggest risk is arriving without data. Everything this week reduces t
 
 | Day | Task | Output |
 |---|---|---|
-| Mon 16 | **Data spike.** Open every source in [00-shared-foundation.md](00-shared-foundation.md) section 4 and record what is actually downloadable and in what format. Email the organisers to ask what data the problem briefing will provide. | A one-page source log: works / broken / needs login |
+| Mon 16 | **Data spike.** Open every source in [00-shared-foundation.md](00-shared-foundation.md) section 4 and record what is actually downloadable and in what format. On Mahatenders, open five BMC road tenders and note exactly what the detail, status and AOC pages show ([07-tender-portals.md](07-tender-portals.md) lists what to confirm). Email the organisers to ask what data the problem briefing will provide. | A one-page source log: works / broken / needs login |
 | Mon 16 | **Choose the ward.** Pick one a team member lives in, with visible road works and at least one non-BMC road. | Named ward |
 | Tue 17 | **Database spike.** Run HydraDB locally and Neo4j Community in Docker. Load 100 dummy nodes over Bolt with the `neo4j` Python driver. Run the queries from the idea files on both. Read HydraDB's `cypher-compat.md` for `MERGE`, date arithmetic and variable-length paths. | Decision: HydraDB or Neo4j, written down with the reason |
 | Tue 17 | **Ontology v0.** Write `mco.ttl` and SHACL shapes for the roads slice only. Generate the extraction JSON schema from it. | Schema that validates one hand-written example |
-| Wed 18 | **Corpus.** Download the roads budget pages, 40 to 60 tender notices for the ward, any committee resolutions, the concretisation dashboard entries, ward boundaries, OpenStreetMap roads. Archive with hashes. | `data/raw/` with a manifest |
+| Wed 18 | **Corpus.** Download the roads budget pages, 40 to 60 tenders for the ward from Mahatenders with their BMC notice PDFs, any committee resolutions, the concretisation dashboard entries, ward boundaries, OpenStreetMap roads. Archive with hashes. | `data/raw/` with a manifest |
 | Wed 18 | **Gold set.** Hand-label 10 documents. Write 30 evaluation questions with correct answers. | `eval/` folder |
 | Thu 19 | **Extraction v0.** Run Claude over the corpus with the schema. Measure against the gold set. Fix the prompt, not the output. | Accuracy number; loaded graph |
 | Thu 19 | **Org graph.** Hand-build agencies, departments, posts and the issue routing table for the ward. | "Who is responsible" query works |

@@ -94,7 +94,8 @@ RETURN w.title, k.name, d.to
 | BMC ward office structure: posts and reporting lines | BMC website, proactive disclosures under RTI Act section 4 | Medium |
 | Issue type to department routing | BMC complaint categories | Low, manual |
 | Recent works and contractors on each road | Paisa Trail graph, or the concretisation dashboard directly | Medium |
-| Defect liability terms | Tender conditions for each work | Medium; Claude extracts the clause and period |
+| Works by other agencies in the ward | Mahatenders lists MMRDA, MSRDC, PWD, MHADA and BEST tenders alongside BMC's | Medium |
+| Defect liability terms | General conditions in the BMC tender notice PDF for each work | Medium; Claude extracts the clause and period |
 | Corporators by electoral ward | Public lists | Low |
 
 ### Build phases

@@ -115,7 +115,9 @@ Confirm each of these in the pre-event spike. Format and availability change wit
 |---|---|---|---|
 | BMC budget books (budget estimates, by department and budget code) | BudgetHead, Allocation | PDF, partly scanned | Medium |
 | Budget speech of the Municipal Commissioner | Promises, headline allocations | PDF text | Low |
-| BMC e-tender notices (`mcgm.gov.in` tender documents) and Mahatenders | Tender, Work, estimated cost, ward | PDF | Medium |
+| BMC portal tender notices (`mcgm.gov.in`, *For Partners → Tenders*) | Tender, Work, conditions of contract, liability clause | PDF, predictable URLs | Medium |
+| Mahatenders (`mahatenders.gov.in`): tenders by organisation, status, results (AOC), corrigenda, cancelled, debarment list | Tender id, value, dates, Award, Contractor, Blacklisting; also MMRDA, MSRDC, PWD, MHADA, BEST | Web, captcha on listings | Medium |
+| GeM | Some BMC goods purchases | Web | Low priority |
 | Standing Committee and Improvements Committee agendas and resolutions | Award, Contractor, sanctioned cost | PDF, Marathi and English | High |
 | BMC road concretisation dashboard (launched September 2025) | Work status, contractor, road, dates | Web | Medium |
 | OpenCity.in | Cleaned budget and civic datasets, ward boundaries | CSV, GeoJSON | Low |
@@ -126,6 +128,8 @@ Confirm each of these in the pre-event spike. Format and availability change wit
 | Praja Foundation reports | Complaint statistics, ward indicators | PDF | Medium |
 | RTI replies shared by activists | Payments, measurement details | Scans | High |
 | Ministry of Corporate Affairs company data | Company, Director | Portal, partly paid | High |
+
+The two tender portals are covered in detail in [07-tender-portals.md](07-tender-portals.md), including identifiers, field mapping and how to collect without defeating the captcha.
 
 MumbaiSpend (IndiaSpend, 2017) once published BMC vendor and purchase-order data. Check whether it is still live; if so it is the best single seed for Contractor and Payment nodes.
 
