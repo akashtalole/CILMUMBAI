@@ -1,6 +1,6 @@
 # Design and architecture
 
-Mumbai Nagar Graph on AWS. Read with the platform documents one level up; this file covers how it is built and run, and points to the decision record behind each choice.
+Aamcha Hishob on AWS. Read with the platform documents one level up; this file covers how it is built and run, and points to the decision record behind each choice.
 
 ## 1. Purpose and scope
 

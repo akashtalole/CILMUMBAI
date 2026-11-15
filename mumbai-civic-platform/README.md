@@ -1,6 +1,10 @@
-# Mumbai Nagar Graph: the final recommendation
+# Aamcha Hishob: the final recommendation
 
 **One knowledge graph of how Mumbai is governed, paid for and built, with an intelligence layer on top, so that every idea in this repository becomes a small application on a shared base and not a separate project.**
+
+**Aamcha Hishob** (आमचा हिशोब, "our account") is the public name. Hishob is the word a Mumbaikar uses when asking for an account of money: *hishob dya*, give the account. The name says whose money it is and what is being asked for. The technical name for the data layer underneath stays the civic knowledge graph.
+
+Before using the name publicly, check that it is free as a trademark and as a domain; a quick web search on 15 November 2026 found no civic platform using it.
 
 ## The recommendation in brief
 
@@ -60,6 +64,7 @@ Each line is a question the platform should answer with sources, in Marathi, Hin
 | [02-ontology-and-graphs.md](02-ontology-and-graphs.md) | The ontology, the ten graphs, identifiers, provenance and time, validation |
 | [03-semantic-and-search-layer.md](03-semantic-and-search-layer.md) | Glossary, metrics, storage, retrieval, citations, access tiers, evaluation |
 | [04-intelligence-layer.md](04-intelligence-layer.md) | Claude models, Managed Agents desks, LangGraph workflows, tools, safeguards |
+| [06-user-personas.md](06-user-personas.md) | Who the platform serves: twelve personas, their jobs, channels, access tier and the features mapped to each |
 | [architecture/](architecture/) | Design and architecture for hosting on AWS, with 22 decision records comparing AWS and open-source options |
 | [05-implementation-plan.md](05-implementation-plan.md) | Phases from the hackathon day to a year out, team, infrastructure, governance, risks |
 

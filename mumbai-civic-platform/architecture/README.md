@@ -1,6 +1,6 @@
 # Architecture on AWS
 
-Design and decision records for hosting Mumbai Nagar Graph on AWS.
+Design and decision records for hosting Aamcha Hishob on AWS.
 
 | File | Contents |
 |---|---|
