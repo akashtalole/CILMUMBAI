@@ -17,6 +17,8 @@ Plans for the Claude Impact Lab Mumbai hackathon, 21 November 2026.
 | [04-jawabdar.md](04-jawabdar.md) | "Who is responsible for this?" Photo to responsible agency, officer post, contractor and a drafted complaint or RTI. |
 | [05-ward-lens.md](05-ward-lens.md) | Ward scorecards: spend against outcomes, with citizen-verified ground truth. |
 | [06-prep-and-day-plan.md](06-prep-and-day-plan.md) | What to do between now and the 21st, and an hour-by-hour plan for the day. |
+| [08-multi-agent-system.md](08-multi-agent-system.md) | The agent team behind the ideas, on Claude Managed Agents: intake, audit and citizen desks, safeguards, and how to run it. |
+| [managed-agents/](managed-agents/) | Agent definitions, rubrics and the Python client that runs sessions. Not yet applied or run. |
 | [07-tender-portals.md](07-tender-portals.md) | What the BMC tender portal and Mahatenders publish, their identifiers, how they map to the graph, and how to collect from them. |
 
 ## The five ideas, ranked
@@ -38,6 +40,8 @@ Build **Paisa Trail as the spine, with Jawabdar as the front door.**
 - Scope it to **one ward and one department (roads)**. A complete, sourced graph of one ward beats a thin graph of the whole city, and judges from civic bodies will test it on roads they know.
 - Vachan Tracker is the natural third layer if the team has spare hands, since it reuses the same work nodes.
 
+**How it is built:** as a team of agents, not a single chatbot. An intake desk reads and verifies documents, an audit desk writes findings that a Challenger agent attacks before a person sees them, and a citizen desk answers residents. See [08-multi-agent-system.md](08-multi-agent-system.md). Two mechanisms there are worth leading the pitch with: every gap in the graph becomes a drafted RTI application, and defects on roads still under contractor liability become a weekly list for the ward officer.
+
 Thekedar Graph and Ward Lens are worth pitching as the roadmap, not building on the day: the first needs legal review before anything is published, the second needs outcome data that takes weeks to assemble.
 
 ## What is verified and what is not
@@ -47,6 +51,7 @@ Facts in these plans were checked on 15 November 2026 where possible. Items to c
 - **HydraDB details** come from its GitHub README. It is a young project (v0.3) and the Cypher subset it accepts must be checked against its `cypher-compat.md` before committing. Every plan here keeps Neo4j as a drop-in fallback over the same Bolt driver.
 - **Tender portals** were examined directly; see [07-tender-portals.md](07-tender-portals.md). Listing pages on Mahatenders sit behind a captcha, so tender detail and award pages were not opened.
 - **Other data source availability** was not tested end to end. [06-prep-and-day-plan.md](06-prep-and-day-plan.md) starts with a data spike for exactly this reason.
+- **The agent system** in `managed-agents/` was syntax-checked against the Python SDK but not run; no API credential was available when it was written.
 - **Budget figures** are from press coverage of the 2026-27 BMC budget, not from the budget books themselves.
 
 ## Sources

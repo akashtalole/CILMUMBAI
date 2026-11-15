@@ -17,7 +17,8 @@ The single biggest risk is arriving without data. Everything this week reduces t
 | Thu 19 | **Extraction v0.** Run Claude over the corpus with the schema. Measure against the gold set. Fix the prompt, not the output. | Accuracy number; loaded graph |
 | Thu 19 | **Org graph.** Hand-build agencies, departments, posts and the issue routing table for the ward. | "Who is responsible" query works |
 | Fri 20 | **Walk the ward.** Photograph five roads in the graph. Note which facts the graph got right. Take the demo photos. | Reality check and demo assets |
-| Fri 20 | **Skeleton app.** Map, one trail view, chat stub, MCP server with `locate` and `trace_money`. | Something that runs end to end, however rough |
+| Thu 19 | **Agents.** Run `ant apply` in `managed-agents/`, then `civic_client.py ingest` on ten documents. Fix what the first real run shows; tune the rubric. See [08-multi-agent-system.md](08-multi-agent-system.md). | Agents created; one clean intake batch |
+| Fri 20 | **Skeleton app.** Map, one trail view, and a chat panel backed by the Citizen desk agent. | Something that runs end to end, however rough |
 | Fri 20 | **Freeze.** Snapshot the database. Write the demo script. Prepare a one-page brief for teammates who join on the day. | A build that works with no network |
 
 Check the event rules on pre-built work. If only work done on the day counts, treat the above as data preparation and research (normally allowed) and rebuild the app on the day from the plan. The data, ontology and gold set are the parts that cannot be made in eight hours.
@@ -28,8 +29,8 @@ Aim for four or five people. The event invites non-coders; use them.
 
 | Role | On the day |
 |---|---|
-| Graph and back end | Loader, queries, MCP server |
-| AI | Extraction quality, agent prompt, evaluation runs |
+| Graph and back end | Loader, queries, graph tools in `civic_client.py` |
+| AI | Agent files and rubrics, intake runs, evaluation |
 | Front end | Map, trail cards, chat, mobile view |
 | Domain (policy person, journalist or resident) | Verifies facts, finds the story, writes the complaint templates |
 | Lawyer, if available | Reviews wording of anything naming a contractor; checks RTI and complaint drafts |
@@ -75,7 +76,7 @@ Adjust to the published schedule. Assumes roughly eight build hours.
 ## Checklist to bring
 
 - Laptop with the database snapshot, both database containers and the corpus stored locally
-- Claude credits activated; API key tested
+- Claude credits activated; API key tested; agents applied and `claude-lock.json` committed
 - Demo photos with location metadata
 - Backup demo video
 - Printed one-page brief and the source log
