@@ -31,6 +31,8 @@ Plans for the Claude Impact Lab Mumbai hackathon, 21 November 2026.
 | 4 | **Thekedar Graph** | Accountability | High, but legally sensitive | High: entity resolution, company data | Vigilance department; journalists |
 | 5 | **Ward Lens** | See spending and outcomes | Medium | High: outcome data is patchy | Ward committees; citizen groups |
 
+More ideas: a further 35, rated for value and feasibility, are listed in [../mumbai-civic-ideas/](../mumbai-civic-ideas/).
+
 ## Recommendation
 
 Build **Paisa Trail as the spine, with Jawabdar as the front door.**
