@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Draft |
+| Status | In progress: AC1 to AC5 and AC7 pass on Neo4j 5.26; AC6 needs a Neptune instance |
 | Milestone | M1 |
 | Owner role | Graph engineer |
 | Depends on | SPEC-003, SPEC-004 |
@@ -83,12 +83,27 @@ Text and vector search (SPEC-017). Graph algorithms. HydraDB trial (tracked unde
 
 ## 10. Tasks
 
-| Id | Task | Size | Depends on | Verifies |
-|---|---|---|---|---|
-| T1 | Repository layer and Bolt connection handling | M | | |
-| T2 | Incremental projector with watermark | M | T1, SPEC-003/T1 | AC1, AC4 |
-| T3 | Rebuild and comparison report | S | T2 | AC2 |
-| T4 | Supersession handling and history | M | T2 | AC3 |
-| T5 | `trace_money` with gaps | M | T2 | AC5, AC7 |
-| T6 | `who_is_responsible`, `work_status`, `ward_summary`, `gaps_for` | L | T2 | AC4 |
-| T7 | Run view suite on Neptune in nightly job | M | T6 | AC6 |
+| Id | Task | Size | Depends on | Verifies | State |
+|---|---|---|---|---|---|
+| T1 | Repository layer and Bolt connection handling | M | | | Done |
+| T2 | Incremental projector with watermark | M | T1, SPEC-003/T1 | AC1, AC4 | Done |
+| T3 | Rebuild and comparison report | S | T2 | AC2 | Done |
+| T4 | Supersession handling and history | M | T2 | AC3 | Done |
+| T5 | `trace_money` with gaps | M | T2 | AC5, AC7 | Done |
+| T6 | `who_is_responsible`, `work_status`, `ward_summary`, `gaps_for` | L | T2 | AC4 | Done |
+| T7 | Run view suite on Neptune in nightly job | M | T6 | AC6 | Pending: no Neptune instance |
+
+## Change log
+
+| Date | Change |
+|---|---|
+| 16 Nov 2026 | Implemented in `app/src/hishob/graphstore/` with migration `006_graphstore.sql`; tests in `app/tests/integration/test_spec006_*.py`, run against Neo4j Community 5.26 locally and in CI. |
+
+### Decisions made while building
+
+- **Shape of the graph.** Every node has the label `Node` plus its ontology label, a unique `id`, its current properties and the provenance of the fact that last changed it. Each property's own provenance is stored as `_prov_<property>` (JSON), so a tender's cost and its reference number can cite different documents (SPEC-003/R7).
+- **History.** Every fact is also a `Fact` node, linked from its subject by `HAS_FACT` and to the facts it replaced by `SUPERSEDES`. `work_status` reads due-date history from these.
+- **What has been applied.** A Postgres table (`graphstore.applied`) records ledger files already in the graph; `apply` takes the rest in load order. `rebuild` empties the graph and applies everything, and the fingerprint (counts and a hash of fact ids) is compared.
+- **Labels and relationship types** are checked against the ontology before they are written into a query.
+- **Speed on the test graph:** median 4 to 28 ms per view.
+- **AC6.** The suite passes on Neo4j. A test checks no vendor procedures (`apoc.`, `gds.`) or subqueries are used. Running it on Neptune waits for an instance (SPEC-030).

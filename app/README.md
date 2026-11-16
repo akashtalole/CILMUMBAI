@@ -9,12 +9,13 @@ The implementation of [Aamcha Hishob](../mumbai-civic-platform/README.md), built
 | [SPEC-001](../aamcha-hishob-specs/specs/SPEC-001-document-archive.md) Document archive and registry | All 7 acceptance criteria pass; awaiting review | Archive files, URLs and uploads by content hash; never overwrite or delete; registry in Postgres; page text extraction; events to a file or SQS; command line |
 | [SPEC-003](../aamcha-hishob-specs/specs/SPEC-003-facts-ledger-and-loader.md) Facts ledger and loader | All 9 acceptance criteria pass; awaiting review | Validates extracted facts (schema, properties, SHACL per batch, source and page, quote check, edge endpoints), appends accepted facts to an append-only ledger, holds the rest with reasons, handles supersession and corroboration, and rebuilds its index from the ledger alone |
 | [SPEC-004](../aamcha-hishob-specs/specs/SPEC-004-place-spine.md) Place spine | AC1 to AC5 pass; field test and K/West roads pending | Ward and road importers that archive each file and load checked facts; geo tables in PostGIS rebuilt from the ledger; `find_place` across Marathi and English; `at_point` for road and wards. Real BMC ward boundaries load and resolve correctly. See [the loading guide](src/hishob/place/README.md) |
+| [SPEC-006](../aamcha-hishob-specs/specs/SPEC-006-graph-projection-and-views.md) Graph projection and named views | 6 of 7 acceptance criteria pass; the Neptune run waits for an instance | Projects the ledger into Neo4j over Bolt with per-property provenance and fact history; five named views (`trace_money`, `who_is_responsible`, `work_status`, `ward_summary`, `gaps_for`) that list missing records as gaps |
 | [SPEC-005](../aamcha-hishob-specs/specs/SPEC-005-intake-desk.md) Intake desk | All 8 acceptance criteria pass (one only in the live test); awaiting review | Agent definitions in `agents/`, applied to a Claude account; intake sessions that read archived documents with extractor, verifier and resolver agents, then hand the facts to the loader and record the run. First live run: 3 documents read for $1.63 |
 | [SPEC-002](../aamcha-hishob-specs/specs/SPEC-002-ontology-and-schema.md) Ontology, shapes and generated schema | All 6 acceptance criteria pass; awaiting review | Mumbai Civic Ontology in Turtle (39 node labels, 32 relationship types, English and draft Marathi labels); SHACL shapes; generated record schema, whitelist and [reference page](ontology/REFERENCE.md); validators the loader will use |
 
 ## Set up
 
-Needs Python 3.12, [uv](https://docs.astral.sh/uv/), and Postgres 16 with PostGIS 3 (the place spine, SPEC-004, needs it). On Ubuntu: `apt-get install postgresql-16-postgis-3`. In the project's Claude Code cloud environment a setup script installs it; if Postgres is not running in a session, start it with `service postgresql start`.
+Needs Python 3.12, [uv](https://docs.astral.sh/uv/), Neo4j 5 (Community is enough; `docker compose up -d neo4j`, or the tarball from neo4j.com with Java 21), and Postgres 16 with PostGIS 3 (the place spine, SPEC-004, needs it). On Ubuntu: `apt-get install postgresql-16-postgis-3`. In the project's Claude Code cloud environment a setup script installs it; if Postgres is not running in a session, start it with `service postgresql start`.
 
 ```sh
 cd app
@@ -35,6 +36,9 @@ uv run hishob place import-wards BMC_Wards.geojson --kind admin --name-property 
   --licence "..." --batch wards-1        # see src/hishob/place/README.md
 uv run hishob place find "SV road"
 uv run hishob place at 19.0988 72.8267
+uv run hishob graph apply               # project new ledger facts into the graph
+uv run hishob graph view trace_money road:sv
+uv run hishob graph view who_is_responsible road:sv --issue pothole
 uv run hishob agents apply              # create or update the agents in the Claude account
 uv run hishob intake run <sha256> [<sha256> ...] --cap-usd 5
 uv run hishob ontology build            # after editing ontology/*.ttl
@@ -65,7 +69,7 @@ uv run mypy
 uv run pytest
 ```
 
-Tests that need Postgres skip themselves if it is not reachable. Live tests call the Claude API and cost money; they run only with `HISHOB_LIVE=1` and a credential (`ANTHROPIC_API_KEY`, or Claude Platform on AWS with `ANTHROPIC_AWS_WORKSPACE_ID`). Acceptance tests are named after the criteria they verify, for example `test_spec001_ac3_…`. S3 and SQS are tested against an in-process mock.
+Tests that need Postgres skip themselves if it is not reachable; so do graph tests without Neo4j (`HISHOB_TEST_GRAPH_URI`, default `neo4j://127.0.0.1:7687`). **Graph tests delete everything in that database**: point them at a test instance only. Live tests call the Claude API and cost money; they run only with `HISHOB_LIVE=1` and a credential (`ANTHROPIC_API_KEY`, or Claude Platform on AWS with `ANTHROPIC_AWS_WORKSPACE_ID`). Acceptance tests are named after the criteria they verify, for example `test_spec001_ac3_…`. S3 and SQS are tested against an in-process mock.
 
 Fixtures in `tests/fixtures/` are invented documents marked as test data. `make_fixtures.py` regenerates them and needs a Devanagari font such as Noto Sans Devanagari.
 
@@ -80,6 +84,7 @@ app/
     schema/              SPEC-002: model, build, whitelist, validate; generated records.json and whitelist.json
     ledger/              SPEC-003: quote check, loader, ledger index
     place/               SPEC-004: name normalising, importers, geo tables and lookups
+    graphstore/          SPEC-006: projection into the graph, named views, Bolt driver
     agentkit/            SPEC-005: client, agent definitions, provisioning, session loop, intake runner
   agents/                agent definitions (Markdown with YAML front matter), environment, rubrics
     cli.py  config.py  db.py

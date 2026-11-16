@@ -28,6 +28,7 @@ def conn() -> Iterator[psycopg.Connection[tuple[object, ...]]]:
     except psycopg.OperationalError as error:
         pytest.skip(f"no test database at HISHOB_TEST_DATABASE_URL: {error}")
     with connection.transaction():
+        connection.execute("DROP SCHEMA IF EXISTS graphstore CASCADE")
         connection.execute("DROP SCHEMA IF EXISTS geo CASCADE")
         connection.execute("DROP SCHEMA IF EXISTS agentkit CASCADE")
         connection.execute("DROP SCHEMA IF EXISTS ledger CASCADE")
@@ -36,6 +37,31 @@ def conn() -> Iterator[psycopg.Connection[tuple[object, ...]]]:
     db.migrate(connection)
     yield connection
     connection.close()
+
+
+TEST_GRAPH = os.environ.get("HISHOB_TEST_GRAPH_URI", "neo4j://127.0.0.1:7687")
+TEST_GRAPH_AUTH = (
+    os.environ.get("HISHOB_TEST_GRAPH_USER", "neo4j"),
+    os.environ.get("HISHOB_TEST_GRAPH_PASSWORD", "hishob-local-only"),
+)
+
+
+@pytest.fixture
+def graph_driver():  # type: ignore[no-untyped-def]
+    """An EMPTY graph database. Everything in it is deleted: point HISHOB_TEST_GRAPH_URI at a test instance only."""
+    from neo4j import GraphDatabase
+    from neo4j.exceptions import ServiceUnavailable
+
+    driver = GraphDatabase.driver(TEST_GRAPH, auth=TEST_GRAPH_AUTH, notifications_min_severity="OFF")
+    try:
+        driver.verify_connectivity()
+    except (ServiceUnavailable, OSError) as error:
+        driver.close()
+        pytest.skip(f"no test graph database at HISHOB_TEST_GRAPH_URI: {error}")
+    with driver.session() as session:
+        session.run("MATCH (n) DETACH DELETE n").consume()
+    yield driver
+    driver.close()
 
 
 @pytest.fixture

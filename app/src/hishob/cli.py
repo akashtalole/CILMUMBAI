@@ -79,6 +79,14 @@ def main(argv: list[str] | None = None) -> int:
     at.add_argument("lat", type=float)
     at.add_argument("lon", type=float)
 
+    graph = groups.add_parser("graph").add_subparsers(dest="command", required=True)
+    graph.add_parser("apply", help="apply new ledger files to the graph (SPEC-006)")
+    graph.add_parser("rebuild", help="drop the graph and rebuild it from the ledger")
+    view = graph.add_parser("view", help="run a named view")
+    view.add_argument("name", choices=["trace_money", "who_is_responsible", "work_status", "ward_summary", "gaps_for"])
+    view.add_argument("node_id", help="node id, or a ward code for ward_summary")
+    view.add_argument("--issue", help="issue code for who_is_responsible, e.g. pothole")
+
     agents = groups.add_parser("agents").add_subparsers(dest="command", required=True)
     agents.add_parser("apply", help="create or update the agents and environment in the Claude account")
     intake = groups.add_parser("intake").add_subparsers(dest="command", required=True)
@@ -110,6 +118,8 @@ def main(argv: list[str] | None = None) -> int:
     store = build_archive(settings)
     if args.group == "place":
         return _place(args, store)
+    if args.group == "graph":
+        return _graph(args, store, settings)
     if args.group == "intake":
         from dataclasses import asdict
 
@@ -217,6 +227,30 @@ def _place(args: argparse.Namespace, store: Archive) -> int:
     else:
         print(json.dumps(asdict(geo.at_point(conn, args.lat, args.lon)), ensure_ascii=False, indent=2))
     return 0
+
+
+def _graph(args: argparse.Namespace, store: Archive, settings: Settings) -> int:
+    from dataclasses import asdict
+
+    from hishob.graphstore import GraphStore, Views
+    from hishob.graphstore.driver import make_driver
+
+    driver = make_driver(settings)
+    try:
+        if args.command in {"apply", "rebuild"}:
+            graph = GraphStore(driver, store.registry.conn, store.data, settings.graph_database)
+            result = graph.apply() if args.command == "apply" else graph.rebuild()
+            print(json.dumps(asdict(result)))
+            return 0
+        views = Views(driver, settings.graph_database)
+        if args.name == "who_is_responsible":
+            out = views.who_is_responsible(args.node_id, args.issue)
+        else:
+            out = getattr(views, args.name)(args.node_id)
+        print(json.dumps(asdict(out), ensure_ascii=False, indent=2, default=str))
+        return 0
+    finally:
+        driver.close()
 
 
 def _ontology_build(*, check: bool) -> int:

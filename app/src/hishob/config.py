@@ -17,6 +17,10 @@ class Settings:
     events: str  # "log" or "sqs"
     events_queue_url: str | None
     fetch_delay_s: float
+    graph_uri: str
+    graph_user: str
+    graph_password: str
+    graph_database: str | None
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -30,4 +34,8 @@ class Settings:
             events=env.get("HISHOB_EVENTS", "log"),
             events_queue_url=env.get("HISHOB_EVENTS_QUEUE_URL"),
             fetch_delay_s=float(env.get("HISHOB_FETCH_DELAY_S", "5")),
+            graph_uri=env.get("HISHOB_GRAPH_URI", "neo4j://127.0.0.1:7687"),
+            graph_user=env.get("HISHOB_GRAPH_USER", "neo4j"),
+            graph_password=env.get("HISHOB_GRAPH_PASSWORD", "hishob-local-only"),
+            graph_database=env.get("HISHOB_GRAPH_DATABASE") or None,
         )
