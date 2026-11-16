@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Draft |
+| Status | In progress: all acceptance criteria pass with stubbed desks; no live run yet (the audit desk is SPEC-011) |
 | Milestone | M1 |
 | Owner role | Back-end engineer |
 | Depends on | SPEC-003, SPEC-005 |
@@ -48,12 +48,18 @@ When done, LangGraph workflows run in a worker, checkpointed to Postgres, starte
 ## 5. Interfaces and data contracts
 
 ```
-hishob workflow run W1 --thread <id> --ward <code> [--ward …] <hashes…>
-hishob workflow status --thread <id>
-hishob workflow resume --thread <id> --decision continue|stop|approve|hold|<wards> --reason "…"
+hishob workflow run <thread> --hash <sha256> [--hash …] --ward <code> [--ward …]
+hishob workflow status <thread>
+hishob workflow resume <thread> continue|stop|approve|hold|<ward,ward> --reason "…" --token <reviewer token>
+hishob workflow retry <thread>
+hishob workflow consume --queue-url <url> [--max N]
 ```
 
-Postgres: LangGraph checkpointer tables; `flow.decisions(thread_id, gate, decision, reason, account_id, decided_at)`.
+Queue message: `{"workflow": "W1", "thread": "t1", "hashes": ["…"], "wards": ["K/W"]}`.
+
+Postgres, schema `flow`: LangGraph checkpointer tables; `flow.decisions(thread_id, gate, decision, reason, account_id, decided_at)`; `flow.steps(thread_id, step, result, finished_at)` for completed side-effect steps.
+
+Published outputs: `published/<ward-slug>/<run_id>/<file>` in the public store.
 
 ## 6. Non-functional requirements
 
@@ -79,11 +85,33 @@ Other workflows W2 to W8 (their specs add them on this engine). The review scree
 
 ## 10. Tasks
 
-| Id | Task | Size | Depends on | Verifies |
-|---|---|---|---|---|
-| T1 | Port graph; step interfaces; stubbed tests | M | | AC1 |
-| T2 | Postgres checkpointer; restart test | M | T1 | AC2 |
-| T3 | Queue consumer and command line | S | T1 | AC3 |
-| T4 | Review threshold gate | S | T1 | AC4 |
-| T5 | Release gate, decision records, tier check | M | T1, SPEC-007/T1 | AC5, AC6 |
-| T6 | Idempotent session start and publish | M | T2 | AC7 |
+| Id | Task | Size | Depends on | Verifies | State |
+|---|---|---|---|---|---|
+| T1 | Port graph; step interfaces; stubbed tests | M | | AC1 | Done |
+| T2 | Postgres checkpointer; restart test | M | T1 | AC2 | Done |
+| T3 | Queue consumer and command line | S | T1 | AC3 | Done |
+| T4 | Review threshold gate | S | T1 | AC4 | Done |
+| T5 | Release gate, decision records, tier check | M | T1, SPEC-007/T1 | AC5, AC6 | Done |
+| T6 | Idempotent session start and publish | M | T2 | AC7 | Partly: publish and completed steps are idempotent; reattaching to a running session is not built |
+
+## Change log
+
+| Date | Change |
+|---|---|
+| 16 Nov 2026 | Implemented in `app/src/hishob/workflows/` (`w1.py`, `live.py`) and migration `app/migrations/007_flow.sql`; tests in `app/tests/integration/test_spec009_workflow.py`. Command: `hishob workflow`. |
+
+### Decisions made while building
+
+- **Steps behind a protocol.** `Steps` has `intake`, `audit` and `publish`. Tests use stubs; `LiveSteps` uses the intake desk and real publishing. Its `audit` raises until SPEC-011 provides the audit desk, so W1 cannot yet run end to end on real documents.
+- **Audits run in parallel**, one LangGraph `Send` per ward, and wait together at one release gate.
+- **The release gate takes** `approve` (every ward), `hold` (none) or a list of wards. Holding ends the run with nothing published.
+- **Two checks on resume.** The command line refuses any token that is not a valid reviewer token before it connects to anything; `Engine.resume` checks the tier again and requires a non-empty reason, so no other caller can skip it. Every decision is written to `flow.decisions`.
+- **Completed steps are recorded** in `flow.steps`. When a run is retried, a finished intake or audit returns its saved result and is not called again.
+- **Publishing is content-idempotent.** Each file is copied with a write-if-absent. Copying the same bytes again does nothing; different bytes under the same key are an error, never an overwrite. A publish interrupted part way through finishes on `retry` with each file present once (AC7).
+- **Thread ids are used once.** Starting a thread that already exists is refused.
+
+### Not done yet
+
+- **Reattaching to a running session.** If the worker dies while the intake desk's session is still running, a retry starts a new session. The cost is repeated work, not duplicated facts, because the ledger refuses duplicates (SPEC-003). Recording the session id before streaming and reattaching to it is still to do.
+- **Restart test is in-process.** AC2 resumes with a new engine and new database connections, with nothing kept in memory. It does not kill an operating-system process, and the one-minute restart target is not measured.
+- **No live run.** That waits for the audit desk.

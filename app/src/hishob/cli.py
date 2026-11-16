@@ -105,6 +105,24 @@ def main(argv: list[str] | None = None) -> int:
     run_cmd.add_argument("sha256", nargs="+")
     run_cmd.add_argument("--cap-usd", type=int, default=5, help="hard spending cap for the session, in dollars")
 
+    workflow = groups.add_parser("workflow").add_subparsers(dest="command", required=True)
+    wf_run = workflow.add_parser("run", help="start W1 for archived documents and wards (SPEC-009)")
+    wf_run.add_argument("thread", help="a new, unique thread id")
+    wf_run.add_argument("--hash", dest="hashes", action="append", required=True, help="archived document sha256")
+    wf_run.add_argument("--ward", dest="wards", action="append", required=True, help="ward code, e.g. K/W")
+    wf_status = workflow.add_parser("status", help="where a thread is and what it is waiting for")
+    wf_status.add_argument("thread")
+    wf_resume = workflow.add_parser("resume", help="answer a gate; needs a reviewer token")
+    wf_resume.add_argument("thread")
+    wf_resume.add_argument("decision", help="continue|stop (review_facts); approve|hold|K/W,H/W (release)")
+    wf_resume.add_argument("--reason", required=True)
+    wf_resume.add_argument("--token", required=True, help="signed token <tier>.<account>.<signature>")
+    wf_retry = workflow.add_parser("retry", help="re-run a thread from its last saved checkpoint")
+    wf_retry.add_argument("thread")
+    wf_consume = workflow.add_parser("consume", help="start runs from the workflow queue")
+    wf_consume.add_argument("--queue-url", required=True)
+    wf_consume.add_argument("--max", type=int, default=10)
+
     ontology = groups.add_parser("ontology").add_subparsers(dest="command", required=True)
     build = ontology.add_parser("build", help="generate the record schema, whitelist and reference page")
     build.add_argument("--check", action="store_true", help="fail if the committed files are out of date")
@@ -112,6 +130,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.group == "ontology":
         return _ontology_build(check=args.check)
+    if args.group == "workflow":
+        return _workflow(args, Settings.from_env())
     if args.group == "api":
         from hishob.api.app import openapi_document
 
@@ -291,6 +311,59 @@ def _graph(args: argparse.Namespace, store: Archive, settings: Settings) -> int:
         return 0
     finally:
         driver.close()
+
+
+def _workflow(args: argparse.Namespace, settings: Settings) -> int:
+    import os
+    from dataclasses import asdict
+
+    from hishob.api.tiers import resolve
+    from hishob.workflows.w1 import Engine, GateError, consume
+
+    def engine() -> Engine:
+        from hishob.agentkit.client import make_client
+        from hishob.ledger import Loader
+        from hishob.workflows.live import LiveSteps
+
+        store = build_archive(settings)
+        public: ObjectStore
+        if settings.storage == "s3":
+            import boto3
+
+            public = S3Store(boto3.client("s3"), os.environ["HISHOB_PUBLIC_BUCKET"])
+        else:
+            public = LocalStore(settings.local_root / "public")
+        steps = LiveSteps(make_client(), store, Loader(store.registry.conn, store, store.data), public)
+        return Engine(settings.database_url, steps)
+
+    def show(status: object) -> int:
+        print(json.dumps(asdict(status), ensure_ascii=False, indent=2, default=str))  # type: ignore[call-overload]
+        return 0
+
+    if args.command == "run":
+        return show(engine().start(args.thread, args.hashes, args.wards))
+    if args.command == "status":
+        return show(engine().status(args.thread))
+    if args.command == "retry":
+        return show(engine().retry(args.thread))
+    if args.command == "consume":
+        import boto3
+
+        for status in consume(boto3.client("sqs"), args.queue_url, engine(), max_messages=args.max):
+            show(status)
+        return 0
+    tier, account = resolve(f"Bearer {args.token}", os.environ.get("HISHOB_TOKEN_SECRET"))
+    if tier != "reviewer":  # refuse before connecting to anything; Engine.resume checks again
+        print(f"refused: a {tier} token may not answer a gate", file=sys.stderr)
+        return 2
+    decision: object = args.decision
+    if args.decision not in {"continue", "stop", "approve", "hold"}:
+        decision = [w.strip() for w in args.decision.split(",") if w.strip()]
+    try:
+        return show(engine().resume(args.thread, decision, reason=args.reason, account=account or "", tier=tier))
+    except GateError as err:
+        print(f"refused: {err}", file=sys.stderr)
+        return 2
 
 
 def _ontology_build(*, check: bool) -> int:
