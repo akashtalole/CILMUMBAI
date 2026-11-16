@@ -192,3 +192,24 @@ def at_point(conn: Conn, lat: float, lon: float) -> PointResult:
 
 def as_json(result: Any) -> str:
     return json.dumps(result.__dict__ if hasattr(result, "__dict__") else result, ensure_ascii=False, indent=2)
+
+
+def shape(conn: Conn, node_id: str) -> dict[str, Any] | None:
+    """GeoJSON for a ward (boundary, lightly simplified) or a road (every segment sharing its name)."""
+    row = conn.execute(
+        "SELECT ST_AsGeoJSON(ST_SimplifyPreserveTopology(geom, 0.00005), 6), code, 'AdminWard'"
+        " FROM geo.admin_wards WHERE node_id = %(id)s"
+        " UNION ALL SELECT ST_AsGeoJSON(ST_SimplifyPreserveTopology(geom, 0.00005), 6), name, 'ElectoralWard'"
+        " FROM geo.electoral_wards WHERE node_id = %(id)s"
+        " UNION ALL SELECT ST_AsGeoJSON(ST_Collect(r.geom), 6), min(r.name), 'Road' FROM geo.road_segments r"
+        " WHERE r.name = (SELECT name FROM geo.road_segments WHERE node_id = %(id)s) HAVING count(*) > 0",
+        {"id": node_id},
+    ).fetchone()
+    conn.commit()
+    if row is None or row[0] is None:
+        return None
+    return {
+        "type": "Feature",
+        "geometry": json.loads(str(row[0])),
+        "properties": {"node_id": node_id, "name": row[1], "kind": row[2]},
+    }

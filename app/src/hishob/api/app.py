@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import hmac
 import json
 import logging
 import os
+import secrets
 import time
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
@@ -18,6 +20,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from hishob.api import access, citations
+from hishob.api.ask import AskDesk, AskRun, Refused
 from hishob.api.ratelimit import RateLimiter
 from hishob.api.tiers import allows, resolve
 from hishob.archive import Archive
@@ -42,12 +45,23 @@ class ApiConfig:
     graph_database: str | None = None
     token_secret: str | None = None
     public_per_minute: int = 60
+    ask: AskRun | None = None  # runs the citizen desk; None turns POST /ask off (no Claude credentials)
+    ask_per_hour: int = 10
+    ask_max_running: int = 4
+    web_dir: Path | None = None  # the built web app (app/web/dist), served at /
 
 
 class AnswerCheck(BaseModel):
     text: str = Field(min_length=1, max_length=20000)
     cited_fact_ids: list[str] = Field(default_factory=list, max_length=200)
     language: str | None = Field(default=None, pattern="^(mr|hi|en)$")
+
+
+class Question(BaseModel):
+    question: str = Field(min_length=3, max_length=1000)
+    language: str | None = Field(default=None, pattern="^(mr|hi|en)$")
+    lat: float | None = Field(default=None, ge=-90, le=90)
+    lon: float | None = Field(default=None, ge=-180, le=180)
 
 
 class Context:
@@ -80,6 +94,11 @@ def create_app(config: ApiConfig) -> FastAPI:
         description="Sourced facts about Mumbai's civic spending and works. Not an official record.",
     )
     limiter = RateLimiter(config.public_per_minute)
+    # The citizen desk's own tool calls come back into this app in-process. They carry the resident's token, so
+    # they read under the resident's tier, and this header, known only to this process, so the resident's
+    # per-minute limit is not spent on them.
+    internal_key = secrets.token_urlsafe(24)
+    desk = AskDesk(config.ask, config.ask_per_hour, config.ask_max_running) if config.ask else None
 
     def context(request: Request) -> Iterator[Context]:
         tier, account = resolve(request.headers.get("authorization"), config.token_secret)
@@ -92,7 +111,10 @@ def create_app(config: ApiConfig) -> FastAPI:
         started = time.monotonic()
         tier, _ = resolve(request.headers.get("authorization"), config.token_secret)
         client = request.client.host if request.client else "unknown"
-        if tier == "public" and not limiter.allow(client):
+        internal = hmac.compare_digest(request.headers.get("x-hishob-internal", ""), internal_key)
+        # Polling for an answer is an in-memory lookup by an unguessable id; it must not use up the limit.
+        internal = internal or (request.method == "GET" and request.url.path.startswith("/ask/"))
+        if tier == "public" and not internal and not limiter.allow(client):
             response: Response = JSONResponse({"detail": "too many requests"}, status_code=429)
         else:
             response = await call_next(request)
@@ -126,6 +148,45 @@ def create_app(config: ApiConfig) -> FastAPI:
         lat: float = Query(ge=-90, le=90), lon: float = Query(ge=-180, le=180), ctx: Context = Depends(context)
     ) -> dict[str, Any]:
         return asdict(geo.at_point(ctx.conn, lat, lon))
+
+    @app.get("/places/{node_id}/shape")
+    def place_shape(node_id: str, ctx: Context = Depends(context)) -> dict[str, Any]:
+        """A ward's boundary or a road's line, as GeoJSON, for the map. Roads include every segment of the name."""
+        found = geo.shape(ctx.conn, node_id)
+        if found is None:
+            raise HTTPException(404, "no shape for this place")
+        return found
+
+    @app.post("/ask", status_code=202)
+    def ask(body: Question, request: Request) -> dict[str, Any]:
+        """Ask the citizen desk a question. Returns a job id; poll GET /ask/{id} for the answer."""
+        if desk is None:
+            raise HTTPException(503, "asking the desk is not enabled on this server")
+        from fastapi.testclient import TestClient
+
+        authorization = request.headers.get("authorization")
+        token = authorization.removeprefix("Bearer ").strip() if authorization else None
+        http = TestClient(app, raise_server_exceptions=False, headers={"x-hishob-internal": internal_key})
+        location = (body.lat, body.lon) if body.lat is not None and body.lon is not None else None
+        client = request.client.host if request.client else "unknown"
+        try:
+            job = desk.submit(client, http, body.question, language=body.language, location=location, token=token)
+        except Refused as reason:
+            raise HTTPException(429, str(reason)) from None
+        return {"id": job.id, "status": job.status}
+
+    @app.get("/ask/{job_id}")
+    def ask_status(job_id: str) -> dict[str, Any]:
+        job = desk.get(job_id) if desk else None
+        if job is None:
+            raise HTTPException(404, "no such question")
+        end = job.finished if job.finished is not None else desk.clock() if desk else job.started
+        out: dict[str, Any] = {"id": job.id, "status": job.status, "elapsed_s": round(end - job.started, 1)}
+        if job.answer is not None:
+            out["answer"] = job.answer
+        if job.error is not None:
+            out["error"] = "the desk could not answer this time"
+        return out
 
     @app.get("/views/{name}")
     def view(
@@ -188,6 +249,10 @@ def create_app(config: ApiConfig) -> FastAPI:
             "unmatched": [asdict(c) for c in result.unmatched],
         }
 
+    if config.web_dir is not None and (config.web_dir / "index.html").exists():
+        from fastapi.staticfiles import StaticFiles
+
+        app.mount("/", StaticFiles(directory=config.web_dir, html=True), name="web")  # after every API route
     return app
 
 
@@ -279,6 +344,7 @@ def serve() -> FastAPI:
         data: ObjectStore = S3Store(s3, settings.data_bucket)
     else:
         sources, data = LocalStore(settings.local_root / "archive"), LocalStore(settings.local_root / "data")
+    web = Path(os.environ.get("HISHOB_WEB_DIR") or Path(__file__).resolve().parents[3] / "web" / "dist")
     return create_app(
         ApiConfig(
             connect=connect,
@@ -288,5 +354,24 @@ def serve() -> FastAPI:
             graph_database=settings.graph_database,
             token_secret=os.environ.get("HISHOB_TOKEN_SECRET"),
             public_per_minute=int(os.environ.get("HISHOB_PUBLIC_PER_MINUTE", "60")),
+            ask=_live_desk() if os.environ.get("HISHOB_ASK_ENABLED", "1") != "0" else None,
+            ask_per_hour=int(os.environ.get("HISHOB_ASK_PER_HOUR", "10")),
+            web_dir=web,
         )
     )
+
+
+def _live_desk() -> AskRun | None:
+    """The real citizen desk, if this server can reach Claude and the desk has been applied to the account."""
+    if not (os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AWS_WORKSPACE_ID")):
+        return None
+    from hishob.agentkit.citizen import answer_question
+    from hishob.agentkit.client import make_client
+    from hishob.api.ask import public_answer
+
+    def run(http: Any, question: str, **kwargs: Any) -> dict[str, Any]:
+        return public_answer(
+            answer_question(make_client(), http, question, language_hint=kwargs.pop("language"), **kwargs)
+        )
+
+    return run

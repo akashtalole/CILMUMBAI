@@ -4,7 +4,7 @@ Scripts to put Aamcha Hishob on AWS from the browser, with nothing installed loc
 
 | File | What it does |
 |---|---|
-| `deploy.sh` | Creates or updates the stack, stores the Claude key, installs the app at the current commit, and checks it from outside |
+| `deploy.sh` | Creates or updates the stack, stores the Claude key, builds the web app, installs everything at the current commit, and checks it from outside |
 | `remote.sh` | Runs `hishob` or shell commands on the instance, signs access tokens, shows service status |
 | `teardown.sh` | Deletes the stack; with `--delete-data`, also empties and deletes the buckets |
 | `template.yaml` | The CloudFormation stack |
@@ -80,7 +80,7 @@ Uncommitted changes are not deployed. Commit first, then run `./deploy.sh` again
 ./remote.sh session                                       # interactive shell, if the Session Manager plugin is present
 ```
 
-The API is at the `ApiUrl` that `deploy.sh` prints. Its interactive documentation is at `/docs`. To start a workflow run, send a message to the workflow queue; the worker picks it up:
+The resident web app is at the `ApiUrl` that `deploy.sh` prints, and the API's interactive documentation at `/docs`. The Ask tab works once the Claude key is stored and the agents are applied (`./deploy.sh --apply-agents`). To start a workflow run, send a message to the workflow queue; the worker picks it up:
 
 ```sh
 aws --region ap-south-1 sqs send-message --queue-url "$(aws --region ap-south-1 cloudformation describe-stacks \

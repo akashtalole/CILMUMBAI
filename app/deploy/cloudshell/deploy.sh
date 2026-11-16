@@ -26,7 +26,7 @@ while [ $# -gt 0 ]; do
     *) die "unknown option $1 (see --help)" ;;
   esac
 done
-need aws jq git curl python3
+need aws jq git curl python3 tar gzip
 
 repo=$(git -C "$here" rev-parse --show-toplevel) || die "run this from a clone of the repository"
 sha=$(git -C "$repo" rev-parse --short=12 HEAD)
@@ -78,8 +78,21 @@ fi
 
 # ---- 3. the app: a bundle of app/ at this commit, installed through Session Manager ------------------------------
 bundle="deploy/app-$sha.tar.gz"
+work=$(mktemp -d)
+git -C "$repo" archive --format=tar --output="$work/app.tar" HEAD app
+# The web app (SPEC-020) is built here, where Node is available, and added to the bundle.
+if command -v npm >/dev/null; then
+  say "building the web app"
+  mkdir -p "$work/src" && tar -xf "$work/app.tar" -C "$work/src"
+  (cd "$work/src/app/web" && npm ci --no-audit --no-fund --loglevel=error && npm run build --silent) >/dev/null \
+    || die "the web app did not build"
+  tar -rf "$work/app.tar" -C "$work/src" app/web/dist
+else
+  warn "npm not found: deploying the API without the web app"
+fi
 say "uploading the app bundle to s3://$data_bucket/$bundle"
-git -C "$repo" archive --format=tar.gz "HEAD" app | aws_ s3 cp - "s3://$data_bucket/$bundle" --only-show-errors
+gzip -c "$work/app.tar" | aws_ s3 cp - "s3://$data_bucket/$bundle" --only-show-errors
+rm -rf "$work"
 
 say "waiting for the instance to finish its set-up (first time: about 5 minutes)"
 wait_for_ssm "$instance"
@@ -131,7 +144,8 @@ cat <<DONE
 
 Deployed $sha.
 
-  API:        $api_url   (try $api_url/docs)
+  Web app:    $api_url
+  API docs:   $api_url/docs
   Instance:   $instance  (no SSH; use ./remote.sh)
   Commands:   ./remote.sh hishob place find "S. V. Road"
               ./remote.sh hishob archive add <url> --publisher bmc --licence "<terms>"

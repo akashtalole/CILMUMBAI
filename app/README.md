@@ -72,6 +72,19 @@ By default documents are stored under `./var/` and events appended to `./var/eve
 
 The archive bucket must have versioning and object lock. Production buckets come from Terraform (SPEC-013); `hishob.archive.storage.create_archive_bucket` does the same for tests.
 
+## Web app: resident view (SPEC-020)
+
+```sh
+createdb hishob_demo && psql -d hishob_demo -c 'CREATE EXTENSION postgis' -c 'CREATE EXTENSION pg_trgm'
+export HISHOB_DATABASE_URL=postgresql://postgres:hishob@localhost:5432/hishob_demo HISHOB_LOCAL_ROOT=var/demo
+uv run python demo/seed.py                              # the synthetic S. V. Road scenario
+(cd web && npm ci && VITE_DATA_NOTICE="Demo data: invented test documents" npm run build)
+uv run uvicorn hishob.api.app:serve --factory --port 8000  # page at http://127.0.0.1:8000/
+node web/e2e/resident.mjs                               # browser check, phone and desktop
+```
+
+Set `ANTHROPIC_API_KEY` (and apply the agents) to switch on the Ask tab. For live reloading while editing the page, run `npm run dev` in `web/`; it proxies the API. The test suite empties the shared graph, so run `uv run hishob graph rebuild` with the demo settings afterwards.
+
 ## Deploy to AWS (demo)
 
 From AWS CloudShell: `cd app/deploy/cloudshell && ./deploy.sh`, and `./teardown.sh` to remove it. One CloudFormation stack in Mumbai: an instance running the API, worker, Postgres and Neo4j behind CloudFront, with S3, SQS and Secrets Manager. Not yet run against a real account; see [deploy/cloudshell/README.md](deploy/cloudshell/README.md). The production profile is SPEC-013.

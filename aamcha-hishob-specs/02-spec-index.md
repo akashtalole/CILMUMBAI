@@ -20,6 +20,7 @@ Status of every spec is **Draft** until reviewed. Milestones are defined in [03-
 | [SPEC-010](specs/SPEC-010-street-alerts.md) | Street alerts | M1 | 004, 006, 007 | Full-stack engineer | 0013, 0015 |
 | [SPEC-011](specs/SPEC-011-audit-desk-and-release.md) | Audit desk and release | M1 | 007, 009 | AI engineer | 0003, 0011 |
 | [SPEC-012](specs/SPEC-012-evaluation-and-promotion-gate.md) | Evaluation harness and promotion gate | M1 | 005, 007, 008 | AI engineer | 0019 |
+| [SPEC-020](specs/SPEC-020-web-application.md) | Web application (resident view written; rest later) | M1 / M2 | 004, 006, 007, 008 | Full-stack engineer | 0014, 0015, 0016 |
 | [SPEC-013](specs/SPEC-013-aws-lean-infrastructure.md) | AWS infrastructure, lean profile | M2 | 001 to 012 | Platform engineer | 0012, 0017, 0018, 0020, 0021 |
 
 ### Later specs (scope only; written when their milestone approaches)
@@ -32,7 +33,7 @@ Status of every spec is **Draft** until reviewed. Milestones are defined in [03-
 | SPEC-017 | Hybrid search | M2 | Passages, full text and vectors in Postgres, routing, graph expansion, reranking |
 | SPEC-018 | Metrics engine | M2 | Declarative metric definitions compiled to queries, with caveats |
 | SPEC-019 | Resident channels | M2 | WhatsApp text and voice notes, redaction, transcription, place read-back |
-| SPEC-020 | Web application | M2 | Static site: map, money trail, who is responsible, ward pages, alerts sign-up, three languages |
+| SPEC-020 (rest) | Web application | M2 | Ward pages, alerts sign-up, pre-rendered pages, own map tiles; the resident view is written above |
 | SPEC-021 | Review screen | M2 | Queues for held facts, merges, findings and rules; resume paused workflows |
 | SPEC-022 | Correction and right of reply | M2 | Requests, checks against sources, decisions with history, replies published beside records |
 | SPEC-023 | RTI loop | M2 | Gaps to drafted applications, thirty-day clock, appeal drafts, ingest of replies |
@@ -119,5 +120,6 @@ web/                          static site (SPEC-020); a minimal page in SPEC-010
 | SPEC-011 | In progress | 8 | 8 |
 | SPEC-012 | Draft | 7 | 0 |
 | SPEC-013 | Draft | 8 | 0 |
+| SPEC-020 | In progress | 9 | 9 |
 
 Update this table in the same pull request that changes a spec's status.
