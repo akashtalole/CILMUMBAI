@@ -92,13 +92,21 @@ def build(steps: Steps, checkpointer: Any) -> Any:
         ward = branch["ward"]
         step = f"audit:{ward}"
         result = _once(branch["thread"], step, lambda: steps.audit(ward, f"{branch['thread']}-audit-{_slug(ward)}"))
-        return {"audits": [result], "log": [f"audit: {ward}"]}
+        note = f" ({result['status']}, {len(result.get('held') or {})} held)" if "status" in result else ""
+        return {"audits": [result], "log": [f"audit: {ward}{note}"]}
 
     def release(state: W1State) -> dict[str, Any]:
         wards = sorted(a["ward"] for a in state.get("audits", []))
-        decision = interrupt(
-            {"gate": "release", "wards": wards, "question": "Review each ward's outputs. Which may be published?"}
-        )
+        gate: dict[str, Any] = {
+            "gate": "release",
+            "wards": wards,
+            "question": "Review each ward's outputs. Which may be published?",
+        }
+        staged = {a["ward"]: a["files"] for a in state.get("audits", []) if "status" in a}
+        if staged:  # what the reviewer is releasing, and what stays held whatever they decide (SPEC-011/R4, R8)
+            gate["staged"] = staged
+            gate["held"] = {a["ward"]: a.get("held") or {} for a in state.get("audits", []) if "status" in a}
+        decision = interrupt(gate)
         if decision == "approve":
             released = wards
         elif isinstance(decision, list):

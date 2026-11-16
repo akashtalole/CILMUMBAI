@@ -105,6 +105,13 @@ def main(argv: list[str] | None = None) -> int:
     run_cmd.add_argument("sha256", nargs="+")
     run_cmd.add_argument("--cap-usd", type=int, default=5, help="hard spending cap for the session, in dollars")
 
+    audit = groups.add_parser("audit").add_subparsers(dest="command", required=True)
+    audit_run = audit.add_parser("run", help="audit one ward with the audit desk, into staging (SPEC-011)")
+    audit_run.add_argument("ward", help="ward code, e.g. K/W")
+    audit_run.add_argument("--api", default=None, help="query API base URL (default HISHOB_API_URL)")
+    audit_run.add_argument("--run-id", default=None)
+    audit_run.add_argument("--cap-usd", type=int, default=10, help="hard spending cap for the session, in dollars")
+
     workflow = groups.add_parser("workflow").add_subparsers(dest="command", required=True)
     wf_run = workflow.add_parser("run", help="start W1 for archived documents and wards (SPEC-009)")
     wf_run.add_argument("thread", help="a new, unique thread id")
@@ -132,6 +139,8 @@ def main(argv: list[str] | None = None) -> int:
         return _ontology_build(check=args.check)
     if args.group == "workflow":
         return _workflow(args, Settings.from_env())
+    if args.group == "audit":
+        return _audit(args, Settings.from_env())
     if args.group == "api":
         from hishob.api.app import openapi_document
 
@@ -321,6 +330,8 @@ def _workflow(args: argparse.Namespace, settings: Settings) -> int:
     from hishob.workflows.w1 import Engine, GateError, consume
 
     def engine() -> Engine:
+        import httpx
+
         from hishob.agentkit.client import make_client
         from hishob.ledger import Loader
         from hishob.workflows.live import LiveSteps
@@ -333,7 +344,10 @@ def _workflow(args: argparse.Namespace, settings: Settings) -> int:
             public = S3Store(boto3.client("s3"), os.environ["HISHOB_PUBLIC_BUCKET"])
         else:
             public = LocalStore(settings.local_root / "public")
-        steps = LiveSteps(make_client(), store, Loader(store.registry.conn, store, store.data), public)
+        api_url = os.environ.get("HISHOB_API_URL")
+        http = httpx.Client(base_url=api_url, timeout=120) if api_url else None
+        loader = Loader(store.registry.conn, store, store.data)
+        steps = LiveSteps(make_client(), store, loader, public, http=http, reviewer_token=_audit_token())
         return Engine(settings.database_url, steps)
 
     def show(status: object) -> int:
@@ -364,6 +378,40 @@ def _workflow(args: argparse.Namespace, settings: Settings) -> int:
     except GateError as err:
         print(f"refused: {err}", file=sys.stderr)
         return 2
+
+
+def _audit_token() -> str | None:
+    """The audit desk's own reviewer-tier token, signed for the service account `audit-desk` (SPEC-011/R1)."""
+    import os
+
+    from hishob.api.tiers import sign
+
+    secret = os.environ.get("HISHOB_TOKEN_SECRET")
+    return sign("reviewer", "audit-desk", secret) if secret else None
+
+
+def _audit(args: argparse.Namespace, settings: Settings) -> int:
+    import os
+    import uuid
+    from dataclasses import asdict
+    from datetime import UTC, datetime
+
+    import httpx
+
+    from hishob.agentkit.audit import run_audit
+    from hishob.agentkit.client import make_client
+
+    api_url = args.api or os.environ.get("HISHOB_API_URL")
+    token = _audit_token()
+    if not api_url or not token:
+        print("set --api (or HISHOB_API_URL) and HISHOB_TOKEN_SECRET: the desk reads as a reviewer", file=sys.stderr)
+        return 2
+    store = build_archive(settings)
+    run_id = args.run_id or f"audit-{datetime.now(UTC):%Y%m%d-%H%M%S}-{uuid.uuid4().hex[:6]}"
+    with httpx.Client(base_url=api_url, timeout=120) as http:
+        run = run_audit(make_client(), http, args.ward, store.data, run_id=run_id, token=token, cap_usd=args.cap_usd)
+    print(json.dumps(asdict(run), ensure_ascii=False, indent=2))
+    return 0 if run.status == "complete" else 1
 
 
 def _ontology_build(*, check: bool) -> int:

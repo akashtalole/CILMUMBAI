@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Draft |
+| Status | In progress: all acceptance criteria pass with scripted agents against the real API |
 | Milestone | M1 |
 | Owner role | AI engineer |
 | Depends on | SPEC-007, SPEC-009 |
@@ -50,9 +50,16 @@ When done, an audit run for a ward produces a one-page brief, case files that ha
 ## 5. Interfaces and data contracts
 
 ```python
-def run_audit(ward: str, *, cap_usd: int) -> AuditRun: ...   # outputs in staging/<run>/
-def check_outputs(path: Path) -> OutputCheck: ...            # banned words, posts, references
+def run_audit(client, http, ward, data, *, run_id, token, cap_usd=10) -> AuditRun: ...  # staging/<run_id>/
+def check_outputs(files, http, *, token, private_names, contractor_names, keep_names) -> OutputCheck: ...
+def arrange(raw_files) -> Arranged: ...   # places files by name and by the Challenger's verdict
 ```
+
+```
+hishob audit run K/W --api http://127.0.0.1:8000 [--run-id …] [--cap-usd 10]
+```
+
+Staging layout: `ward-brief.md`, `gaps.jsonl`, `cases/case-NN-*.md` with `case-NN-*.challenge.md`, `held/` (each held case with its review and a `.held.md` reason written by code), `drafts/{rti-NN,complaint-NN,questions}.md`, `manifest.json` (the run record). Only files outside `held/` and the manifest are offered for release.
 
 Agent files: `app/agents/{audit-lead,challenger,drafter}.md`; rubric `app/agents/rubrics/ward-audit.md`.
 
@@ -82,11 +89,34 @@ Regulation desk and jurisdiction cards (SPEC-026). Contractor network views (lat
 
 ## 10. Tasks
 
-| Id | Task | Size | Depends on | Verifies |
-|---|---|---|---|---|
-| T1 | Move agent files and rubric; lint | S | SPEC-005/T2 | AC1 |
-| T2 | `run_audit` on `agentkit`, tools under reviewer tier | M | SPEC-007/T3 | AC2, AC7 |
-| T3 | Output layout check | S | T2 | AC2, AC3, AC4 |
-| T4 | Banned words and post-only check in three languages | M | | AC5 |
-| T5 | Reference resolver and value comparison | M | SPEC-007/T5 | AC6 |
-| T6 | Wire to release gate in W1 | S | SPEC-009/T5 | AC8 |
+| Id | Task | Size | Depends on | Verifies | State |
+|---|---|---|---|---|---|
+| T1 | Move agent files and rubric; lint | S | SPEC-005/T2 | AC1 | Done |
+| T2 | `run_audit` on `agentkit`, tools under reviewer tier | M | SPEC-007/T3 | AC2, AC7 | Done |
+| T3 | Output layout check | S | T2 | AC2, AC3, AC4 | Done |
+| T4 | Banned words and post-only check in three languages | M | | AC5 | Done in code; the Marathi and Hindi lists still need the language reviewer and the lawyer |
+| T5 | Reference resolver and value comparison | M | SPEC-007/T5 | AC6 | Done |
+| T6 | Wire to release gate in W1 | S | SPEC-009/T5 | AC8 | Done |
+
+## Change log
+
+| Date | Change |
+|---|---|
+| 16 Nov 2026 | Implemented in `app/src/hishob/agentkit/` (`audit.py`, `outputs.py`; `ward_summary` tool in `tools.py`; `honorific_names` in `redact.py`), `app/agents/{audit-lead,challenger,drafter}.md` and `app/agents/rubrics/ward-audit.md`; wired into W1 through `workflows/live.py`. Tests in `app/tests/unit/test_spec011_parts.py` and `app/tests/integration/test_spec011_audit.py`. Command: `hishob audit run`. |
+
+### Decisions made while building
+
+- **Code decides where files go.** A case stays in `cases/` only if a review beside it ends in `Verdict: publish` or `Verdict: publish with changes`. A held verdict, a missing review or a review with no verdict sends the case and its review to `held/`, with the reason written by code. The folder the agent used does not matter; files are placed by name.
+- **References are fact ids in brackets**, as in the citizen desk. They are checked per paragraph and per table row: every amount, date and identifier in the brief and the case files must be found in the facts cited in that same block, through `POST /answers/check` under the reviewer tier. Contractors seen in tool results must be cited wherever they are named. In drafts, every fact id must resolve; their dates are requests ("for 1 April 2026 to date"), not claims, so values are not compared.
+- **No computed figures.** The lead is told to state only values a record states and to describe totals and durations in words or counts, because a computed total has no fact to cite.
+- **Banned words by stem**, in English and in Devanagari (so case endings such as घोटाळ्याचा are caught). People are caught two ways: anyone named after an honorific (Shri, Smt, Mr, श्री …), using the same landmark rules as the citizen desk's redaction, and any Person node seen in tool results. Elected representatives can be passed as names to keep.
+- **One fix round, then hold.** If the check finds problems, the lead is sent the list once. Whatever still fails is held with the reasons; a problem in the brief or a missing required file marks the run incomplete. Held files are not checked again: they are never offered for release.
+- **The Challenger does not repeat banned words or names** in its review, because the review is published beside the case.
+- **The desk reads as a service account.** The command line and the W1 worker sign a reviewer-tier token for `audit-desk` with `HISHOB_TOKEN_SECRET`.
+- **Repeat-safe.** A finished run is found by its manifest and returned without a new session. A run interrupted while writing gets a new run id (`…-r2`) instead of overwriting.
+- **The release gate shows** each ward's staged files and what is held, so the reviewer sees both before deciding (AC8).
+
+### Not done yet
+
+- **Language and legal review** of the Marathi and Hindi banned-word lists.
+- **Officials named without an honorific** and not present as Person nodes are not caught by code; the Challenger is told to flag them.

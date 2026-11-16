@@ -70,6 +70,15 @@ def _is_place(word: str) -> bool:
     return any(word.startswith(p) for p in PLACE_SET if p and "\u0900" <= p[0] <= "\u097f")
 
 
+def _is_person(match: re.Match[str], kept: set[str]) -> bool:
+    found = match.group("name")
+    words = [w.lower() for w in found.split()]
+    after = re.match(r"\s*([^\s,.;:]+)", match.string[match.end() :])
+    following = after.group(1).lower() if after else ""
+    # not a person: a phrase, a kept office holder, or a landmark
+    return not (words[0] in NOT_NAMES or found.lower() in kept or any(_is_place(w) for w in (*words, following)))
+
+
 def redact(text: str, keep: Iterable[str] = ()) -> str:
     kept = {k.lower() for k in keep}
     text = EMAIL.sub("[email]", text)
@@ -77,13 +86,13 @@ def redact(text: str, keep: Iterable[str] = ()) -> str:
     text = HOUSE.sub("[address]", text)
 
     def name(match: re.Match[str]) -> str:
-        found = match.group("name")
-        words = [w.lower() for w in found.split()]
-        after = re.match(r"\s*([^\s,.;:]+)", match.string[match.end() :])
-        following = after.group(1).lower() if after else ""
-        if words[0] in NOT_NAMES or found.lower() in kept or any(_is_place(w) for w in (*words, following)):
-            return match.group(0)  # not a person: a phrase, a kept office holder, or a landmark
-        return match.group("lead") + "[name]"
+        return match.group("lead") + "[name]" if _is_person(match, kept) else match.group(0)
 
     text = INTRODUCED.sub(name, text)
     return HONORIFIC.sub(name, text)
+
+
+def honorific_names(text: str, keep: Iterable[str] = ()) -> list[str]:
+    """People named after an honorific (Shri, Smt, Mr, श्री …), other than landmarks and kept names."""
+    kept = {k.lower() for k in keep}
+    return [m.group(0).strip() for m in HONORIFIC.finditer(text) if _is_person(m, kept)]

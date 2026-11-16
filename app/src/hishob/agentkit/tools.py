@@ -66,7 +66,16 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
         "input_schema": {"type": "object", "properties": {"fact_id": {"type": "string"}}, "required": ["fact_id"]},
     },
 ]
+WARD_SUMMARY: dict[str, Any] = {
+    "type": "custom",
+    "name": "ward_summary",
+    "description": "For a ward code such as K/W: assets, works, tenders, estimated cost and what is overdue.",
+    "input_schema": {"type": "object", "properties": {"ward": {"type": "string"}}, "required": ["ward"]},
+}
+# The audit lead (SPEC-011) reads the same views, plus the ward summary; it has no use for a point lookup.
+AUDIT_TOOL_DEFINITIONS = [WARD_SUMMARY] + [t for t in TOOL_DEFINITIONS if t["name"] != "locate"]
 READ_ONLY_TOOLS = {t["name"] for t in TOOL_DEFINITIONS}
+AUDIT_TOOLS = {t["name"] for t in AUDIT_TOOL_DEFINITIONS}
 
 
 def _trim(value: Any) -> Any:
@@ -92,6 +101,8 @@ class ApiTools:
             response = self.http.get("/point", params={"lat": args["lat"], "lon": args["lon"]}, headers=self.headers)
         elif name == "get_fact":
             response = self.http.get(f"/facts/{args['fact_id']}", headers=self.headers)
+        elif name == "ward_summary":
+            response = self.http.get("/views/ward_summary", params={"id": args["ward"]}, headers=self.headers)
         elif name in {"trace_money", "work_status", "gaps_for"}:
             node = args.get("node_id") or args.get("work_id")
             response = self.http.get(f"/views/{name}", params={"id": node}, headers=self.headers)

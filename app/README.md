@@ -12,7 +12,8 @@ The implementation of [Aamcha Hishob](../mumbai-civic-platform/README.md), built
 | [SPEC-006](../aamcha-hishob-specs/specs/SPEC-006-graph-projection-and-views.md) Graph projection and named views | 6 of 7 acceptance criteria pass; the Neptune run waits for an instance | Projects the ledger into Neo4j over Bolt with per-property provenance and fact history; five named views (`trace_money`, `who_is_responsible`, `work_status`, `ward_summary`, `gaps_for`) that list missing records as gaps |
 | [SPEC-007](../aamcha-hishob-specs/specs/SPEC-007-query-api.md) Query API, access tiers and citation check | All 9 acceptance criteria pass; awaiting review | HTTP API for places, points, named views, facts, source pages and answer checking; every request under one tier; results filtered by tier and given quotes and fetch dates; citation check for amounts, dates, identifiers and names in English, Marathi and Hindi; request log without personal data; rate limit for the public. [OpenAPI document](api/openapi.json) |
 | [SPEC-008](../aamcha-hishob-specs/specs/SPEC-008-citizen-desk.md) Citizen desk | All 8 acceptance criteria pass, plus a live run; awaiting review | One agent answers a resident in Marathi, Hindi or English through the API: redaction first, read-only tools, every reply checked in code (citations, language, no private names, liability date), one rewrite, then a fallback built in code. First live answer in Marathi cost $0.05 |
-| [SPEC-009](../aamcha-hishob-specs/specs/SPEC-009-workflow-engine.md) Workflow engine | All 7 acceptance criteria pass with stubbed desks; no live run yet | LangGraph W1 checkpointed to Postgres: intake, a review gate when too many facts are held, one audit per ward in parallel, a release gate only a reviewer can answer (with a recorded reason), then publishing that is safe to repeat. Started from the command line or a queue. The real audit step waits for SPEC-011 |
+| [SPEC-009](../aamcha-hishob-specs/specs/SPEC-009-workflow-engine.md) Workflow engine | All 7 acceptance criteria pass with stubbed desks; no live run of the whole workflow yet | LangGraph W1 checkpointed to Postgres: intake, a review gate when too many facts are held, one audit per ward in parallel, a release gate only a reviewer can answer (with a recorded reason), then publishing that is safe to repeat. Started from the command line or a queue. The audit step is the SPEC-011 desk |
+| [SPEC-011](../aamcha-hishob-specs/specs/SPEC-011-audit-desk-and-release.md) Audit desk | All 8 acceptance criteria pass with scripted agents against the real API | The audit lead reads the graph as a reviewer and writes a ward brief, case files, drafts and a gaps file. A Challenger reviews every case; code places cases by its verdict, checks every figure against the cited fact, bans conclusion words in three languages and names other than posts, asks the lead to fix problems once, then holds what still fails |
 | [SPEC-005](../aamcha-hishob-specs/specs/SPEC-005-intake-desk.md) Intake desk | All 8 acceptance criteria pass (one only in the live test); awaiting review | Agent definitions in `agents/`, applied to a Claude account; intake sessions that read archived documents with extractor, verifier and resolver agents, then hand the facts to the loader and record the run. First live run: 3 documents read for $1.63 |
 | [SPEC-002](../aamcha-hishob-specs/specs/SPEC-002-ontology-and-schema.md) Ontology, shapes and generated schema | All 6 acceptance criteria pass; awaiting review | Mumbai Civic Ontology in Turtle (39 node labels, 32 relationship types, English and draft Marathi labels); SHACL shapes; generated record schema, whitelist and [reference page](ontology/REFERENCE.md); validators the loader will use |
 
@@ -47,7 +48,8 @@ uv run hishob api openapi               # regenerate api/openapi.json after chan
 uv run hishob ask "एस. व्ही. रोडवरील खड्डा कोण दुरुस्त करणार?" --api http://127.0.0.1:8000
 uv run hishob agents apply              # create or update the agents in the Claude account
 uv run hishob intake run <sha256> [<sha256> ...] --cap-usd 5
-uv run hishob workflow run t1 --hash <sha256> --ward K/W   # W1 to the release gate (audit step needs SPEC-011)
+uv run hishob audit run K/W --api http://127.0.0.1:8000 --cap-usd 10   # needs HISHOB_TOKEN_SECRET
+uv run hishob workflow run t1 --hash <sha256> --ward K/W   # W1 to the release gate; set HISHOB_API_URL
 uv run hishob workflow status t1
 uv run hishob workflow resume t1 approve --reason "checked the brief" --token <reviewer token>
 uv run hishob ontology build            # after editing ontology/*.ttl
@@ -65,6 +67,7 @@ By default documents are stored under `./var/` and events appended to `./var/eve
 | `HISHOB_EVENTS`, `HISHOB_EVENTS_QUEUE_URL` | `log` or `sqs`, and the queue | `log` |
 | `HISHOB_FETCH_DELAY_S` | Seconds between requests to one host | `5` |
 | `HISHOB_TOKEN_SECRET` | Secret that signs access-tier tokens (API and `workflow resume`) | none: everyone is public |
+| `HISHOB_API_URL` | Query API the workflow's audit step reads through | none |
 | `HISHOB_PUBLIC_BUCKET` | Where released outputs are published when `HISHOB_STORAGE=s3` (locally: `var/public/`) | none |
 
 The archive bucket must have versioning and object lock. Production buckets come from Terraform (SPEC-013); `hishob.archive.storage.create_archive_bucket` does the same for tests.
