@@ -1,0 +1,105 @@
+{
+ "version": 0.6,
+ "generator": "test fixture",
+ "osm3s": {
+  "copyright": "TEST FIXTURE - invented shapes, not real boundaries"
+ },
+ "elements": [
+  {
+   "type": "way",
+   "id": 1001,
+   "tags": {
+    "name": "S. V. Road",
+    "highway": "secondary",
+    "fixture": "TEST FIXTURE - invented shapes, not real boundaries",
+    "name:mr": "एस. व्ही. रोड"
+   },
+   "geometry": [
+    {
+     "lat": 19.1,
+     "lon": 72.835
+    },
+    {
+     "lat": 19.13,
+     "lon": 72.836
+    }
+   ]
+  },
+  {
+   "type": "way",
+   "id": 1004,
+   "tags": {
+    "name": "S. V. Road",
+    "highway": "secondary",
+    "fixture": "TEST FIXTURE - invented shapes, not real boundaries",
+    "name:mr": "एस. व्ही. रोड"
+   },
+   "geometry": [
+    {
+     "lat": 19.13,
+     "lon": 72.836
+    },
+    {
+     "lat": 19.14,
+     "lon": 72.837
+    }
+   ]
+  },
+  {
+   "type": "way",
+   "id": 1002,
+   "tags": {
+    "name": "Juhu Tara Road",
+    "highway": "secondary",
+    "fixture": "TEST FIXTURE - invented shapes, not real boundaries",
+    "name:mr": "जुहू तारा रोड"
+   },
+   "geometry": [
+    {
+     "lat": 19.09,
+     "lon": 72.826
+    },
+    {
+     "lat": 19.11,
+     "lon": 72.828
+    }
+   ]
+  },
+  {
+   "type": "way",
+   "id": 1003,
+   "tags": {
+    "name": "Station Road",
+    "highway": "secondary",
+    "fixture": "TEST FIXTURE - invented shapes, not real boundaries"
+   },
+   "geometry": [
+    {
+     "lat": 19.12,
+     "lon": 72.82
+    },
+    {
+     "lat": 19.12,
+     "lon": 72.83
+    }
+   ]
+  },
+  {
+   "type": "way",
+   "id": 1005,
+   "tags": {
+    "highway": "residential"
+   },
+   "geometry": [
+    {
+     "lat": 19.1,
+     "lon": 72.81
+    },
+    {
+     "lat": 19.101,
+     "lon": 72.811
+    }
+   ]
+  }
+ ]
+}

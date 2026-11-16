@@ -59,6 +59,26 @@ def main(argv: list[str] | None = None) -> int:
     load.add_argument("--extractor", required=True, help="agent id and version, e.g. doc-extractor@3")
     load.add_argument("--ontology-version", help="ontology version the facts were extracted under")
 
+    place = groups.add_parser("place").add_subparsers(dest="command", required=True)
+    wards = place.add_parser("import-wards", help="import ward boundaries from GeoJSON (SPEC-004)")
+    wards.add_argument("path", type=Path)
+    wards.add_argument("--kind", choices=["admin", "electoral"], required=True)
+    wards.add_argument("--name-property", required=True, help="feature property holding the ward code or number")
+    wards.add_argument("--publisher", required=True)
+    wards.add_argument("--licence", required=True)
+    wards.add_argument("--batch", required=True)
+    roads = place.add_parser("import-roads", help="import named roads from an OpenStreetMap export (Overpass JSON)")
+    roads.add_argument("path", type=Path)
+    roads.add_argument("--publisher", default="openstreetmap")
+    roads.add_argument("--licence", default="ODbL-1.0")
+    roads.add_argument("--batch", required=True)
+    place.add_parser("build", help="rebuild the geo tables from the ledger")
+    find = place.add_parser("find", help="find a place by name")
+    find.add_argument("text")
+    at = place.add_parser("at", help="what is at a point")
+    at.add_argument("lat", type=float)
+    at.add_argument("lon", type=float)
+
     agents = groups.add_parser("agents").add_subparsers(dest="command", required=True)
     agents.add_parser("apply", help="create or update the agents and environment in the Claude account")
     intake = groups.add_parser("intake").add_subparsers(dest="command", required=True)
@@ -88,6 +108,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     store = build_archive(settings)
+    if args.group == "place":
+        return _place(args, store)
     if args.group == "intake":
         from dataclasses import asdict
 
@@ -137,6 +159,63 @@ def main(argv: list[str] | None = None) -> int:
             indent=2,
         )
     )
+    return 0
+
+
+def _place(args: argparse.Namespace, store: Archive) -> int:
+    from dataclasses import asdict
+
+    from hishob.ledger import Loader
+    from hishob.place import geo
+    from hishob.place.importer import import_roads, import_wards
+
+    conn = store.registry.conn
+    loader = Loader(conn, store, store.data)
+    if args.command == "import-wards":
+        result = import_wards(
+            store,
+            loader,
+            args.path,
+            kind=args.kind,
+            name_property=args.name_property,
+            publisher=args.publisher,
+            licence=args.licence,
+            batch_id=args.batch,
+        )
+        print(
+            json.dumps(
+                {
+                    "features": result.features,
+                    "skipped": result.skipped,
+                    "accepted": result.report.accepted,
+                    "held": result.report.held,
+                    "geo": geo.build(conn),
+                },
+                ensure_ascii=False,
+            )
+        )
+    elif args.command == "import-roads":
+        result = import_roads(
+            store, loader, args.path, publisher=args.publisher, licence=args.licence, batch_id=args.batch
+        )
+        print(
+            json.dumps(
+                {
+                    "features": result.features,
+                    "skipped": result.skipped,
+                    "accepted": result.report.accepted,
+                    "held": result.report.held,
+                    "geo": geo.build(conn),
+                },
+                ensure_ascii=False,
+            )
+        )
+    elif args.command == "build":
+        print(json.dumps(geo.build(conn)))
+    elif args.command == "find":
+        print(json.dumps([asdict(m) for m in geo.find_place(conn, args.text)], ensure_ascii=False, indent=2))
+    else:
+        print(json.dumps(asdict(geo.at_point(conn, args.lat, args.lon)), ensure_ascii=False, indent=2))
     return 0
 
 

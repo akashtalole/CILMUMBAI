@@ -14,7 +14,7 @@
 <https://akashtalole.github.io/CILMUMBAI/ontology/mco> a owl:Ontology ;
     rdfs:label "Mumbai Civic Ontology"@en , "मुंबई नागरी ज्ञानरचना"@mr ;
     dcterms:description "Classes and relationships for a sourced knowledge graph of Mumbai's civic spending and works."@en ;
-    owl:versionInfo "0.1.0" .
+    owl:versionInfo "0.2.0" .
 
 # Annotation properties the generator reads.
 mco:edgeType   a owl:AnnotationProperty ; rdfs:comment "Name of the relationship in the property graph, e.g. FOR_WORK." .
@@ -61,3 +61,5 @@ mco:name a owl:DatatypeProperty ; rdfs:range xsd:string ; mco:jsonKey "name" ; m
     rdfs:label "name"@en , "नाव"@mr ; rdfs:comment "Name as written in the source, in its original script."@en .
 mco:nameEn a owl:DatatypeProperty ; rdfs:range xsd:string ; mco:jsonKey "name_en" ; mco:propertyOf mco:Node ;
     rdfs:label "name in English"@en , "इंग्रजी नाव"@mr .
+mco:nameMr a owl:DatatypeProperty ; rdfs:range xsd:string ; mco:jsonKey "name_mr" ; mco:propertyOf mco:Node ;
+    rdfs:label "name in Marathi"@en , "मराठी नाव"@mr ; rdfs:comment "Added in 0.2.0."@en .

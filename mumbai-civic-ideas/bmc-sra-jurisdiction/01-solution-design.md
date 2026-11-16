@@ -144,7 +144,7 @@ None of these was tested for this plan. Confirm each in a data spike.
 | DCPR 2034 text and amendments | Regulation and clauses | Published |
 | UDD directions and government resolutions | Directions | State resolutions portal; the letters themselves may need RTI |
 | Commissioner's and SRA's letters | Positions | Press reports now; RTI for the text |
-| Slum declarations and SRA slum mapping | Plot status claims | Partly published |
+| Slum declarations and SRA slum mapping, including the SRA GIS portal at umd.nic.in/sra (slum areas by ward, cluster and hut id) | Plot status claims, with the map layer as evidence | Partly published; the GIS portal is interactive and needs SRA's agreement for a data export |
 | Development Plan 2034 sheets | Reservations, open space | Published maps |
 | Bombay High Court orders | Court orders on jurisdiction and individual schemes | Public |
 | BMC budget documents | Premium and development charge revenue | Published |

@@ -1,0 +1,73 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "ward": "Ward 63",
+    "fixture": "TEST FIXTURE - invented shapes, not real boundaries"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       72.8,
+       19.08
+      ],
+      [
+       72.84,
+       19.08
+      ],
+      [
+       72.84,
+       19.115
+      ],
+      [
+       72.8,
+       19.115
+      ],
+      [
+       72.8,
+       19.08
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "ward": "Ward 64",
+    "fixture": "TEST FIXTURE - invented shapes, not real boundaries"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       72.8,
+       19.115
+      ],
+      [
+       72.84,
+       19.115
+      ],
+      [
+       72.84,
+       19.15
+      ],
+      [
+       72.8,
+       19.15
+      ],
+      [
+       72.8,
+       19.115
+      ]
+     ]
+    ]
+   }
+  }
+ ]
+}

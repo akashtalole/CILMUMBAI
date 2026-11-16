@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Draft |
+| Status | In progress: AC1 to AC5 pass; AC6 (field test by someone who knows the ward) and K/West's real roads are pending |
 | Milestone | M0 |
 | Owner role | Data engineer |
 | Depends on | SPEC-002, SPEC-003 |
@@ -70,23 +70,38 @@ Plots and survey numbers (SPEC-027). Other wards beyond the demo ward (M2).
 
 ## 9. Design notes
 
-- Transliteration both ways between Devanagari and Latin for matching; trigram similarity in Postgres.
+- Names are matched on a normalised form (lower case, punctuation removed, runs of single letters joined, so "S. V. Road" and "SV road" agree) and on a Latin key made by transliterating Devanagari, so "अंधेरी" also matches "Andheri". Trigram similarity in Postgres ranks the candidates.
 - Record the OpenStreetMap extract date as the source's fetched time and licence as ODbL.
+
+### Decisions made while building (16 Nov 2026)
+
+- **Sources.** Administrative wards: DataMeet's `Municipal_Spatial_Data/Mumbai/BMC_Wards.geojson` (24 wards; licence not stated in the files reached, to confirm). Roads: an OpenStreetMap export in Overpass JSON. Electoral wards: no reachable source yet; any GeoJSON with a ward number imports.
+- **Files are archived first.** Each source file goes into the archive (SPEC-001); its places become ledger facts citing it, with the feature's name as the quote, and pass the loader's checks (SPEC-003). The geo tables are built from the ledger and can be rebuilt.
+- **Tier.** Community-digitised boundaries and OpenStreetMap are `reported`, not `official`.
+- **Ontology 0.2.0.** Adds `name_mr` on every node, an `Alias` node and an `ALIAS_OF` relationship, so a reviewer's confirmed alias is a fact like any other (R6).
+- **What could not be fetched here.** The build environment's connections to Overpass and Geofabrik are refused, so K/West's roads are not loaded yet. `app/src/hishob/place/README.md` gives the export query to run in a browser.
 
 ## 10. Tasks
 
-| Id | Task | Size | Depends on | Verifies |
-|---|---|---|---|---|
-| T1 | Import ward boundaries as facts | S | SPEC-003/T6 | AC1 |
-| T2 | Import road segments from an OpenStreetMap extract | M | T1 | AC1 |
-| T3 | Geo tables built from the ledger | S | T2 | AC1 |
-| T4 | `find_place` with transliteration | M | T3 | AC2 |
-| T5 | `at_point` | S | T3 | AC3, AC4 |
-| T6 | Alias confirmation path | S | T4 | AC5 |
-| T7 | Field test with twenty points | S | T5 | AC6 |
+| Id | Task | Size | Depends on | Verifies | State |
+|---|---|---|---|---|---|
+| T1 | Import ward boundaries as facts | S | SPEC-003/T6 | AC1 | Done (real: 24 wards) |
+| T2 | Import road segments from an OpenStreetMap extract | M | T1 | AC1 | Done (fixture; real roads pending) |
+| T3 | Geo tables built from the ledger | S | T2 | AC1 | Done |
+| T4 | `find_place` with transliteration | M | T3 | AC2 | Done |
+| T5 | `at_point` | S | T3 | AC3, AC4 | Done |
+| T6 | Alias confirmation path | S | T4 | AC5 | Done |
+| T7 | Field test with twenty points | S | T5 | AC6 | Pending: needs a person |
 
 ## 11. Open questions
 
 | Question | Owner | Assumption until answered |
 |---|---|---|
 | Source and licence for electoral ward boundaries | Data engineer | OpenCity file, licence to confirm |
+
+## Change log
+
+| Date | Change |
+|---|---|
+| 16 Nov 2026 | Implemented in `app/src/hishob/place/` with migration `005_geo.sql`; tests in `app/tests/integration/test_spec004_place.py`. Ontology 0.2.0 adds `name_mr`, `Alias` and `ALIAS_OF`. Ward lookups include points on a boundary (a point exactly between two wards still gets one). Loading guide: `app/src/hishob/place/README.md`. |
+| 16 Nov 2026 | Real data: DataMeet's 24 administrative wards loaded, all quotes matched. The file writes "K/W" as `K\/W`; the importer now quotes names exactly as the file spells them. Seven known places resolved to the right ward (Juhu beach K/W, MIDC Andheri East K/E, Gateway of India A, Bandra Bandstand H/W, Borivali station R/C, Kurla L, Juhu–Vile Parle West K/W). |

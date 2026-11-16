@@ -10,6 +10,7 @@ import pytest
 
 from hishob.archive import Archive
 from hishob.ledger import BatchAlreadyLoadedError, Loader
+from hishob.schema.model import read_version
 from tests.conftest import FIXED_NOW, FIXTURES
 
 pytestmark = pytest.mark.integration
@@ -190,7 +191,7 @@ def test_spec003_ac6_every_ledger_record_carries_full_provenance(loader: Loader)
     for row in rows:
         assert required <= row.keys()
         assert ("label" in row and "id" in row) or ("type" in row and "from" in row and "to" in row)
-        assert row["extractor"] == "doc-extractor@1" and row["ontology_version"] == "0.1.0"
+        assert row["extractor"] == "doc-extractor@1" and row["ontology_version"] == read_version()
 
 
 # AC7 · R7 -------------------------------------------------------------------------------------------------------

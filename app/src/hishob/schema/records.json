@@ -47,6 +47,7 @@
         "type": {
           "enum": [
             "ABOUT",
+            "ALIAS_OF",
             "AMENDS",
             "COVERS",
             "DIRECTOR_OF",
@@ -113,6 +114,7 @@
           "enum": [
             "AdminWard",
             "Agency",
+            "Alias",
             "Allocation",
             "Asset",
             "Award",
@@ -238,5 +240,5 @@
     }
   ],
   "title": "Extracted record",
-  "x-ontology-version": "0.1.0"
+  "x-ontology-version": "0.2.0"
 }

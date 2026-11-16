@@ -1,0 +1,107 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "K\/W",
+    "fixture": "TEST FIXTURE - invented shapes, not real boundaries"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       72.8,
+       19.08
+      ],
+      [
+       72.84,
+       19.08
+      ],
+      [
+       72.84,
+       19.15
+      ],
+      [
+       72.8,
+       19.15
+      ],
+      [
+       72.8,
+       19.08
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "K\/E",
+    "fixture": "TEST FIXTURE - invented shapes, not real boundaries"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       72.84,
+       19.08
+      ],
+      [
+       72.88,
+       19.08
+      ],
+      [
+       72.88,
+       19.15
+      ],
+      [
+       72.84,
+       19.15
+      ],
+      [
+       72.84,
+       19.08
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "",
+    "fixture": "TEST FIXTURE - invented shapes, not real boundaries"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       72.88,
+       19.08
+      ],
+      [
+       72.9,
+       19.08
+      ],
+      [
+       72.9,
+       19.15
+      ],
+      [
+       72.88,
+       19.15
+      ],
+      [
+       72.88,
+       19.08
+      ]
+     ]
+    ]
+   }
+  }
+ ]
+}

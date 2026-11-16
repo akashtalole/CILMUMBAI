@@ -31,3 +31,9 @@ mco:localityWithin a owl:ObjectProperty ; mco:edgeType "WITHIN" ; mco:edgeFrom m
     rdfs:label "within"@en , "च्या आत"@mr .
 mco:locatedIn a owl:ObjectProperty ; mco:edgeType "LOCATED_IN" ; mco:edgeFrom mco:Asset ; mco:edgeTo mco:AdminWard ;
     rdfs:label "located in"@en , "मध्ये स्थित"@mr .
+
+mco:Alias a owl:Class ; mco:module "place" ; rdfs:subClassOf mco:Node ;
+    rdfs:label "Alias"@en , "पर्यायी नाव"@mr ;
+    rdfs:comment "Another name people use for a place, confirmed by a reviewer or found in a source. Added in 0.2.0."@en .
+mco:aliasOf a owl:ObjectProperty ; mco:edgeType "ALIAS_OF" ; mco:edgeFrom mco:Alias ; mco:edgeTo mco:Node ;
+    rdfs:label "alias of"@en , "चे पर्यायी नाव"@mr .
