@@ -9,3 +9,14 @@ Plans and starter code for the Claude Impact Lab Mumbai hackathon (21 November 2
 | [mumbai-civic-ideas/](mumbai-civic-ideas/) | Forty-one ideas rated for value and feasibility, including a full plan for the BMC and SRA redevelopment dispute. |
 
 Status: design documents, plus starter code that has been syntax-checked and dry-run but not run against the Claude API or a real database.
+
+## Documentation site
+
+The same documents are published as a website with MkDocs (Material theme) at <https://akashtalole.github.io/CILMUMBAI/>.
+
+```sh
+pip install -r requirements-docs.txt
+mkdocs serve            # preview at http://127.0.0.1:8000
+```
+
+`docs/` holds symlinks to the folders above, so files stay where they are. A GitHub Actions workflow builds the site in strict mode on pull requests and, on every push to `main`, publishes it to the `gh-pages` branch. To turn the site on once: **Settings → Pages → Build and deployment → Deploy from a branch → `gh-pages` / root**.

@@ -1,0 +1,149 @@
+site_name: Aamcha Hishob
+site_description: Plans, architecture and starter code for a civic accountability platform for Mumbai, built for Claude Impact Lab Mumbai.
+site_url: https://akashtalole.github.io/CILMUMBAI/
+repo_url: https://github.com/akashtalole/CILMUMBAI
+repo_name: akashtalole/CILMUMBAI
+edit_uri: edit/main/
+
+# docs/ holds symlinks to the folders at the repository root, so the files
+# stay where they are and relative links between them keep working.
+docs_dir: docs
+
+exclude_docs: |
+  __pycache__/
+  *.pyc
+  .orchestrator.sqlite*
+  .entities.jsonl
+  data/
+
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: amber
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: amber
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search
+
+hooks:
+  - docs-hooks/agent_config.py
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+nav:
+  - Home: index.md
+  - Platform:
+      - Aamcha Hishob: mumbai-civic-platform/README.md
+      - Data catalogue: mumbai-civic-platform/01-data-catalogue.md
+      - Ontology and graphs: mumbai-civic-platform/02-ontology-and-graphs.md
+      - Semantic and search layer: mumbai-civic-platform/03-semantic-and-search-layer.md
+      - Intelligence layer: mumbai-civic-platform/04-intelligence-layer.md
+      - Implementation plan: mumbai-civic-platform/05-implementation-plan.md
+      - User personas: mumbai-civic-platform/06-user-personas.md
+  - Architecture:
+      - Overview: mumbai-civic-platform/architecture/README.md
+      - Design on AWS: mumbai-civic-platform/architecture/design.md
+      - Decision records:
+          - 0001 Facts ledger as system of record: mumbai-civic-platform/architecture/adr/0001-facts-ledger-as-system-of-record.md
+          - 0002 Claude access on AWS: mumbai-civic-platform/architecture/adr/0002-claude-access-on-aws.md
+          - 0003 Agent runtime: mumbai-civic-platform/architecture/adr/0003-agent-runtime.md
+          - 0004 Graph database: mumbai-civic-platform/architecture/adr/0004-graph-database.md
+          - 0005 Ontology and RDF: mumbai-civic-platform/architecture/adr/0005-ontology-and-rdf.md
+          - 0006 Relational and spatial store: mumbai-civic-platform/architecture/adr/0006-relational-and-spatial-store.md
+          - 0007 Search: mumbai-civic-platform/architecture/adr/0007-search.md
+          - 0008 Embedding model: mumbai-civic-platform/architecture/adr/0008-embedding-model.md
+          - 0009 Document parsing and OCR: mumbai-civic-platform/architecture/adr/0009-document-parsing-and-ocr.md
+          - 0010 Workflow orchestration: mumbai-civic-platform/architecture/adr/0010-workflow-orchestration.md
+          - 0011 Graph tools for agents: mumbai-civic-platform/architecture/adr/0011-graph-tools-for-agents.md
+          - 0012 Compute: mumbai-civic-platform/architecture/adr/0012-compute.md
+          - 0013 Eventing: mumbai-civic-platform/architecture/adr/0013-eventing.md
+          - 0014 API, identity and access: mumbai-civic-platform/architecture/adr/0014-api-identity-and-access.md
+          - 0015 Front end and maps: mumbai-civic-platform/architecture/adr/0015-front-end-and-maps.md
+          - 0016 Resident channels: mumbai-civic-platform/architecture/adr/0016-resident-channels.md
+          - 0017 Region and data residency: mumbai-civic-platform/architecture/adr/0017-region-and-data-residency.md
+          - 0018 Security and privacy: mumbai-civic-platform/architecture/adr/0018-security-and-privacy.md
+          - 0019 Observability and evaluation: mumbai-civic-platform/architecture/adr/0019-observability-and-evaluation.md
+          - 0020 Infrastructure as code: mumbai-civic-platform/architecture/adr/0020-infrastructure-as-code.md
+          - 0021 Cost posture: mumbai-civic-platform/architecture/adr/0021-cost-posture.md
+          - 0022 Backup and rebuild: mumbai-civic-platform/architecture/adr/0022-backup-and-rebuild.md
+  - First slice:
+      - Overview: mumbai-civic-graph/README.md
+      - Shared foundation: mumbai-civic-graph/00-shared-foundation.md
+      - Paisa Trail: mumbai-civic-graph/01-paisa-trail.md
+      - Vachan Tracker: mumbai-civic-graph/02-vachan-tracker.md
+      - Thekedar Graph: mumbai-civic-graph/03-thekedar-graph.md
+      - Jawabdar: mumbai-civic-graph/04-jawabdar.md
+      - Ward Lens: mumbai-civic-graph/05-ward-lens.md
+      - Prep and day plan: mumbai-civic-graph/06-prep-and-day-plan.md
+      - Tender portals: mumbai-civic-graph/07-tender-portals.md
+      - Multi-agent system: mumbai-civic-graph/08-multi-agent-system.md
+      - Starter code:
+          - Record schema: mumbai-civic-graph/managed-agents/schema.md
+          - Ingest rubric: mumbai-civic-graph/managed-agents/rubrics/ingest.md
+          - Ward audit rubric: mumbai-civic-graph/managed-agents/rubrics/ward-audit.md
+          - Agent prompts:
+              - Ingest lead: mumbai-civic-graph/managed-agents/agents/ingest-lead.md
+              - Document extractor: mumbai-civic-graph/managed-agents/agents/doc-extractor.md
+              - Fact verifier: mumbai-civic-graph/managed-agents/agents/fact-verifier.md
+              - Entity resolver: mumbai-civic-graph/managed-agents/agents/entity-resolver.md
+              - Audit lead: mumbai-civic-graph/managed-agents/agents/audit-lead.md
+              - Challenger: mumbai-civic-graph/managed-agents/agents/challenger.md
+              - Drafter: mumbai-civic-graph/managed-agents/agents/drafter.md
+              - Citizen desk: mumbai-civic-graph/managed-agents/agents/citizen-desk.md
+  - Ideas:
+      - All ideas: mumbai-civic-ideas/README.md
+      - Money: mumbai-civic-ideas/01-money.md
+      - Works: mumbai-civic-ideas/02-works.md
+      - Services: mumbai-civic-ideas/03-services.md
+      - Accountability: mumbai-civic-ideas/04-accountability.md
+      - Access and adoption: mumbai-civic-ideas/05-access-and-adoption.md
+      - BMC and SRA register:
+          - Overview: mumbai-civic-ideas/bmc-sra-jurisdiction/README.md
+          - Solution design: mumbai-civic-ideas/bmc-sra-jurisdiction/01-solution-design.md
+          - Agents and pipeline: mumbai-civic-ideas/bmc-sra-jurisdiction/02-agents-and-pipeline.md
+          - Implementation plan: mumbai-civic-ideas/bmc-sra-jurisdiction/03-implementation-plan.md
+
+validation:
+  links:
+    not_found: warn
+    anchors: warn
+    unrecognized_links: info
