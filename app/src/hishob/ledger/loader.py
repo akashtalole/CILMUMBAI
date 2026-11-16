@@ -38,6 +38,7 @@ class BatchReport:
     accepted: int = 0
     unchanged: int = 0
     superseded: int = 0
+    extended: int = 0
     corroborating: int = 0
     notes: int = 0
     held: dict[str, int] = field(default_factory=dict)
@@ -112,6 +113,7 @@ class Loader:
         self.conn.commit()
 
         current_version = wl.load()["ontology_version"]
+        self._new_in_batch: set[str] = set()
         at = self.now()
         report = BatchReport(batch_id)
         records = list(records)
@@ -181,7 +183,7 @@ class Loader:
         # 5. Decide: hold, skip as unchanged, supersede, corroborate or add
         accepted: list[dict[str, Any]] = []
         seen_ids: set[str] = set()
-        latest: dict[str, dict[str, Any]] = {}  # identity -> latest accepted entry in this batch
+        held_now: dict[str, dict[str, tuple[str, Any]]] = {}  # identity -> {property: (fact id, value)}
         for i, record in enumerate(records):
             if i in problems:
                 reasons = problems[i]
@@ -191,18 +193,18 @@ class Loader:
             if record.get("kind") == "note":
                 continue
             entry = self._ledger_entry(record, batch_id, extractor, current_version, at)
-            outcome = self._compare(entry, seen_ids, latest)
+            outcome = self._compare(entry, seen_ids, held_now)
             if outcome == "unchanged":
                 report.unchanged += 1
                 continue
             if outcome == "superseded":
                 report.superseded += 1
+            elif outcome == "extended":
+                report.extended += 1
             elif outcome == "corroborating":
                 report.corroborating += 1
             accepted.append(entry)
             seen_ids.add(entry["fact_id"])
-            if outcome != "corroborating":
-                latest[entry["identity"]] = entry
 
         report.accepted = len(accepted)
         report.notes = len(notes)
@@ -220,7 +222,7 @@ class Loader:
                 entries.append(entry)
         entries.sort(key=lambda e: (e["loaded_at"], e["batch_id"], e["_file_key"], e["seq"]))
         with self.conn.transaction():
-            self.conn.execute("TRUNCATE ledger.current, ledger.facts, ledger.batches")
+            self.conn.execute("TRUNCATE ledger.current_props, ledger.current, ledger.facts, ledger.batches")
             batches: dict[str, dict[str, Any]] = {}
             for e in entries:
                 batches.setdefault(e["batch_id"], e)
@@ -296,7 +298,9 @@ class Loader:
             "ontology_version": version,
             "batch_id": batch_id,
             "loaded_at": at.isoformat(),
-            "supersedes": None,
+            "change": "new",
+            "supersedes": [],
+            "holds": [],
         }
         if record["kind"] == "node":
             entry.update(label=record["label"], id=record["id"])
@@ -304,27 +308,62 @@ class Loader:
             entry.update(type=record["type"], **{"from": record["from"], "to": record["to"]})
         return entry
 
-    def _compare(self, entry: dict[str, Any], seen_ids: set[str], latest: dict[str, dict[str, Any]]) -> str:
+    def _compare(
+        self, entry: dict[str, Any], seen_ids: set[str], held_now: dict[str, dict[str, tuple[str, Any]]]
+    ) -> str:
+        """Classify a record against what is currently held for its identity, property by property (R7).
+
+        Sets entry["change"], entry["supersedes"] (fact ids replaced) and entry["holds"] (properties this fact now
+        holds), and updates `held_now` for later records in the batch.
+        """
         if entry["fact_id"] in seen_ids:
             return "unchanged"
         exists = self.conn.execute("SELECT 1 FROM ledger.facts WHERE fact_id = %s", (entry["fact_id"],)).fetchone()
+        self.conn.commit()
         if exists:
-            self.conn.commit()
             return "unchanged"
-        if entry["identity"] in latest:
-            current_id, current_props = latest[entry["identity"]]["fact_id"], latest[entry["identity"]]["props"]
+        identity_ = entry["identity"]
+        if identity_ not in held_now:
+            held_now[identity_] = self._held(identity_)
+        current = held_now[identity_]
+        known = bool(current) or self._identity_known(identity_)
+        props = entry["props"]
+        changed = sorted(k for k, v in props.items() if k in current and _canonical(current[k][1]) != _canonical(v))
+        added = sorted(k for k in props if k not in current)
+        if not known:
+            change = "new"
+        elif changed:
+            change = "superseded"
+        elif added:
+            change = "extended"
         else:
-            row = self.conn.execute(
-                "SELECT c.fact_id FROM ledger.current c WHERE c.identity = %s", (entry["identity"],)
-            ).fetchone()
-            self.conn.commit()
-            if row is None:
-                return "new"
-            current_id, current_props = str(row[0]), self.props_of(str(row[0]))
-        if _canonical(current_props) == _canonical(entry["props"]):
-            return "corroborating"
-        entry["supersedes"] = current_id
-        return "superseded"
+            change = "corroborating"
+        entry["change"] = change
+        entry["supersedes"] = sorted({current[k][0] for k in changed})
+        entry["holds"] = sorted(changed + added) if change != "corroborating" else []
+        for key in entry["holds"]:
+            current[key] = (entry["fact_id"], props[key])
+        if change == "new":
+            self._new_in_batch.add(identity_)
+        return change
+
+    def _held(self, identity_: str) -> dict[str, tuple[str, Any]]:
+        rows = self.conn.execute(
+            "SELECT key, fact_id, value FROM ledger.current_props WHERE identity = %s", (identity_,)
+        ).fetchall()
+        self.conn.commit()
+        return {str(k): (str(f), v) for k, f, v in rows}
+
+    def _identity_known(self, identity_: str) -> bool:
+        if identity_ in self._new_in_batch:
+            return True
+        row = self.conn.execute("SELECT 1 FROM ledger.current WHERE identity = %s", (identity_,)).fetchone()
+        self.conn.commit()
+        return row is not None
+
+    def current_properties(self, identity_: str) -> dict[str, Any]:
+        """The value currently held for each property of an identity."""
+        return {k: v for k, (_, v) in self._held(identity_).items()}
 
     def props_of(self, fid: str) -> dict[str, Any]:
         row = self.conn.execute("SELECT file_key FROM ledger.facts WHERE fact_id = %s", (fid,)).fetchone()
@@ -409,14 +448,18 @@ class Loader:
                     e["loaded_at"],
                 ),
             )
-            current = self.conn.execute(
-                "SELECT fact_id FROM ledger.current WHERE identity = %s", (e["identity"],)
-            ).fetchone()
-            if current is None or e["supersedes"] == current[0]:
+            if e["change"] == "corroborating":
+                continue
+            self.conn.execute(
+                "INSERT INTO ledger.current (identity, fact_id, label, node_id) VALUES (%s, %s, %s, %s)"
+                " ON CONFLICT (identity) DO UPDATE SET fact_id = EXCLUDED.fact_id",
+                (e["identity"], e["fact_id"], e.get("label"), e.get("id")),
+            )
+            for key in e["holds"]:
                 self.conn.execute(
-                    "INSERT INTO ledger.current (identity, fact_id, label, node_id) VALUES (%s, %s, %s, %s)"
-                    " ON CONFLICT (identity) DO UPDATE SET fact_id = EXCLUDED.fact_id",
-                    (e["identity"], e["fact_id"], e.get("label"), e.get("id")),
+                    "INSERT INTO ledger.current_props (identity, key, fact_id, value) VALUES (%s, %s, %s, %s)"
+                    " ON CONFLICT (identity, key) DO UPDATE SET fact_id = EXCLUDED.fact_id, value = EXCLUDED.value",
+                    (e["identity"], key, e["fact_id"], json.dumps(e["props"][key], ensure_ascii=False)),
                 )
 
 

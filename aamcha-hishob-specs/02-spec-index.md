@@ -110,7 +110,7 @@ web/                          static site (SPEC-020); a minimal page in SPEC-010
 | SPEC-002 | In progress | 6 | 6 |
 | SPEC-003 | In progress | 9 | 9 |
 | SPEC-004 | Draft | 6 | 0 |
-| SPEC-005 | Draft | 8 | 0 |
+| SPEC-005 | In progress | 8 | 8 |
 | SPEC-006 | Draft | 7 | 0 |
 | SPEC-007 | Draft | 9 | 0 |
 | SPEC-008 | Draft | 8 | 0 |

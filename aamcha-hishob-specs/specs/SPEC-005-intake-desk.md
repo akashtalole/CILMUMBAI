@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | In progress (started 16 Nov 2026 at the product owner's request, before the second review) |
+| Status | In progress: all acceptance criteria pass (AC5 in the live test only); awaiting second review and demo |
 | Milestone | M0 |
 | Owner role | AI engineer |
 | Depends on | SPEC-001, SPEC-002, SPEC-003 |
@@ -96,21 +96,49 @@ Scheduling and source watch (SPEC-014). Graph tools for intake agents (they get 
 
 ## 10. Tasks
 
-| Id | Task | Size | Depends on | Verifies |
-|---|---|---|---|---|
-| T1 | Move agent files to `app/agents/`; apply to a development workspace | S | | |
-| T2 | Agent definition lint (tools, network, models) in CI | S | T1 | AC3 |
-| T3 | `agentkit` session runner with recorded-event fixtures | M | | AC2 |
-| T4 | Mount archive documents, schema and entities file | S | T3, SPEC-001/T3 | AC1 |
-| T5 | Outputs download and run record | M | T3 | AC1, AC7 |
-| T6 | Hand-off to loader | S | T5, SPEC-003/T6 | AC7 |
-| T7 | Corrupt file handling and coverage report check | S | T5 | AC4 |
-| T8 | Resolver rules in prompt and rubric; fixture test | S | T1 | AC5 |
-| T9 | Scanned page path test | S | T6 | AC6 |
-| T10 | Spending cap and incomplete status | S | T3 | AC8 |
+| Id | Task | Size | Depends on | Verifies | State |
+|---|---|---|---|---|---|
+| T1 | Move agent files to `app/agents/`; apply to a development workspace | S | | | Done |
+| T2 | Agent definition lint (tools, network, models) in CI | S | T1 | AC3 | Done |
+| T3 | `agentkit` session runner with recorded-event fixtures | M | | AC2 | Done |
+| T4 | Mount archive documents, schema and entities file | S | T3, SPEC-001/T3 | AC1 | Done |
+| T5 | Outputs download and run record | M | T3 | AC1, AC7 | Done |
+| T6 | Hand-off to loader | S | T5, SPEC-003/T6 | AC7 | Done |
+| T7 | Corrupt file handling and coverage report check | S | T5 | AC4 | Done |
+| T8 | Resolver rules in prompt and rubric; fixture test | S | T1 | AC5 | Done |
+| T9 | Scanned page path test | S | T6 | AC6 | Done |
+| T10 | Spending cap and incomplete status | S | T3 | AC8 | Done |
 
 ## 11. Open questions
 
 | Question | Owner | Assumption until answered |
 |---|---|---|
 | Organisation has the current multi-agent type | AI engineer | Yes; fall back to the older coordinator type without workflows if not |
+
+## Change log
+
+| Date | Change |
+|---|---|
+| 16 Nov 2026 | Implemented in `app/src/hishob/agentkit/` and `app/agents/`. Offline tests use a scripted client (`app/tests/fakes.py`); `app/tests/live/test_spec005_live.py` runs a real session when `HISHOB_LIVE=1`. Damaged PDFs are now archived with zero pages (SPEC-001 behaviour extended) so they can be reported as not covered. |
+
+## First live run (16 November 2026)
+
+Four fixture documents: an English tender, a Marathi and English tender with a scanned page, an award notice naming one contractor two ways, and a damaged PDF. Session capped at $5.
+
+| Measure | Result |
+|---|---|
+| Status | complete |
+| Cost and time | $1.63 list cost; 351 seconds |
+| Threads | 3 Document extractor, 3 Fact verifier, 1 Entity resolver |
+| Coverage | 3 covered; the damaged PDF reported as not covered, with the reason |
+| Facts | 39 records: 26 loaded, 2 held, 11 notes |
+| Quotes | All 26 loaded facts matched their pages exactly |
+| Verifier | Rejected an invented tender built from a resolution number, and the three edges that depended on it |
+| Contractor names | "M/s Shree Ganesh Infra Pvt. Ltd." and "Shree Ganesh Infrastructure" kept apart and sent to review (AC5) |
+
+Findings to act on, each through the evaluation gate (SPEC-012) before any prompt changes:
+
+1. **The extractor splits one entity into several records**, one quote each. This exposed a loader bug: whole-record supersession dropped properties. SPEC-003/R7 now supersedes property by property; replaying this run's facts gives each tender both its reference number and its cost.
+2. **The resolver is too cautious with public bodies.** The rule written for contractors (merge only on a registration number) left three separate nodes for BMC. Public bodies and wards should match against a reference list: the place spine (SPEC-004) for wards, and a list of agencies.
+3. **Wards without codes are held.** The extractor named wards ("K/West Ward", "के पश्चिम विभाग") without the code the shapes require. With the place spine mounted as known entities, it can use the official codes.
+4. **Nothing was extracted from the scanned page.** The report says so. Reading page images is the next step for scans (ADR 0009).

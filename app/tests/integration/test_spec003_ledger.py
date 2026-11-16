@@ -196,16 +196,32 @@ def test_spec003_ac6_every_ledger_record_carries_full_provenance(loader: Loader)
 # AC7 · R7 -------------------------------------------------------------------------------------------------------
 
 
-def test_spec003_ac7_a_changed_fact_supersedes_the_earlier_one(loader: Loader) -> None:
+def test_spec003_ac7_a_changed_property_supersedes_only_what_it_changes(loader: Loader) -> None:
     load(loader, [TENDER], "b-v1")
     [first] = ledger_rows(loader)
-    revised = dict(TENDER, props={**TENDER["props"], "estimated_cost": 45000000})
+    revised = node(TENDER["id"], "Tender", "Estimated cost: Rs. 4,20,00,000", estimated_cost=45000000)
     report = load(loader, [revised], "b-v2")
     assert report.superseded == 1
     second = next(r for r in ledger_rows(loader) if r["batch_id"] == "b-v2")
-    assert second["supersedes"] == first["fact_id"]
-    current = loader.conn.execute("SELECT fact_id FROM ledger.current WHERE node_id = %s", (TENDER["id"],)).fetchone()
-    assert current == (second["fact_id"],)
+    assert second["supersedes"] == [first["fact_id"]] and second["holds"] == ["estimated_cost"]
+    identity = f"node|Tender|{TENDER['id']}"
+    held = dict(
+        loader.conn.execute("SELECT key, fact_id FROM ledger.current_props WHERE identity = %s", (identity,)).fetchall()
+    )
+    assert held == {"estimated_cost": second["fact_id"], "ref_no": first["fact_id"]}
+    assert loader.current_properties(identity) == {"estimated_cost": 45000000, "ref_no": "TEST/KW/ROADS/0001"}
+
+
+def test_spec003_ac7_records_split_by_quote_build_up_one_node(loader: Loader) -> None:
+    """What the first live intake run produced: one tender as two records, one quote each."""
+    part1 = node("tender:split", "Tender", "Tender Ref. No. TEST/KW/ROADS/0001", ref_no="TEST/KW/ROADS/0001")
+    part2 = node("tender:split", "Tender", "Estimated cost: Rs. 4,20,00,000", estimated_cost=42000000)
+    report = load(loader, [part1, part2], "b-split")
+    assert report.accepted == 2 and report.extended == 1 and report.superseded == 0
+    assert loader.current_properties("node|Tender|tender:split") == {
+        "ref_no": "TEST/KW/ROADS/0001",
+        "estimated_cost": 42000000,
+    }
 
 
 def test_spec003_ac7_replays_are_unchanged_and_corroboration_keeps_the_current_fact(loader: Loader) -> None:
@@ -274,7 +290,11 @@ def test_spec003_notes_go_to_people_not_the_ledger(loader: Loader) -> None:
 def test_spec003_index_can_be_rebuilt_from_the_ledger_alone(loader: Loader) -> None:
     load(loader, [TENDER, WORK], "b-x1")
     load(loader, [dict(TENDER, props={**TENDER["props"], "estimated_cost": 1})], "b-x2")
-    snapshot = sorted(loader.conn.execute("SELECT identity, fact_id FROM ledger.current").fetchall())
+    query = (
+        "SELECT c.identity, c.fact_id, p.key, p.fact_id FROM ledger.current c"
+        " LEFT JOIN ledger.current_props p USING (identity) ORDER BY 1, 3"
+    )
+    snapshot = loader.conn.execute(query).fetchall()
     loader.conn.commit()
     assert loader.rebuild_index() == 3
-    assert sorted(loader.conn.execute("SELECT identity, fact_id FROM ledger.current").fetchall()) == snapshot
+    assert loader.conn.execute(query).fetchall() == snapshot

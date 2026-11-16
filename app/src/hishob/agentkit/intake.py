@@ -45,12 +45,12 @@ class IntakeRun:
 def known_entities(loader: Loader) -> bytes:
     """The entities the ledger already holds, for the entity resolver. One JSON object per line."""
     rows = loader.conn.execute(
-        "SELECT node_id, label, fact_id FROM ledger.current WHERE node_id IS NOT NULL ORDER BY node_id"
+        "SELECT node_id, label, identity FROM ledger.current WHERE node_id IS NOT NULL ORDER BY node_id"
     ).fetchall()
     loader.conn.commit()
     lines = []
-    for node_id, label, fid in rows:
-        props = loader.props_of(str(fid))
+    for node_id, label, identity_ in rows:
+        props = loader.current_properties(str(identity_))
         lines.append({"id": node_id, "label": label, **{k: props[k] for k in ENTITY_PROPS if k in props}})
     if not lines:
         lines.append({"note": "no known entities yet"})

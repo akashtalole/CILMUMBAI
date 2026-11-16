@@ -31,7 +31,7 @@ When done, every batch of extracted facts passes schema validation and a quote c
 | R4 | When a record fails validation or the quote check, the loader shall write it to the batch's held file with a machine-readable reason. |
 | R5 | The loader shall append accepted records to the ledger as a new file and shall never modify an existing ledger file. |
 | R6 | Each ledger record shall carry: fact id, kind, label or type, ids, properties, source sha256, page, quote, tier, confidence, `quote_check`, extractor id and version, ontology version, batch id, loaded time. |
-| R7 | When a new record has the same identity as an existing fact but different properties, the loader shall append it with `supersedes` set to the earlier fact id. |
+| R7 | When a new record has the same identity as existing facts, the loader shall compare property by property: a property given a different value supersedes the fact that held it, a property not held before is added, and properties the record does not mention keep their earlier facts. The record is appended with `supersedes` listing the fact ids it replaces. |
 | R8 | If a batch references an edge endpoint that exists neither in the batch nor in the ledger, then the loader shall hold that edge with reason `dangling_endpoint`. |
 | R9 | The loader shall produce a batch report with counts accepted, held by reason, and superseded. |
 
@@ -45,7 +45,7 @@ When done, every batch of extracted facts passes schema validation and a quote c
 | AC4 | A record citing a page with no text layer | It is loaded | It is accepted with `quote_check = scan_unchecked` | R3 |
 | AC5 | An existing ledger | A second batch is loaded | Earlier ledger files are byte-identical to before | R5 |
 | AC6 | An accepted record | It is written | All R6 fields are present | R6 |
-| AC7 | A fact already in the ledger | A record with the same id and a changed amount is loaded | It is appended with `supersedes` pointing to the earlier fact | R7 |
+| AC7 | A tender in the ledger with a reference number and an amount | A record with the same id and only a changed amount is loaded | It is appended with `supersedes` listing the earlier fact; the current amount comes from the new fact and the reference number still from the earlier one | R7 |
 | AC8 | An edge to a node id not present anywhere | It is loaded | It is held with reason `dangling_endpoint` | R8 |
 | AC9 | A batch of 100 records with 5 bad quotes and 2 unknown labels | It is loaded | The report shows 93 accepted, 5 `quote_not_found`, 2 `unknown_label` | R9 |
 
@@ -65,8 +65,10 @@ Identity and fact ids:
 
 - Identity of a node is `node|<label>|<id>`; of an edge `edge|<type>|<from>|<to>`.
 - Fact id is a hash of identity, source, page and the canonical properties. Loading the same record again is a no-op counted as `unchanged`.
-- Same identity, different properties: appended with `supersedes` set to the current fact (R7).
-- Same identity and properties from another source or page: appended as corroboration, with no `supersedes`; the current fact does not change.
+- Same identity, a property with a new value: appended with `supersedes` listing the facts that held the changed properties (R7). Counted as `superseded`.
+- Same identity, only properties not held before: appended and counted as `extended`. This is how one tender split across several records (one quote each) builds up.
+- Same identity and the same values from another source or page: appended as corroboration; nothing current changes.
+- The index keeps, for every identity and property, the fact currently holding it (`ledger.current_props`), so every property can be cited to its own source.
 
 The loader keeps an index of facts in Postgres (schema `ledger`) for supersession and endpoint checks. The index is derived from the ledger and can be rebuilt from it.
 
@@ -117,4 +119,5 @@ Writing to the graph and indexes (SPEC-006). Review screen for held facts (SPEC-
 
 | Date | Change |
 |---|---|
+| 16 Nov 2026 | R7 and AC7 changed to property-level supersession after the first live intake run (SPEC-005): the extractor split one tender into two records, each with one quote, and whole-record supersession dropped the reference number from the current state. |
 | 16 Nov 2026 | Implemented in `app/src/hishob/ledger/` with the index in migration `002_ledger.sql`; tests in `app/tests/integration/test_spec003_*.py` and `app/tests/unit/test_quotes.py`. Added hold reasons, the identity and fact-id rules, notes handling and an index rebuild (see section 5). Measured: 10,000 single-node records load in about 21 seconds locally. Ledger records carry a `seq` field giving their order within a file, used by the rebuild. |
