@@ -13,7 +13,7 @@ The implementation of [Aamcha Hishob](../mumbai-civic-platform/README.md), built
 
 ## Set up
 
-Needs Python 3.12, [uv](https://docs.astral.sh/uv/) and Postgres 16.
+Needs Python 3.12, [uv](https://docs.astral.sh/uv/), and Postgres 16 with PostGIS 3 (the place spine, SPEC-004, needs it). On Ubuntu: `apt-get install postgresql-16-postgis-3`. In the project's Claude Code cloud environment a setup script installs it; if Postgres is not running in a session, start it with `service postgresql start`.
 
 ```sh
 cd app
@@ -53,6 +53,7 @@ The archive bucket must have versioning and object lock. Production buckets come
 
 ```sh
 createdb hishob_test   # once
+psql -d hishob_test -c 'CREATE EXTENSION IF NOT EXISTS postgis' -c 'CREATE EXTENSION IF NOT EXISTS pg_trgm'
 export HISHOB_TEST_DATABASE_URL=postgresql://postgres:hishob@localhost:5432/hishob_test
 uv run ruff check src tests && uv run ruff format --check src tests
 uv run mypy

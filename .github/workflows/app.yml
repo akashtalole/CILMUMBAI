@@ -23,7 +23,7 @@ jobs:
         working-directory: app
     services:
       postgres:
-        image: postgres:16
+        image: postgis/postgis:16-3.4
         env:
           POSTGRES_PASSWORD: hishob
           POSTGRES_DB: hishob_test
