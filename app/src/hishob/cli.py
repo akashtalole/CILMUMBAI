@@ -87,6 +87,10 @@ def main(argv: list[str] | None = None) -> int:
     view.add_argument("node_id", help="node id, or a ward code for ward_summary")
     view.add_argument("--issue", help="issue code for who_is_responsible, e.g. pothole")
 
+    api = groups.add_parser("api").add_subparsers(dest="command", required=True)
+    openapi = api.add_parser("openapi", help="write the OpenAPI document to api/openapi.json (SPEC-007)")
+    openapi.add_argument("--check", action="store_true", help="fail if the committed document is out of date")
+
     agents = groups.add_parser("agents").add_subparsers(dest="command", required=True)
     agents.add_parser("apply", help="create or update the agents and environment in the Claude account")
     intake = groups.add_parser("intake").add_subparsers(dest="command", required=True)
@@ -101,6 +105,21 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.group == "ontology":
         return _ontology_build(check=args.check)
+    if args.group == "api":
+        from hishob.api.app import openapi_document
+
+        target = Path(__file__).resolve().parents[2] / "api" / "openapi.json"
+        document = openapi_document()
+        if args.check:
+            if not target.exists() or target.read_text(encoding="utf-8") != document:
+                print("api/openapi.json is out of date; run: uv run hishob api openapi", file=sys.stderr)
+                return 1
+            print("api/openapi.json is up to date")
+            return 0
+        target.parent.mkdir(exist_ok=True)
+        target.write_text(document, encoding="utf-8")
+        print(f"wrote {target}")
+        return 0
     if args.group == "agents":
         from hishob.agentkit.client import make_client
         from hishob.agentkit.provision import apply

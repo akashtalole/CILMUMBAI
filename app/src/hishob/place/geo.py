@@ -49,19 +49,29 @@ def build(conn: Conn) -> dict[str, int]:
     with conn.transaction():
         conn.execute("TRUNCATE geo.admin_wards, geo.electoral_wards, geo.road_segments, geo.aliases")
         names: list[tuple[str, str, str, str]] = []
+        skipped = 0  # places known only by name (e.g. a road named in a tender) have no geometry to map
         for node_id, p in _current(conn, "AdminWard"):
+            if not p.get("geometry_wkt"):
+                skipped += 1
+                continue
             conn.execute(
                 "INSERT INTO geo.admin_wards VALUES (%s, %s, %s, ST_Multi(ST_GeomFromText(%s, 4326)))",
                 (node_id, p.get("code"), p.get("name"), p["geometry_wkt"]),
             )
             names += _names(node_id, "AdminWard", p, ("code", "name", "name_mr", "name_en"))
         for node_id, p in _current(conn, "ElectoralWard"):
+            if not p.get("geometry_wkt"):
+                skipped += 1
+                continue
             conn.execute(
                 "INSERT INTO geo.electoral_wards VALUES (%s, %s, %s, ST_Multi(ST_GeomFromText(%s, 4326)))",
                 (node_id, p.get("number"), p.get("name"), p["geometry_wkt"]),
             )
             names += _names(node_id, "ElectoralWard", p, ("name", "name_mr", "name_en"))
         for node_id, p in _current(conn, "Road"):
+            if not p.get("geometry_wkt"):
+                skipped += 1
+                continue
             conn.execute(
                 "INSERT INTO geo.road_segments VALUES (%s, %s, %s, %s, ST_GeomFromText(%s, 4326))",
                 (node_id, p.get("name"), p.get("name_mr"), p.get("osm_way_id"), p["geometry_wkt"]),
@@ -84,6 +94,7 @@ def build(conn: Conn) -> dict[str, int]:
         counts = {
             table: _count(conn, table) for table in ("admin_wards", "electoral_wards", "road_segments", "aliases")
         }
+        counts["without_geometry"] = skipped
     return counts
 
 

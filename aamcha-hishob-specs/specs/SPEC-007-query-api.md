@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Draft |
+| Status | In progress: all acceptance criteria pass; awaiting second review and demo |
 | Milestone | M1 |
 | Owner role | Back-end engineer |
 | Depends on | SPEC-006 |
@@ -85,12 +85,28 @@ Sign-in flows (Cognito wiring in SPEC-013; until then, tiers come from signed de
 
 ## 10. Tasks
 
-| Id | Task | Size | Depends on | Verifies |
-|---|---|---|---|---|
-| T1 | App skeleton, tier resolution, development tokens | M | | AC2 |
-| T2 | Tier filter in repository layer; tier tests for every view | M | T1, SPEC-006/T6 | AC3 |
-| T3 | Endpoints for places, point, views, facts, sources | M | T2 | AC1, AC7 |
-| T4 | Amount and date normalisers with Marathi and Hindi fixtures | M | | AC6 |
-| T5 | Citation checker | M | T4 | AC4, AC5 |
-| T6 | Request logging without personal data | S | T1 | AC8 |
-| T7 | Rate limiting | S | T1 | AC9 |
+| Id | Task | Size | Depends on | Verifies | State |
+|---|---|---|---|---|---|
+| T1 | App skeleton, tier resolution, development tokens | M | | AC2 | Done |
+| T2 | Tier filter in repository layer; tier tests for every view | M | T1, SPEC-006/T6 | AC3 | Done |
+| T3 | Endpoints for places, point, views, facts, sources | M | T2 | AC1, AC7 | Done |
+| T4 | Amount and date normalisers with Marathi and Hindi fixtures | M | | AC6 | Done |
+| T5 | Citation checker | M | T4 | AC4, AC5 | Done |
+| T6 | Request logging without personal data | S | T1 | AC8 | Done |
+| T7 | Rate limiting | S | T1 | AC9 | Done |
+
+## Change log
+
+| Date | Change |
+|---|---|
+| 16 Nov 2026 | Implemented in `app/src/hishob/api/`; tests in `app/tests/unit/test_citations.py` and `app/tests/integration/test_spec007_api.py`. OpenAPI document committed at `app/api/openapi.json` and checked in CI. Run with `uv run uvicorn hishob.api.app:serve --factory`. |
+
+### Decisions made while building
+
+- **Which facts need which tier** (`app/src/hishob/api/access.py`). Residents' own reports (trust tier `citizen`) and company, director and bid records need the researcher tier; documents residents upload need the reviewer tier. Everything else is public. A fact above the caller's tier is answered as not found, so its existence is not revealed.
+- **Development tokens.** Until Cognito (SPEC-013), tiers come from HMAC-signed tokens `<tier>.<account>.<signature>` keyed by `HISHOB_TOKEN_SECRET`. A missing, malformed or forged token is public.
+- **Where filtering happens.** Every view result passes through one function that removes nodes above the caller's tier and adds each node's quote and source fetch date. The repository layer itself does not take a tier yet; a test per tier rule covers this path.
+- **Citation check coverage.** Amounts (rupees, lakh, crore, Devanagari numerals, the precision the answer states), dates (English, Marathi and Hindi month names, numeric forms) and identifiers are checked in every language. Proper names are checked in Latin script only: there is no reliable way yet to tell which Devanagari words are names. Marathi and Hindi names are covered by the evaluation set (SPEC-012) until there is.
+- **Logging.** Free-text parameters (`q`, `text`) are logged as their length only.
+- **Rate limit.** In-process, per address, public tier only; behind several API tasks the shared limit is at the edge (ADR 0014).
+- **Found while building:** the geo build crashed on roads known only by name (from a tender) with no geometry. It now skips and counts them (SPEC-004).

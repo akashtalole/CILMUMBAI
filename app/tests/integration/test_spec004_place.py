@@ -157,6 +157,25 @@ def test_spec004_ac5_a_confirmed_alias_finds_the_place(spine) -> None:  # type: 
     assert first.node_id == "road:osm-1003" and first.matched == "Gulmohar Lane"
 
 
+def test_spec004_places_without_geometry_are_counted_not_fatal(spine) -> None:  # type: ignore[no-untyped-def]
+    """Found by SPEC-007's tests: roads named in documents have no geometry until matched to the map."""
+    _, loader, conn, (_, _, roads), _ = spine
+    named_only = {
+        "kind": "node",
+        "id": "road:from-tender",
+        "label": "Road",
+        "props": {"name": "Lane in a tender"},
+        "source": roads.source_sha256,
+        "page": 1,
+        "quote": "S. V. Road",
+        "tier": "reported",
+        "confidence": 0.9,
+    }
+    assert loader.load([named_only], batch_id="geo-named", extractor="test@1").accepted == 1
+    counts = geo.build(conn)
+    assert counts["without_geometry"] == 1 and counts["road_segments"] == 4
+
+
 # Rebuild ---------------------------------------------------------------------------------------------------------
 
 

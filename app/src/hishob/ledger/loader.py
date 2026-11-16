@@ -365,17 +365,22 @@ class Loader:
         """The value currently held for each property of an identity."""
         return {k: v for k, (_, v) in self._held(identity_).items()}
 
-    def props_of(self, fid: str) -> dict[str, Any]:
+    def fact(self, fid: str) -> dict[str, Any] | None:
+        """The full ledger entry for a fact id, or None."""
         row = self.conn.execute("SELECT file_key FROM ledger.facts WHERE fact_id = %s", (fid,)).fetchone()
         self.conn.commit()
         if row is None:
-            return {}
+            return None
         for line in self.data.get(str(row[0])).decode("utf-8").splitlines():
-            stored = json.loads(line)
+            stored: dict[str, Any] = json.loads(line)
             if stored["fact_id"] == fid:
-                props: dict[str, Any] = stored["props"]
-                return props
-        return {}
+                return stored
+        return None
+
+    def props_of(self, fid: str) -> dict[str, Any]:
+        entry = self.fact(fid)
+        props: dict[str, Any] = entry["props"] if entry else {}
+        return props
 
     def _write(
         self,

@@ -10,6 +10,7 @@ The implementation of [Aamcha Hishob](../mumbai-civic-platform/README.md), built
 | [SPEC-003](../aamcha-hishob-specs/specs/SPEC-003-facts-ledger-and-loader.md) Facts ledger and loader | All 9 acceptance criteria pass; awaiting review | Validates extracted facts (schema, properties, SHACL per batch, source and page, quote check, edge endpoints), appends accepted facts to an append-only ledger, holds the rest with reasons, handles supersession and corroboration, and rebuilds its index from the ledger alone |
 | [SPEC-004](../aamcha-hishob-specs/specs/SPEC-004-place-spine.md) Place spine | AC1 to AC5 pass; field test and K/West roads pending | Ward and road importers that archive each file and load checked facts; geo tables in PostGIS rebuilt from the ledger; `find_place` across Marathi and English; `at_point` for road and wards. Real BMC ward boundaries load and resolve correctly. See [the loading guide](src/hishob/place/README.md) |
 | [SPEC-006](../aamcha-hishob-specs/specs/SPEC-006-graph-projection-and-views.md) Graph projection and named views | 6 of 7 acceptance criteria pass; the Neptune run waits for an instance | Projects the ledger into Neo4j over Bolt with per-property provenance and fact history; five named views (`trace_money`, `who_is_responsible`, `work_status`, `ward_summary`, `gaps_for`) that list missing records as gaps |
+| [SPEC-007](../aamcha-hishob-specs/specs/SPEC-007-query-api.md) Query API, access tiers and citation check | All 9 acceptance criteria pass; awaiting review | HTTP API for places, points, named views, facts, source pages and answer checking; every request under one tier; results filtered by tier and given quotes and fetch dates; citation check for amounts, dates, identifiers and names in English, Marathi and Hindi; request log without personal data; rate limit for the public. [OpenAPI document](api/openapi.json) |
 | [SPEC-005](../aamcha-hishob-specs/specs/SPEC-005-intake-desk.md) Intake desk | All 8 acceptance criteria pass (one only in the live test); awaiting review | Agent definitions in `agents/`, applied to a Claude account; intake sessions that read archived documents with extractor, verifier and resolver agents, then hand the facts to the loader and record the run. First live run: 3 documents read for $1.63 |
 | [SPEC-002](../aamcha-hishob-specs/specs/SPEC-002-ontology-and-schema.md) Ontology, shapes and generated schema | All 6 acceptance criteria pass; awaiting review | Mumbai Civic Ontology in Turtle (39 node labels, 32 relationship types, English and draft Marathi labels); SHACL shapes; generated record schema, whitelist and [reference page](ontology/REFERENCE.md); validators the loader will use |
 
@@ -39,6 +40,8 @@ uv run hishob place at 19.0988 72.8267
 uv run hishob graph apply               # project new ledger facts into the graph
 uv run hishob graph view trace_money road:sv
 uv run hishob graph view who_is_responsible road:sv --issue pothole
+uv run uvicorn hishob.api.app:serve --factory --port 8000   # the query API; set HISHOB_TOKEN_SECRET for tiers
+uv run hishob api openapi               # regenerate api/openapi.json after changing the API
 uv run hishob agents apply              # create or update the agents in the Claude account
 uv run hishob intake run <sha256> [<sha256> ...] --cap-usd 5
 uv run hishob ontology build            # after editing ontology/*.ttl
@@ -85,6 +88,8 @@ app/
     ledger/              SPEC-003: quote check, loader, ledger index
     place/               SPEC-004: name normalising, importers, geo tables and lookups
     graphstore/          SPEC-006: projection into the graph, named views, Bolt driver
+    api/                 SPEC-007: FastAPI app, tiers, access rules, citation check, rate limit
+  api/openapi.json       generated; CI fails if stale
     agentkit/            SPEC-005: client, agent definitions, provisioning, session loop, intake runner
   agents/                agent definitions (Markdown with YAML front matter), environment, rubrics
     cli.py  config.py  db.py

@@ -54,5 +54,7 @@ jobs:
         run: uv run mypy
       - name: Ontology artefacts up to date (SPEC-002/R6)
         run: uv run hishob ontology build --check
+      - name: OpenAPI document up to date (SPEC-007)
+        run: uv run hishob api openapi --check
       - name: Tests
         run: uv run pytest -q
