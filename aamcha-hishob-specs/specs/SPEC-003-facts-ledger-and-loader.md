@@ -101,3 +101,4 @@ Writing to the graph and indexes (SPEC-006). Review screen for held facts (SPEC-
 | Question | Owner | Assumption until answered |
 |---|---|---|
 | Should a near-match quote (one character off) be held or flagged | Product lead | Held |
+| Devanagari that a PDF draws with full shaping can extract as garbled text (seen while building SPEC-001's fixtures). How common is this in real BMC PDFs, and should such pages be treated like scans? | AI engineer | Measure on twenty real Marathi PDFs in M0; until then, a page whose text has Devanagari letters mixed with stray Latin-1 characters is treated as `scan_unchecked` |

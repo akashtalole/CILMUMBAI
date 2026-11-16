@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Draft |
+| Status | In progress: all acceptance criteria pass in CI; awaiting second review and demo (started 16 Nov 2026 at the product owner's request, before review) |
 | Milestone | M0 |
 | Owner role | Data engineer |
 | Depends on | |
@@ -27,7 +27,7 @@ When done, every source document is stored once, unchanged, addressed by its con
 |---|---|
 | R1 | The archive shall store each document under a key derived from the SHA-256 of its bytes. |
 | R2 | When a document whose hash already exists is added, the archive shall not store a second copy and shall add the new origin to the existing registry entry. |
-| R3 | The registry shall record for each document: hash, publisher, origin URL or upload reference, fetched or received time, media type, size, page count, detected language or languages, and licence. |
+| R3 | The registry shall record for each document: hash, publisher, origin URL or upload reference, fetched or received time, media type, size, page count, the scripts found in the text (for example Devanagari, Latin), and licence. |
 | R4 | The archive shall not offer any operation that modifies or deletes a stored document. |
 | R5 | When a document is added, the system shall emit an `archive.document_added` event carrying the hash and publisher. |
 | R6 | The system shall accept documents from three routes: fetch by URL, local file, and upload by an authenticated contributor. |
@@ -58,7 +58,7 @@ class Archive(Protocol):
     def page_text(self, sha256: str, page: int) -> str | None: ...   # None when no text layer
 ```
 
-Registry table `registry.documents`: `sha256 PK, publisher, media_type, size_bytes, page_count, languages text[], licence, first_seen_at`.
+Registry table `registry.documents`: `sha256 PK, publisher, media_type, extension, size_bytes, page_count, scripts text[], licence, storage_key, first_seen_at`.
 Table `registry.origins`: `sha256, origin_kind (url|file|upload), origin_ref, fetched_at, account_id NULL`.
 Table `registry.pages`: `sha256, page, has_text_layer, text_key`.
 
@@ -86,23 +86,23 @@ Scheduled collection and change detection (SPEC-014). OCR of scanned pages (SPEC
 
 ## 9. Design notes
 
-- Language detection on page text with a small library; record all scripts found (Devanagari, Latin).
+- Record the scripts found in page text (ISO 15924 codes such as `Deva`, `Latn`) by counting characters in each Unicode block. Telling Marathi from Hindi is left to the intake desk, which reads the text.
 - Text extraction with PyMuPDF. Store page text as separate objects under `parsed/<sha256>/page-<n>.txt` so the loader's quote check reads one page cheaply.
 - Object lock in governance mode allows an administrator to remove a document only through a documented legal process, recorded outside the application.
 
 ## 10. Tasks
 
-| Id | Task | Size | Depends on | Verifies |
-|---|---|---|---|---|
-| T1 | Create `app/` skeleton, tooling, Docker Compose with MinIO and Postgres | M | | |
-| T2 | Registry schema and migrations | S | T1 | AC1 |
-| T3 | `add_file` with hashing, storage key and registry write | M | T2 | AC1, AC2 |
-| T4 | Immutability: object lock configuration and refusal tests | S | T3 | AC3 |
-| T5 | Event emission | S | T3 | AC4 |
-| T6 | `add_url` with polite fetching and failure records | M | T3 | AC5 |
-| T7 | `add_upload` with account id only | S | T3 | AC6 |
-| T8 | Page text extraction and storage | M | T3 | AC7 |
-| T9 | Command line: `hishob archive add <path or url> --publisher --licence` | S | T3, T6 | |
+| Id | Task | Size | Depends on | Verifies | State |
+|---|---|---|---|---|---|
+| T1 | Create `app/` skeleton, tooling, Docker Compose with MinIO and Postgres | M | | | Done |
+| T2 | Registry schema and migrations | S | T1 | AC1 | Done |
+| T3 | `add_file` with hashing, storage key and registry write | M | T2 | AC1, AC2 | Done |
+| T4 | Immutability: object lock configuration and refusal tests | S | T3 | AC3 | Done |
+| T5 | Event emission | S | T3 | AC4 | Done |
+| T6 | `add_url` with polite fetching and failure records | M | T3 | AC5 | Done |
+| T7 | `add_upload` with account id only | S | T3 | AC6 | Done |
+| T8 | Page text extraction and storage | M | T3 | AC7 | Done |
+| T9 | Command line: `hishob archive add <path or url> --publisher --licence` | S | T3, T6 | | Done |
 
 ## 11. Open questions
 
@@ -110,3 +110,10 @@ Scheduled collection and change detection (SPEC-014). OCR of scanned pages (SPEC
 |---|---|---|
 | Licence of BMC and Mahatenders documents for republishing | Lawyer | Store and quote; do not republish whole documents |
 | Retention for residents' uploads | Product lead | Kept until the contributor deletes their account |
+
+## Change log
+
+| Date | Change |
+|---|---|
+| 16 Nov 2026 | Implemented in `app/src/hishob/archive/`. Tests: `app/tests/integration/test_spec001_*.py`. T1's Docker Compose file is written but not run in the build environment. |
+| 16 Nov 2026 | R3 records scripts found instead of detected languages, since Marathi and Hindi share a script; registry columns updated to match. Status moved to In progress. |

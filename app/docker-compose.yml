@@ -1,0 +1,31 @@
+# Local services for development. Not tested in the environment where this was written (no Docker daemon there);
+# the test suite needs only Postgres, which CI starts as a service.
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_PASSWORD: hishob
+      POSTGRES_DB: hishob
+    ports: ["5432:5432"]
+    volumes: ["pg:/var/lib/postgresql/data"]
+
+  minio:
+    image: minio/minio:RELEASE.2024-10-13T13-34-11Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: hishob
+      MINIO_ROOT_PASSWORD: hishob-local-only
+    ports: ["9000:9000", "9001:9001"]
+    volumes: ["minio:/data"]
+
+  neo4j:
+    image: neo4j:5.24-community
+    environment:
+      NEO4J_AUTH: neo4j/hishob-local-only
+    ports: ["7474:7474", "7687:7687"]
+    volumes: ["neo4j:/data"]
+
+volumes:
+  pg: {}
+  minio: {}
+  neo4j: {}
