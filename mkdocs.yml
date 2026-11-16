@@ -105,6 +105,29 @@ nav:
           - 0020 Infrastructure as code: mumbai-civic-platform/architecture/adr/0020-infrastructure-as-code.md
           - 0021 Cost posture: mumbai-civic-platform/architecture/adr/0021-cost-posture.md
           - 0022 Backup and rebuild: mumbai-civic-platform/architecture/adr/0022-backup-and-rebuild.md
+  - Build plan:
+      - Overview: aamcha-hishob-specs/README.md
+      - Constitution: aamcha-hishob-specs/00-constitution.md
+      - Process: aamcha-hishob-specs/01-process.md
+      - Spec index: aamcha-hishob-specs/02-spec-index.md
+      - Milestones: aamcha-hishob-specs/03-milestones.md
+      - Specs:
+          - SPEC-001 Document archive: aamcha-hishob-specs/specs/SPEC-001-document-archive.md
+          - SPEC-002 Ontology and schema: aamcha-hishob-specs/specs/SPEC-002-ontology-and-schema.md
+          - SPEC-003 Facts ledger and loader: aamcha-hishob-specs/specs/SPEC-003-facts-ledger-and-loader.md
+          - SPEC-004 Place spine: aamcha-hishob-specs/specs/SPEC-004-place-spine.md
+          - SPEC-005 Intake desk: aamcha-hishob-specs/specs/SPEC-005-intake-desk.md
+          - SPEC-006 Graph projection and views: aamcha-hishob-specs/specs/SPEC-006-graph-projection-and-views.md
+          - SPEC-007 Query API: aamcha-hishob-specs/specs/SPEC-007-query-api.md
+          - SPEC-008 Citizen desk: aamcha-hishob-specs/specs/SPEC-008-citizen-desk.md
+          - SPEC-009 Workflow engine: aamcha-hishob-specs/specs/SPEC-009-workflow-engine.md
+          - SPEC-010 Street alerts: aamcha-hishob-specs/specs/SPEC-010-street-alerts.md
+          - SPEC-011 Audit desk and release: aamcha-hishob-specs/specs/SPEC-011-audit-desk-and-release.md
+          - SPEC-012 Evaluation and promotion gate: aamcha-hishob-specs/specs/SPEC-012-evaluation-and-promotion-gate.md
+          - SPEC-013 AWS lean infrastructure: aamcha-hishob-specs/specs/SPEC-013-aws-lean-infrastructure.md
+      - Templates:
+          - Spec template: aamcha-hishob-specs/templates/spec-template.md
+          - Task card: aamcha-hishob-specs/templates/task-card.md
   - First slice:
       - Overview: mumbai-civic-graph/README.md
       - Shared foundation: mumbai-civic-graph/00-shared-foundation.md

@@ -65,6 +65,7 @@ Each line is a question the platform should answer with sources, in Marathi, Hin
 | [03-semantic-and-search-layer.md](03-semantic-and-search-layer.md) | Glossary, metrics, storage, retrieval, citations, access tiers, evaluation |
 | [04-intelligence-layer.md](04-intelligence-layer.md) | Claude models, Managed Agents desks, LangGraph workflows, tools, safeguards |
 | [06-user-personas.md](06-user-personas.md) | Who the platform serves: twelve personas, their jobs, channels, access tier and the features mapped to each |
+| [../aamcha-hishob-specs/](../aamcha-hishob-specs/) | The spec-driven development plan to build the platform |
 | [architecture/](architecture/) | Design and architecture for hosting on AWS, with 22 decision records comparing AWS and open-source options |
 | [05-implementation-plan.md](05-implementation-plan.md) | Phases from the hackathon day to a year out, team, infrastructure, governance, risks |
 
