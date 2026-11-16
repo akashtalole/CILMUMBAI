@@ -1,0 +1,11 @@
+#!/bin/bash
+# `hishob …` on the instance, as the service user, with the service environment and secrets.
+set -euo pipefail
+set -a
+# shellcheck disable=SC1091
+. /etc/hishob/hishob.env
+# shellcheck disable=SC1091
+[ -r /run/hishob/secrets.env ] && . /run/hishob/secrets.env
+set +a
+cd /opt/hishob/current/app
+exec runuser -u hishob -- env HOME=/home/hishob /opt/hishob/current/app/.venv/bin/hishob "$@"

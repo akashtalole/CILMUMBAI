@@ -1,0 +1,110 @@
+@prefix mco:  <https://akashtalole.github.io/CILMUMBAI/ontology/mco#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix org:  <http://www.w3.org/ns/org#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix geo:  <http://www.opengis.net/ont/geosparql#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+mco:Tender a owl:Class ; mco:module "procurement" ; rdfs:subClassOf mco:Node ;
+    skos:closeMatch <https://standard.open-contracting.org/latest/en/schema/reference/#tender> ;
+    rdfs:label "Tender"@en , "निविदा"@mr .
+mco:Corrigendum a owl:Class ; mco:module "procurement" ; rdfs:subClassOf mco:Node ;
+    skos:closeMatch <https://standard.open-contracting.org/latest/en/schema/reference/#amendment> ;
+    rdfs:label "Corrigendum"@en , "शुद्धिपत्रक"@mr .
+mco:Bid a owl:Class ; mco:module "procurement" ; rdfs:subClassOf mco:Node ;
+    rdfs:label "Bid"@en , "बोली"@mr .
+mco:Award a owl:Class ; mco:module "procurement" ; rdfs:subClassOf mco:Node ;
+    skos:closeMatch <https://standard.open-contracting.org/latest/en/schema/reference/#award> ;
+    rdfs:label "Award"@en , "कंत्राट वाटप"@mr .
+mco:Contract a owl:Class ; mco:module "procurement" ; rdfs:subClassOf mco:Node ;
+    skos:closeMatch <https://standard.open-contracting.org/latest/en/schema/reference/#contract> ;
+    rdfs:label "Contract"@en , "करार"@mr .
+mco:Contractor a owl:Class ; mco:module "procurement" ; rdfs:subClassOf mco:Node ;
+    skos:closeMatch <https://standard.open-contracting.org/latest/en/schema/reference/#organization> ;
+    rdfs:label "Contractor"@en , "कंत्राटदार"@mr .
+mco:Company a owl:Class ; mco:module "procurement" ; rdfs:subClassOf mco:Node ; skos:closeMatch org:FormalOrganization ;
+    rdfs:label "Company"@en , "कंपनी"@mr .
+mco:Director a owl:Class ; mco:module "procurement" ; rdfs:subClassOf mco:Node ;
+    rdfs:label "Director"@en , "संचालक"@mr .
+mco:Penalty a owl:Class ; mco:module "procurement" ; rdfs:subClassOf mco:Node ;
+    rdfs:label "Penalty"@en , "दंड"@mr .
+mco:Blacklisting a owl:Class ; mco:module "procurement" ; rdfs:subClassOf mco:Node ;
+    rdfs:label "Blacklisting"@en , "काळ्या यादीत समावेश"@mr .
+
+mco:tenderId a owl:DatatypeProperty ; rdfs:range xsd:string ; mco:jsonKey "tender_id" ; mco:propertyOf mco:Tender ;
+    rdfs:label "Mahatenders tender id"@en , "महाटेंडर्स निविदा ओळख क्रमांक"@mr .
+mco:refNo a owl:DatatypeProperty ; rdfs:range xsd:string ; mco:jsonKey "ref_no" ; mco:propertyOf mco:Tender , mco:Corrigendum ;
+    rdfs:label "reference number"@en , "संदर्भ क्रमांक"@mr .
+mco:bmcBidNo a owl:DatatypeProperty ; rdfs:range xsd:string ; mco:jsonKey "bmc_bid_no" ; mco:propertyOf mco:Tender ;
+    rdfs:label "BMC bid number"@en , "महापालिका बोली क्रमांक"@mr .
+mco:estimatedCost a owl:DatatypeProperty ; rdfs:range xsd:integer ; mco:jsonKey "estimated_cost" ; mco:propertyOf mco:Tender ;
+    rdfs:label "estimated cost (rupees)"@en , "अंदाजित खर्च (रुपये)"@mr .
+mco:emd a owl:DatatypeProperty ; rdfs:range xsd:integer ; mco:jsonKey "emd" ; mco:propertyOf mco:Tender ;
+    rdfs:label "earnest money (rupees)"@en , "बयाणा रक्कम (रुपये)"@mr .
+mco:publishedOn a owl:DatatypeProperty ; rdfs:range xsd:date ; mco:jsonKey "published_on" ; mco:propertyOf mco:Tender , mco:Corrigendum ;
+    rdfs:label "published on"@en , "प्रसिद्धी दिनांक"@mr .
+mco:closesOn a owl:DatatypeProperty ; rdfs:range xsd:date ; mco:jsonKey "closes_on" ; mco:propertyOf mco:Tender ;
+    rdfs:label "closes on"@en , "अंतिम दिनांक"@mr .
+mco:openedOn a owl:DatatypeProperty ; rdfs:range xsd:date ; mco:jsonKey "opened_on" ; mco:propertyOf mco:Tender ;
+    rdfs:label "bids opened on"@en , "बोली उघडण्याचा दिनांक"@mr .
+mco:category a owl:DatatypeProperty ; rdfs:range xsd:string ; mco:jsonKey "category" ; mco:propertyOf mco:Tender , mco:Work ;
+    rdfs:label "category"@en , "वर्ग"@mr .
+mco:changedField a owl:DatatypeProperty ; rdfs:range xsd:string ; mco:jsonKey "changed_field" ; mco:propertyOf mco:Corrigendum ;
+    rdfs:label "field changed"@en , "बदललेला तपशील"@mr .
+mco:value a owl:DatatypeProperty ; rdfs:range xsd:integer ; mco:jsonKey "value" ; mco:propertyOf mco:Award , mco:Contract , mco:Bid ;
+    rdfs:label "value (rupees)"@en , "मूल्य (रुपये)"@mr .
+mco:awardedOn a owl:DatatypeProperty ; rdfs:range xsd:date ; mco:jsonKey "awarded_on" ; mco:propertyOf mco:Award ;
+    rdfs:label "awarded on"@en , "वाटप दिनांक"@mr .
+mco:signedOn a owl:DatatypeProperty ; rdfs:range xsd:date ; mco:jsonKey "signed_on" ; mco:propertyOf mco:Contract ;
+    rdfs:label "signed on"@en , "स्वाक्षरी दिनांक"@mr .
+mco:durationDays a owl:DatatypeProperty ; rdfs:range xsd:integer ; mco:jsonKey "duration_days" ; mco:propertyOf mco:Contract ;
+    rdfs:label "period of work (days)"@en , "कामाचा कालावधी (दिवस)"@mr .
+mco:regNo a owl:DatatypeProperty ; rdfs:range xsd:string ; mco:jsonKey "reg_no" ; mco:propertyOf mco:Contractor , mco:Company ;
+    rdfs:label "registration number"@en , "नोंदणी क्रमांक"@mr .
+mco:reason a owl:DatatypeProperty ; rdfs:range xsd:string ; mco:jsonKey "reason" ; mco:propertyOf mco:Penalty , mco:Blacklisting ;
+    rdfs:label "reason"@en , "कारण"@mr .
+mco:imposedOn a owl:DatatypeProperty ; rdfs:range xsd:date ; mco:jsonKey "imposed_on" ; mco:propertyOf mco:Penalty ;
+    rdfs:label "imposed on"@en , "लादल्याचा दिनांक"@mr .
+mco:fromDate a owl:DatatypeProperty ; rdfs:range xsd:date ; mco:jsonKey "from_date" ;
+    mco:propertyOf mco:Blacklisting , mco:DefectLiabilityPeriod ;
+    rdfs:label "from"@en , "पासून"@mr .
+mco:toDate a owl:DatatypeProperty ; rdfs:range xsd:date ; mco:jsonKey "to_date" ;
+    mco:propertyOf mco:Blacklisting , mco:DefectLiabilityPeriod ;
+    rdfs:label "to"@en , "पर्यंत"@mr .
+
+mco:tenderForWork a owl:ObjectProperty ; mco:edgeType "FOR_WORK" ; mco:edgeFrom mco:Tender ; mco:edgeTo mco:Work ;
+    rdfs:label "for work"@en , "कामासाठी"@mr .
+mco:contractForWork a owl:ObjectProperty ; mco:edgeType "FOR_WORK" ; mco:edgeFrom mco:Contract ; mco:edgeTo mco:Work ;
+    rdfs:label "for work"@en , "कामासाठी"@mr .
+mco:issuedBy a owl:ObjectProperty ; mco:edgeType "ISSUED_BY" ; mco:edgeFrom mco:Tender ; mco:edgeTo mco:Department ;
+    rdfs:label "issued by"@en , "द्वारे जारी"@mr .
+mco:amends a owl:ObjectProperty ; mco:edgeType "AMENDS" ; mco:edgeFrom mco:Corrigendum ; mco:edgeTo mco:Tender ;
+    rdfs:label "amends"@en , "सुधारणा करते"@mr .
+mco:retenderOf a owl:ObjectProperty ; mco:edgeType "RETENDER_OF" ; mco:edgeFrom mco:Tender ; mco:edgeTo mco:Tender ;
+    rdfs:label "retender of"@en , "फेरनिविदा"@mr .
+mco:bidOn a owl:ObjectProperty ; mco:edgeType "ON" ; mco:edgeFrom mco:Bid ; mco:edgeTo mco:Tender ;
+    rdfs:label "bid on"@en , "वरील बोली"@mr .
+mco:submitted a owl:ObjectProperty ; mco:edgeType "SUBMITTED" ; mco:edgeFrom mco:Contractor ; mco:edgeTo mco:Bid ;
+    rdfs:label "submitted"@en , "सादर केली"@mr .
+mco:awardOf a owl:ObjectProperty ; mco:edgeType "OF" ; mco:edgeFrom mco:Award ; mco:edgeTo mco:Tender ;
+    rdfs:label "award of"@en , "निविदेचे वाटप"@mr .
+mco:awardTo a owl:ObjectProperty ; mco:edgeType "TO" ; mco:edgeFrom mco:Award ; mco:edgeTo mco:Contractor ;
+    rdfs:label "awarded to"@en , "यांना वाटप"@mr .
+mco:fromAward a owl:ObjectProperty ; mco:edgeType "FROM_AWARD" ; mco:edgeFrom mco:Contract ; mco:edgeTo mco:Award ;
+    rdfs:label "from award"@en , "वाटपातून"@mr .
+mco:partyTo a owl:ObjectProperty ; mco:edgeType "PARTY_TO" ; mco:edgeFrom mco:Contractor ; mco:edgeTo mco:Contract ;
+    rdfs:label "party to"@en , "करारातील पक्षकार"@mr .
+mco:imposedOnContractor a owl:ObjectProperty ; mco:edgeType "IMPOSED_ON" ; mco:edgeFrom mco:Penalty ; mco:edgeTo mco:Contractor ;
+    rdfs:label "imposed on"@en , "यांच्यावर लादलेला"@mr .
+mco:penaltyForWork a owl:ObjectProperty ; mco:edgeType "FOR_WORK" ; mco:edgeFrom mco:Penalty ; mco:edgeTo mco:Work ;
+    rdfs:label "for work"@en , "कामासाठी"@mr .
+mco:blacklistingOf a owl:ObjectProperty ; mco:edgeType "OF" ; mco:edgeFrom mco:Blacklisting ; mco:edgeTo mco:Contractor ;
+    rdfs:label "blacklisting of"@en , "काळ्या यादीत समावेश"@mr .
+mco:isCompany a owl:ObjectProperty ; mco:edgeType "IS" ; mco:edgeFrom mco:Contractor ; mco:edgeTo mco:Company ;
+    rdfs:label "is"@en , "म्हणजे"@mr .
+mco:directorOf a owl:ObjectProperty ; mco:edgeType "DIRECTOR_OF" ; mco:edgeFrom mco:Director ; mco:edgeTo mco:Company ;
+    rdfs:label "director of"@en , "चे संचालक"@mr .

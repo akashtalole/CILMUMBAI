@@ -1,0 +1,123 @@
+# SPEC-003: Facts ledger and loader
+
+| | |
+|---|---|
+| Status | In progress: all acceptance criteria pass; awaiting second review and demo (started 16 Nov 2026 at the product owner's request, before review) |
+| Milestone | M0 |
+| Owner role | Graph engineer |
+| Depends on | SPEC-001, SPEC-002 |
+| ADRs | 0001, 0004 |
+| Personas served | Reviewers; all, indirectly |
+
+## 1. Problem and outcome
+
+Agents produce facts; nothing they produce may reach the graph unchecked. The starter loader checks quotes and writes straight to the graph, with no durable record of what was accepted.
+
+When done, every batch of extracted facts passes schema validation and a quote check in code. Accepted facts are appended to an immutable ledger on S3; rejected ones go to a held file with a reason. Projections (SPEC-006) are built only from the ledger.
+
+## 2. User stories
+
+- As a reviewer, I want every held fact with its reason, so that I can fix or discard it.
+- As a graph engineer, I want to rebuild the graph from the ledger, so that I can change engines or recover.
+- As a researcher, I want to know which extractor version produced a fact, so that I can judge it.
+
+## 3. Requirements
+
+| Id | Requirement |
+|---|---|
+| R1 | The loader shall validate each record against the generated JSON Schema and the whitelist (SPEC-002). |
+| R2 | For each record whose source page has a text layer, the loader shall confirm the quote occurs in the page text after normalising whitespace and Unicode (NFC). |
+| R3 | Where the source page has no text layer, the loader shall accept the record with `quote_check = scan_unchecked`. |
+| R4 | When a record fails validation or the quote check, the loader shall write it to the batch's held file with a machine-readable reason. |
+| R5 | The loader shall append accepted records to the ledger as a new file and shall never modify an existing ledger file. |
+| R6 | Each ledger record shall carry: fact id, kind, label or type, ids, properties, source sha256, page, quote, tier, confidence, `quote_check`, extractor id and version, ontology version, batch id, loaded time. |
+| R7 | When a new record has the same identity as existing facts, the loader shall compare property by property: a property given a different value supersedes the fact that held it, a property not held before is added, and properties the record does not mention keep their earlier facts. The record is appended with `supersedes` listing the fact ids it replaces. |
+| R8 | If a batch references an edge endpoint that exists neither in the batch nor in the ledger, then the loader shall hold that edge with reason `dangling_endpoint`. |
+| R9 | The loader shall produce a batch report with counts accepted, held by reason, and superseded. |
+
+## 4. Acceptance criteria
+
+| Id | Given | When | Then | Verifies |
+|---|---|---|---|---|
+| AC1 | A record with a label not in the whitelist | It is loaded | It is held with reason `unknown_label` | R1, R4 |
+| AC2 | A record whose quote appears on its page with different line breaks | It is loaded | It is accepted with `quote_check = matched` | R2 |
+| AC3 | A record whose quote does not appear on its page | It is loaded | It is held with reason `quote_not_found` | R2, R4 |
+| AC4 | A record citing a page with no text layer | It is loaded | It is accepted with `quote_check = scan_unchecked` | R3 |
+| AC5 | An existing ledger | A second batch is loaded | Earlier ledger files are byte-identical to before | R5 |
+| AC6 | An accepted record | It is written | All R6 fields are present | R6 |
+| AC7 | A tender in the ledger with a reference number and an amount | A record with the same id and only a changed amount is loaded | It is appended with `supersedes` listing the earlier fact; the current amount comes from the new fact and the reference number still from the earlier one | R7 |
+| AC8 | An edge to a node id not present anywhere | It is loaded | It is held with reason `dangling_endpoint` | R8 |
+| AC9 | A batch of 100 records with 5 bad quotes and 2 unknown labels | It is loaded | The report shows 93 accepted, 5 `quote_not_found`, 2 `unknown_label` | R9 |
+
+## 5. Interfaces and data contracts
+
+```
+hishob load <facts.jsonl> --batch <id> --extractor <agent_id>@<version>
+
+s3://…/facts/<graph>/<yyyy-mm-dd>/<batch>.jsonl      accepted, append-only
+s3://…/staging/<batch>/held.jsonl                     {record, reason, detail}
+s3://…/staging/<batch>/report.json                    counts
+```
+
+Held reasons: `schema_invalid`, `unknown_label`, `unknown_edge`, `unknown_property`, `wrong_type`, `shape_violation`, `domain_range`, `unknown_source`, `page_out_of_range`, `quote_not_found`, `dangling_endpoint`, `label_conflict`, `unknown_ontology_major`. Notes (`kind: note`) are never loaded; they go to `staging/<batch>/notes.jsonl` for a person.
+
+Identity and fact ids:
+
+- Identity of a node is `node|<label>|<id>`; of an edge `edge|<type>|<from>|<to>`.
+- Fact id is a hash of identity, source, page and the canonical properties. Loading the same record again is a no-op counted as `unchanged`.
+- Same identity, a property with a new value: appended with `supersedes` listing the facts that held the changed properties (R7). Counted as `superseded`.
+- Same identity, only properties not held before: appended and counted as `extended`. This is how one tender split across several records (one quote each) builds up.
+- Same identity and the same values from another source or page: appended as corroboration; nothing current changes.
+- The index keeps, for every identity and property, the fact currently holding it (`ledger.current_props`), so every property can be cited to its own source.
+
+The loader keeps an index of facts in Postgres (schema `ledger`) for supersession and endpoint checks. The index is derived from the ledger and can be rebuilt from it.
+
+## 6. Non-functional requirements
+
+- Loads 10,000 records in under a minute locally.
+- Deterministic: the same input produces the same ledger content apart from timestamps and batch id.
+
+## 7. Constitution
+
+| Article | How this spec upholds it |
+|---|---|
+| C1 | R1, R6: provenance required and recorded |
+| C2 | R2, R3: quote check, scan mark |
+| C4 | The loader, not an agent, writes the ledger |
+| C9 | R5: append-only; projections built from ledger |
+
+## 8. Out of scope
+
+Writing to the graph and indexes (SPEC-006). Review screen for held facts (SPEC-021). Fuzzy quote matching.
+
+## 9. Design notes
+
+- Reuse and harden `load()` and `quote_on_page()` from `civic_client.py`; read page text from SPEC-001 rather than reopening PDFs.
+- Normalise quotes and page text the same way: NFC (which also unifies precomposed and decomposed nukta letters, because those are composition exclusions), remove zero-width joiners, non-joiners and soft hyphens, collapse whitespace. Do not lowercase or strip punctuation: amounts and identifiers must match exactly.
+- SHACL runs once per batch, not once per record, to meet the speed requirement.
+- Fact id: hash of kind, label or type, node ids and source sha256 and page.
+
+## 10. Tasks
+
+| Id | Task | Size | Depends on | Verifies | State |
+|---|---|---|---|---|---|
+| T1 | Ledger writer and record model | M | SPEC-002/T4 | AC5, AC6 | Done |
+| T2 | Schema and whitelist validation | S | T1 | AC1 | Done |
+| T3 | Quote normaliser and check, with Marathi test fixtures | M | SPEC-001/T8 | AC2, AC3, AC4 | Done |
+| T4 | Supersession | S | T1 | AC7 | Done |
+| T5 | Dangling endpoint check against batch and ledger index | M | T1 | AC8 | Done |
+| T6 | Batch report and command line | S | T2, T3 | AC9 | Done |
+
+## 11. Open questions
+
+| Question | Owner | Assumption until answered |
+|---|---|---|
+| Should a near-match quote (one character off) be held or flagged | Product lead | Held |
+| Devanagari that a PDF draws with full shaping can extract as garbled text (seen while building SPEC-001's fixtures). How common is this in real BMC PDFs, and should such pages be treated like scans? | AI engineer | Measure on twenty real Marathi PDFs in M0; until then, a page whose text has Devanagari letters mixed with stray Latin-1 characters is treated as `scan_unchecked` |
+
+## Change log
+
+| Date | Change |
+|---|---|
+| 16 Nov 2026 | R7 and AC7 changed to property-level supersession after the first live intake run (SPEC-005): the extractor split one tender into two records, each with one quote, and whole-record supersession dropped the reference number from the current state. |
+| 16 Nov 2026 | Implemented in `app/src/hishob/ledger/` with the index in migration `002_ledger.sql`; tests in `app/tests/integration/test_spec003_*.py` and `app/tests/unit/test_quotes.py`. Added hold reasons, the identity and fact-id rules, notes handling and an index rebuild (see section 5). Measured: 10,000 single-node records load in about 21 seconds locally. Ledger records carry a `seq` field giving their order within a file, used by the rebuild. |

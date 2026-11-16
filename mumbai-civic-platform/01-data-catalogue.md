@@ -119,6 +119,7 @@ Collect these first. Without them the graphs do not connect.
 | Housing project registrations | MahaRERA | Project, promoter, survey numbers, planning authority, approvals | Open | Continuous | P1 |
 | Building approvals and sign-offs | BMC building proposal system | Proposal, stage, date | Partly | Continuous | P1 |
 | Slum declarations and mapping | SRA; collector | Plot, status, date | Partly | Ad hoc | P1 |
+| SRA GIS portal ([umd.nic.in/sra](http://umd.nic.in/sra)), built by NIC, live since 2017 | SRA | Slum areas mapped across the BMC area; search by hut id, village, taluka, ward, cluster, landmark | Ask: an interactive map with a login module; not reachable from the build environment on 16 Nov 2026. Request a data export from SRA, or export layers by hand from a browser. Do not scrape. | Ad hoc | P1 |
 | Transit and project-affected tenements: owed, built, handed over | SRA; BMC estates | Scheme, count, date | Ask | Quarterly | P1 |
 | Premiums assessed and paid | BMC; SRA | Scheme, premium type, amount | Ask | Continuous | P2 |
 | Property cards | Land records | Survey number, holder, area | Partly | Ad hoc | P2 |

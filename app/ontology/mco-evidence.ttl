@@ -1,0 +1,27 @@
+@prefix mco:  <https://akashtalole.github.io/CILMUMBAI/ontology/mco#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix org:  <http://www.w3.org/ns/org#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix geo:  <http://www.opengis.net/ont/geosparql#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+mco:SourceDocument a owl:Class ; mco:module "evidence" ; rdfs:subClassOf mco:Node ; skos:closeMatch prov:Entity ;
+    rdfs:label "Source document"@en , "स्रोत दस्तऐवज"@mr .
+mco:Gap a owl:Class ; mco:module "evidence" ; rdfs:subClassOf mco:Node ;
+    rdfs:label "Gap"@en , "माहितीतील उणीव"@mr ; rdfs:comment "A record we do not hold, and who holds it."@en .
+
+mco:sha256 a owl:DatatypeProperty ; rdfs:range xsd:string ; mco:jsonKey "sha256" ; mco:propertyOf mco:SourceDocument ;
+    rdfs:label "SHA-256"@en , "हॅश"@mr .
+mco:publisher a owl:DatatypeProperty ; rdfs:range xsd:string ; mco:jsonKey "publisher" ; mco:propertyOf mco:SourceDocument ;
+    rdfs:label "publisher"@en , "प्रकाशक"@mr .
+mco:recordNeeded a owl:DatatypeProperty ; rdfs:range xsd:string ; mco:jsonKey "record_needed" ; mco:propertyOf mco:Gap ;
+    rdfs:label "record needed"@en , "आवश्यक नोंद"@mr .
+mco:holder a owl:DatatypeProperty ; rdfs:range xsd:string ; mco:jsonKey "holder" ; mco:propertyOf mco:Gap ;
+    rdfs:label "held by"@en , "नोंद धारक"@mr .
+
+mco:gapAbout a owl:ObjectProperty ; mco:edgeType "ABOUT" ; mco:edgeFrom mco:Gap ; mco:edgeTo mco:Node ;
+    rdfs:label "about"@en , "संबंधित"@mr .

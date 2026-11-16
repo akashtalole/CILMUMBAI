@@ -1,0 +1,18 @@
+[Unit]
+Description=Aamcha Hishob workflow worker (SPEC-009): starts runs from the workflow queue
+Requires=hishob-secrets.service hishob-api.service
+After=hishob-api.service
+
+[Service]
+User=hishob
+WorkingDirectory=/opt/hishob/current/app
+EnvironmentFile=/etc/hishob/hishob.env
+EnvironmentFile=/run/hishob/secrets.env
+ExecStart=/bin/bash -c 'while true; do /opt/hishob/current/app/.venv/bin/hishob workflow consume --queue-url "$HISHOB_WORKFLOW_QUEUE_URL" --max 5 || sleep 30; sleep 10; done'
+Restart=always
+RestartSec=30
+NoNewPrivileges=yes
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

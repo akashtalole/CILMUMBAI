@@ -2,3 +2,14 @@ mumbai-civic-graph/data/
 mumbai-civic-graph/managed-agents/.entities.jsonl
 __pycache__/
 mumbai-civic-graph/managed-agents/.orchestrator.sqlite*
+site/
+
+# app
+app/.venv/
+app/var/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+app/agents/.lock.json
+app/web/node_modules/
+app/web/dist/

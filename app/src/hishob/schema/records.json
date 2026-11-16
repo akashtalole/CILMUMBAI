@@ -1,0 +1,244 @@
+{
+  "$defs": {
+    "edge": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "from": {
+          "pattern": "^[a-z][a-z_]*:\\S+$",
+          "type": "string"
+        },
+        "kind": {
+          "const": "edge"
+        },
+        "page": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "props": {
+          "type": "object"
+        },
+        "quote": {
+          "description": "Verbatim words from the page",
+          "minLength": 1,
+          "type": "string"
+        },
+        "source": {
+          "description": "SHA-256 of the archived document",
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "tier": {
+          "enum": [
+            "official",
+            "reported",
+            "citizen",
+            "derived"
+          ]
+        },
+        "to": {
+          "pattern": "^[a-z][a-z_]*:\\S+$",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "ABOUT",
+            "ALIAS_OF",
+            "AMENDS",
+            "COVERS",
+            "DIRECTOR_OF",
+            "FOR_WORK",
+            "FOR_YEAR",
+            "FROM_AWARD",
+            "FUNDED_BY",
+            "HANDLED_BY",
+            "HAS_DLP",
+            "HAS_SLA",
+            "HOLDS",
+            "IMPOSED_ON",
+            "IMPROVES",
+            "IN",
+            "IS",
+            "ISSUED_BY",
+            "LOCATED_IN",
+            "OF",
+            "ON",
+            "OWNS",
+            "PARENT_OF",
+            "PARTY_TO",
+            "PART_OF",
+            "REPORTS_TO",
+            "REPRESENTS",
+            "RETENDER_OF",
+            "SUBMITTED",
+            "TO",
+            "UNDER",
+            "UNDER_CONTRACT",
+            "WITHIN"
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "type",
+        "from",
+        "to",
+        "source",
+        "page",
+        "quote",
+        "tier",
+        "confidence"
+      ],
+      "type": "object"
+    },
+    "node": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "id": {
+          "pattern": "^[a-z][a-z_]*:\\S+$",
+          "type": "string"
+        },
+        "kind": {
+          "const": "node"
+        },
+        "label": {
+          "enum": [
+            "AdminWard",
+            "Agency",
+            "Alias",
+            "Allocation",
+            "Asset",
+            "Award",
+            "Bid",
+            "Blacklisting",
+            "Bridge",
+            "BudgetHead",
+            "Building",
+            "Company",
+            "Contract",
+            "Contractor",
+            "Corrigendum",
+            "DefectLiabilityPeriod",
+            "Department",
+            "Director",
+            "Drain",
+            "ElectoralWard",
+            "Expenditure",
+            "FiscalYear",
+            "Gap",
+            "Garden",
+            "Hospital",
+            "Inspection",
+            "IssueType",
+            "Locality",
+            "Milestone",
+            "Payment",
+            "Penalty",
+            "Person",
+            "Post",
+            "Road",
+            "School",
+            "ServiceStandard",
+            "SourceDocument",
+            "Tender",
+            "Toilet",
+            "Work"
+          ]
+        },
+        "page": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "props": {
+          "type": "object"
+        },
+        "quote": {
+          "description": "Verbatim words from the page",
+          "minLength": 1,
+          "type": "string"
+        },
+        "source": {
+          "description": "SHA-256 of the archived document",
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "tier": {
+          "enum": [
+            "official",
+            "reported",
+            "citizen",
+            "derived"
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "label",
+        "source",
+        "page",
+        "quote",
+        "tier",
+        "confidence"
+      ],
+      "type": "object"
+    },
+    "note": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "note"
+        },
+        "page": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "quote": {
+          "description": "Verbatim words from the page",
+          "minLength": 1,
+          "type": "string"
+        },
+        "source": {
+          "description": "SHA-256 of the archived document",
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "text": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "text",
+        "source",
+        "page"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "One line of an extracted facts file. Generated from the ontology; do not edit.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/node"
+    },
+    {
+      "$ref": "#/$defs/edge"
+    },
+    {
+      "$ref": "#/$defs/note"
+    }
+  ],
+  "title": "Extracted record",
+  "x-ontology-version": "0.2.0"
+}

@@ -1,0 +1,20 @@
+[Unit]
+Description=Aamcha Hishob query API (SPEC-007), behind CloudFront
+Requires=hishob-secrets.service
+After=hishob-secrets.service postgresql.service neo4j.service
+
+[Service]
+User=hishob
+WorkingDirectory=/opt/hishob/current/app
+EnvironmentFile=/etc/hishob/hishob.env
+EnvironmentFile=/run/hishob/secrets.env
+# Port 80 without root. Only CloudFront can reach it (security group), so its X-Forwarded-For is trusted.
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+ExecStart=/opt/hishob/current/app/.venv/bin/uvicorn hishob.api.app:serve --factory --host 0.0.0.0 --port 80 --proxy-headers --forwarded-allow-ips=*
+Restart=always
+RestartSec=5
+NoNewPrivileges=yes
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

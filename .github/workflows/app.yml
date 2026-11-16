@@ -1,0 +1,89 @@
+name: App
+
+on:
+  push:
+    branches: [main]
+    paths: ["app/**", ".github/workflows/app.yml"]
+  pull_request:
+    paths: ["app/**", ".github/workflows/app.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: app-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_PASSWORD: hishob
+          POSTGRES_DB: hishob_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+      neo4j:
+        image: neo4j:5.26-community
+        env:
+          NEO4J_AUTH: neo4j/hishob-local-only
+        ports: ["7687:7687"]
+        options: >-
+          --health-cmd "cypher-shell -u neo4j -p hishob-local-only 'RETURN 1'"
+          --health-interval 10s --health-timeout 10s --health-retries 15
+    env:
+      HISHOB_TEST_DATABASE_URL: postgresql://postgres:hishob@localhost:5432/hishob_test
+      HISHOB_TEST_GRAPH_URI: neo4j://localhost:7687
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - name: Lint and format
+        run: uv run ruff check src tests && uv run ruff format --check src tests
+      - name: Types
+        run: uv run mypy
+      - name: Ontology artefacts up to date (SPEC-002/R6)
+        run: uv run hishob ontology build --check
+      - name: OpenAPI document up to date (SPEC-007)
+        run: uv run hishob api openapi --check
+      - name: Tests
+        run: uv run pytest -q
+
+  deploy-scripts:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/deploy/cloudshell
+    steps:
+      - uses: actions/checkout@v4
+      - name: shellcheck
+        run: shellcheck -x deploy.sh teardown.sh remote.sh lib.sh remote/install.sh remote/secrets.sh remote/hishob
+      - uses: astral-sh/setup-uv@v5
+      - name: cfn-lint
+        run: uvx cfn-lint template.yaml
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/web/package-lock.json
+      - run: npm ci
+      - name: Type-check and build
+        run: npm run build
