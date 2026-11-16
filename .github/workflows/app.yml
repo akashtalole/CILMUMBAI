@@ -58,3 +58,16 @@ jobs:
         run: uv run hishob api openapi --check
       - name: Tests
         run: uv run pytest -q
+
+  deploy-scripts:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/deploy/cloudshell
+    steps:
+      - uses: actions/checkout@v4
+      - name: shellcheck
+        run: shellcheck -x deploy.sh teardown.sh remote.sh lib.sh remote/install.sh remote/secrets.sh remote/hishob
+      - uses: astral-sh/setup-uv@v5
+      - name: cfn-lint
+        run: uvx cfn-lint template.yaml

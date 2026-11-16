@@ -72,6 +72,10 @@ By default documents are stored under `./var/` and events appended to `./var/eve
 
 The archive bucket must have versioning and object lock. Production buckets come from Terraform (SPEC-013); `hishob.archive.storage.create_archive_bucket` does the same for tests.
 
+## Deploy to AWS (demo)
+
+From AWS CloudShell: `cd app/deploy/cloudshell && ./deploy.sh`, and `./teardown.sh` to remove it. One CloudFormation stack in Mumbai: an instance running the API, worker, Postgres and Neo4j behind CloudFront, with S3, SQS and Secrets Manager. Not yet run against a real account; see [deploy/cloudshell/README.md](deploy/cloudshell/README.md). The production profile is SPEC-013.
+
 ## Test
 
 ```sh

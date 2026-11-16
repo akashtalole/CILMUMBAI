@@ -100,3 +100,9 @@ Standard profile (SPEC-030). WhatsApp channel resources (SPEC-019). Cross-region
 |---|---|---|
 | Claude Platform on AWS availability for an account in Mumbai | Platform engineer | Available; else the Anthropic API with a key in Secrets Manager |
 | Host organisation that owns the account | Product lead | Team lead's account until decided |
+
+## Change log
+
+| Date | Change |
+|---|---|
+| 16 Nov 2026 | Added an interim **demo profile** deployed from AWS CloudShell: `app/deploy/cloudshell/` (`deploy.sh`, `remote.sh`, `teardown.sh`, CloudFormation `template.yaml`). It is for the hackathon and for trying the platform, and does not meet this spec. It meets R2, R3 (with the AWS-managed S3 key, not a customer key), R5 (CloudFront only; the graph and database listen on localhost), and keeps buckets on teardown. It does not meet R1 (CloudFormation from CloudShell, not Terraform from CI), R4 (one instance, not Fargate services with separate roles), R6 (a Claude key in Secrets Manager, as ADR 0002 allows for the hackathon), R7 (no rebuild job) or R8 (signed development tokens, no Cognito). Not yet run against a real AWS account; see its README. |

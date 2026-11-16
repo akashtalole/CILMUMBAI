@@ -1,0 +1,329 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Aamcha Hishob, demo profile: one instance (API, worker, Postgres with PostGIS, Neo4j) behind CloudFront, with the
+  archive, data and released-output buckets, queues and secrets. Deployed and torn down from AWS CloudShell by
+  app/deploy/cloudshell/deploy.sh and teardown.sh. Not the production profile: that is SPEC-013 (Terraform, Fargate).
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: aamcha-hishob
+    AllowedPattern: "^[a-z][a-z0-9-]{2,30}$"
+  InstanceType:
+    Type: String
+    Default: t3.large
+    Description: Neo4j, Postgres and the app share this instance; 8 GiB of memory is the practical minimum.
+  VolumeSizeGiB:
+    Type: Number
+    Default: 40
+    MinValue: 20
+  UbuntuAmi:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/canonical/ubuntu/server/24.04/stable/current/amd64/hvm/ebs-gp3/ami-id
+  CloudFrontPrefixListId:
+    Type: String
+    Description: The managed prefix list com.amazonaws.global.cloudfront.origin-facing in this region (deploy.sh looks it up).
+    AllowedPattern: "^pl-[0-9a-f]+$"
+  ArchiveRetentionDays:
+    Type: Number
+    Default: 365
+    MinValue: 1
+    Description: Default object-lock retention (governance mode) for archived source documents.
+
+Resources:
+  # ---- network: one public subnet; the instance takes traffic only from CloudFront ------------------------------
+  Vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.42.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags: [{Key: Name, Value: !Ref ProjectName}]
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+  GatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties: {VpcId: !Ref Vpc, InternetGatewayId: !Ref InternetGateway}
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc
+      CidrBlock: 10.42.1.0/24
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      Tags: [{Key: Name, Value: !Sub "${ProjectName}-public"}]
+  RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties: {VpcId: !Ref Vpc}
+  DefaultRoute:
+    Type: AWS::EC2::Route
+    DependsOn: GatewayAttachment
+    Properties: {RouteTableId: !Ref RouteTable, DestinationCidrBlock: 0.0.0.0/0, GatewayId: !Ref InternetGateway}
+  SubnetRoutes:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: {SubnetId: !Ref PublicSubnet, RouteTableId: !Ref RouteTable}
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: HTTP from CloudFront only; no SSH (use Session Manager)
+      VpcId: !Ref Vpc
+      SecurityGroupIngress:
+        - {IpProtocol: tcp, FromPort: 80, ToPort: 80, SourcePrefixListId: !Ref CloudFrontPrefixListId}
+      SecurityGroupEgress:
+        - {IpProtocol: "-1", CidrIp: 0.0.0.0/0, Description: "packages, Claude API, S3, SQS, Secrets Manager"}
+
+  # ---- storage: kept when the stack is deleted; teardown.sh --delete-data removes them --------------------------
+  ArchiveBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      ObjectLockEnabled: true
+      ObjectLockConfiguration:
+        ObjectLockEnabled: Enabled
+        Rule: {DefaultRetention: {Mode: GOVERNANCE, Days: !Ref ArchiveRetentionDays}}
+      VersioningConfiguration: {Status: Enabled}
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - {ServerSideEncryptionByDefault: {SSEAlgorithm: "aws:kms"}, BucketKeyEnabled: true}
+      PublicAccessBlockConfiguration:
+        {BlockPublicAcls: true, BlockPublicPolicy: true, IgnorePublicAcls: true, RestrictPublicBuckets: true}
+      Tags: [{Key: project, Value: !Ref ProjectName}, {Key: role, Value: archive}]
+  DataBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      VersioningConfiguration: {Status: Enabled}
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - {ServerSideEncryptionByDefault: {SSEAlgorithm: "aws:kms"}, BucketKeyEnabled: true}
+      PublicAccessBlockConfiguration:
+        {BlockPublicAcls: true, BlockPublicPolicy: true, IgnorePublicAcls: true, RestrictPublicBuckets: true}
+      LifecycleConfiguration:
+        Rules:
+          - {Id: old-deploy-bundles, Status: Enabled, Prefix: deploy/, ExpirationInDays: 30, NoncurrentVersionExpiration: {NoncurrentDays: 7}}
+      Tags: [{Key: project, Value: !Ref ProjectName}, {Key: role, Value: data}]
+  ReleasedBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      VersioningConfiguration: {Status: Enabled}
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - {ServerSideEncryptionByDefault: {SSEAlgorithm: "aws:kms"}, BucketKeyEnabled: true}
+      PublicAccessBlockConfiguration:
+        {BlockPublicAcls: true, BlockPublicPolicy: true, IgnorePublicAcls: true, RestrictPublicBuckets: true}
+      Tags: [{Key: project, Value: !Ref ProjectName}, {Key: role, Value: released}]
+
+  # ---- queues ------------------------------------------------------------------------------------------------
+  EventsQueue:
+    Type: AWS::SQS::Queue
+    Properties: {SqsManagedSseEnabled: true, MessageRetentionPeriod: 1209600}
+  WorkflowDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties: {SqsManagedSseEnabled: true, MessageRetentionPeriod: 1209600}
+  WorkflowQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      SqsManagedSseEnabled: true
+      VisibilityTimeout: 3600
+      RedrivePolicy: {deadLetterTargetArn: !GetAtt WorkflowDeadLetterQueue.Arn, maxReceiveCount: 3}
+
+  # ---- secrets: generated here; the Claude key is set by deploy.sh from a hidden prompt --------------------------
+  TokenSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: HMAC secret that signs access-tier tokens (HISHOB_TOKEN_SECRET)
+      GenerateSecretString: {PasswordLength: 48, ExcludePunctuation: true}
+  ClaudeKeySecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: Claude API key for the demo (ADR 0002 allows this for the hackathon). Replaced by deploy.sh.
+      SecretString: unset
+
+  # ---- instance --------------------------------------------------------------------------------------------
+  InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement: [{Effect: Allow, Principal: {Service: ec2.amazonaws.com}, Action: sts:AssumeRole}]
+      ManagedPolicyArns: [!Sub "arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore"]
+      Policies:
+        - PolicyName: hishob-app
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: ArchiveAppendOnly
+                Effect: Allow
+                Action: [s3:GetObject, s3:GetObjectVersion, s3:PutObject]
+                Resource: !Sub "${ArchiveBucket.Arn}/*"
+              - Sid: DataAndReleased
+                Effect: Allow
+                Action: [s3:GetObject, s3:GetObjectVersion, s3:PutObject]
+                Resource: [!Sub "${DataBucket.Arn}/*", !Sub "${ReleasedBucket.Arn}/*"]
+              - Sid: List
+                Effect: Allow
+                Action: s3:ListBucket
+                Resource: [!GetAtt ArchiveBucket.Arn, !GetAtt DataBucket.Arn, !GetAtt ReleasedBucket.Arn]
+              - Sid: Queues
+                Effect: Allow
+                Action: [sqs:SendMessage, sqs:ReceiveMessage, sqs:DeleteMessage, sqs:GetQueueAttributes, sqs:ChangeMessageVisibility]
+                Resource: [!GetAtt EventsQueue.Arn, !GetAtt WorkflowQueue.Arn]
+              - Sid: Secrets
+                Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource: [!Ref TokenSecret, !Ref ClaudeKeySecret]
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties: {Roles: [!Ref InstanceRole]}
+  # The fixed address is attached to the network interface before the instance boots, so set-up can download
+  # packages at once and the CloudFront origin never changes, even if the instance is stopped and started.
+  Address:
+    Type: AWS::EC2::EIP
+    DependsOn: GatewayAttachment
+    Properties: {Domain: vpc}
+  NetworkInterface:
+    Type: AWS::EC2::NetworkInterface
+    Properties:
+      SubnetId: !Ref PublicSubnet
+      GroupSet: [!Ref InstanceSecurityGroup]
+  AddressAssociation:
+    Type: AWS::EC2::EIPAssociation
+    Properties: {AllocationId: !GetAtt Address.AllocationId, NetworkInterfaceId: !Ref NetworkInterface}
+  Instance:
+    Type: AWS::EC2::Instance
+    DependsOn: [DefaultRoute, AddressAssociation]
+    Properties:
+      ImageId: !Ref UbuntuAmi
+      InstanceType: !Ref InstanceType
+      IamInstanceProfile: !Ref InstanceProfile
+      NetworkInterfaces: [{NetworkInterfaceId: !Ref NetworkInterface, DeviceIndex: "0"}]
+      MetadataOptions: {HttpTokens: required, HttpEndpoint: enabled}
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs: {VolumeSize: !Ref VolumeSizeGiB, VolumeType: gp3, Encrypted: true, DeleteOnTermination: true}
+      Tags: [{Key: Name, Value: !Ref ProjectName}, {Key: project, Value: !Ref ProjectName}]
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          # System packages and local stores. The app itself is installed by deploy.sh through Session Manager.
+          set -euxo pipefail
+          exec > >(tee -a /var/log/hishob-bootstrap.log) 2>&1
+          export DEBIAN_FRONTEND=noninteractive
+          echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/80retries
+          apt-get update -q
+          apt-get install -y -q postgresql-16 postgresql-16-postgis-3 openjdk-21-jre-headless curl unzip jq git openssl
+          if ! command -v aws >/dev/null; then
+            curl -sSL https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o /tmp/awscli.zip
+            unzip -q /tmp/awscli.zip -d /tmp && /tmp/aws/install && rm -rf /tmp/aws /tmp/awscli.zip
+          fi
+          curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin INSTALLER_NO_MODIFY_PATH=1 sh
+
+          id hishob >/dev/null 2>&1 || useradd --system --create-home --home-dir /home/hishob --shell /usr/sbin/nologin hishob
+          install -d -m 755 -o hishob -g hishob /opt/hishob /opt/hishob/releases /var/lib/hishob
+          install -d -m 750 -o root -g hishob /etc/hishob
+
+          # Postgres listens on localhost only (Ubuntu default). Its password never leaves the instance.
+          PG_PASSWORD=$(openssl rand -hex 24)
+          sudo -u postgres psql -v ON_ERROR_STOP=1 -c "ALTER USER postgres PASSWORD '${!PG_PASSWORD}'"
+          sudo -u postgres createdb hishob || true
+          sudo -u postgres psql -d hishob -c 'CREATE EXTENSION IF NOT EXISTS postgis' -c 'CREATE EXTENSION IF NOT EXISTS pg_trgm'
+
+          # Neo4j Community on 127.0.0.1 only.
+          if [ ! -d /opt/neo4j-community-5.26.0 ]; then
+            curl -sSL -o /tmp/neo4j.tar.gz https://dist.neo4j.org/neo4j-community-5.26.0-unix.tar.gz
+            tar xzf /tmp/neo4j.tar.gz -C /opt && rm /tmp/neo4j.tar.gz
+            ln -sfn /opt/neo4j-community-5.26.0 /opt/neo4j
+          fi
+          id neo4j >/dev/null 2>&1 || useradd --system --no-create-home --shell /usr/sbin/nologin neo4j
+          NEO4J_PASSWORD=$(openssl rand -hex 24)
+          /opt/neo4j/bin/neo4j-admin dbms set-initial-password "${!NEO4J_PASSWORD}"
+          cat >> /opt/neo4j/conf/neo4j.conf <<'CONF'
+          server.default_listen_address=127.0.0.1
+          server.memory.heap.initial_size=1g
+          server.memory.heap.max_size=1g
+          server.memory.pagecache.size=1g
+          CONF
+          chown -R neo4j:neo4j /opt/neo4j-community-5.26.0
+          cat > /etc/systemd/system/neo4j.service <<'UNIT'
+          [Unit]
+          Description=Neo4j (Aamcha Hishob graph)
+          After=network.target
+          [Service]
+          User=neo4j
+          ExecStart=/opt/neo4j/bin/neo4j console
+          Restart=on-failure
+          LimitNOFILE=60000
+          [Install]
+          WantedBy=multi-user.target
+          UNIT
+          systemctl daemon-reload
+          systemctl enable --now neo4j
+
+          umask 027
+          cat > /etc/hishob/hishob.env <<ENV
+          AWS_DEFAULT_REGION=${AWS::Region}
+          HISHOB_DATABASE_URL=postgresql://postgres:${!PG_PASSWORD}@127.0.0.1:5432/hishob
+          HISHOB_STORAGE=s3
+          HISHOB_ARCHIVE_BUCKET=${ArchiveBucket}
+          HISHOB_DATA_BUCKET=${DataBucket}
+          HISHOB_PUBLIC_BUCKET=${ReleasedBucket}
+          HISHOB_EVENTS=sqs
+          HISHOB_EVENTS_QUEUE_URL=${EventsQueue}
+          HISHOB_WORKFLOW_QUEUE_URL=${WorkflowQueue}
+          HISHOB_GRAPH_URI=neo4j://127.0.0.1:7687
+          HISHOB_GRAPH_USER=neo4j
+          HISHOB_GRAPH_PASSWORD=${!NEO4J_PASSWORD}
+          HISHOB_API_URL=http://127.0.0.1:80
+          HISHOB_TOKEN_SECRET_ARN=${TokenSecret}
+          HISHOB_CLAUDE_KEY_SECRET_ARN=${ClaudeKeySecret}
+          ENV
+          chgrp hishob /etc/hishob/hishob.env
+          touch /var/lib/hishob/bootstrapped
+
+  # ---- HTTPS in front: CloudFront to the instance's fixed address --------------------------------------------
+  Distribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: !Sub "${ProjectName} API (demo profile)"
+        HttpVersion: http2
+        PriceClass: PriceClass_200
+        Origins:
+          - Id: api
+            # The public DNS name of the Elastic IP, e.g. ec2-1-2-3-4.ap-south-1.compute.amazonaws.com
+            DomainName: !Sub
+              - "ec2-${Dashed}.${AWS::Region}.compute.amazonaws.com"
+              - Dashed: !Join ["-", !Split [".", !Ref Address]]
+            CustomOriginConfig: {HTTPPort: 80, OriginProtocolPolicy: http-only, OriginReadTimeout: 60}
+        DefaultCacheBehavior:
+          TargetOriginId: api
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD, OPTIONS, PUT, PATCH, POST, DELETE]
+          CachedMethods: [GET, HEAD]
+          Compress: true
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad # managed: CachingDisabled
+          OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac # managed: AllViewerExceptHostHeader
+
+Outputs:
+  ApiUrl:
+    Value: !Sub "https://${Distribution.DomainName}"
+  InstanceId:
+    Value: !Ref Instance
+  ArchiveBucket:
+    Value: !Ref ArchiveBucket
+  DataBucket:
+    Value: !Ref DataBucket
+  ReleasedBucket:
+    Value: !Ref ReleasedBucket
+  WorkflowQueueUrl:
+    Value: !Ref WorkflowQueue
+  EventsQueueUrl:
+    Value: !Ref EventsQueue
+  TokenSecretArn:
+    Value: !Ref TokenSecret
+  ClaudeKeySecretArn:
+    Value: !Ref ClaudeKeySecret
