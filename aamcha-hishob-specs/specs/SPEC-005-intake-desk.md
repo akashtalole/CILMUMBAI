@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Draft |
+| Status | In progress (started 16 Nov 2026 at the product owner's request, before the second review) |
 | Milestone | M0 |
 | Owner role | AI engineer |
 | Depends on | SPEC-001, SPEC-002, SPEC-003 |
@@ -64,7 +64,9 @@ class IntakeRun:
     load_report: str | None         # path to SPEC-003 report
 ```
 
-Agent files: `app/agents/{ingest-lead,doc-extractor,fact-verifier,entity-resolver}.md`, environment `civic-cloud.yaml`, rubric `rubrics/ingest.md`, applied with `ant apply`.
+Agent files: `app/agents/{ingest-lead,doc-extractor,fact-verifier,entity-resolver}.md`, environment `app/agents/environments/civic-cloud.yaml`, rubric `app/agents/rubrics/ingest.md`. They are applied with `hishob agents apply`, which uses the SDK and a local, uncommitted lock file (`app/agents/.lock.json`) of ids, versions and content hashes. This replaces `ant apply`, which was not available in the build environment; the file format is the same, so `ant apply` can take over later.
+
+Mounts: each document at `/mnt/session/uploads/corpus/<sha256>.<ext>` so extracted facts cite their source by hash; the generated `records.json` and the ontology reference at `/mnt/session/uploads/schema/`; known entities at `/mnt/session/uploads/entities.jsonl`. Run records live in `agentkit.runs` (migration `003_agent_runs.sql`).
 
 ## 6. Non-functional requirements
 

@@ -26,11 +26,15 @@ class Analysis:
 
 def analyse(data: bytes, kind: media.MediaType) -> Analysis:
     if kind == media.PDF:
-        with pymupdf.open(stream=data, filetype="pdf") as doc:  # type: ignore[no-untyped-call]
-            pages = []
-            for index, page in enumerate(doc, start=1):
-                text = page.get_text()
-                pages.append(Page(index, text if text.strip() else None))
+        try:
+            with pymupdf.open(stream=data, filetype="pdf") as doc:  # type: ignore[no-untyped-call]
+                pages = []
+                for index, page in enumerate(doc, start=1):
+                    text = page.get_text()
+                    pages.append(Page(index, text if text.strip() else None))
+        except (pymupdf.FileDataError, RuntimeError, ValueError):
+            # A damaged PDF is still archived as received, with no pages, so the record shows it was seen.
+            return Analysis([])
         return Analysis(pages)
     if kind in (media.CSV, media.JSON, media.GEOJSON, media.TEXT):
         text = data.decode("utf-8-sig")

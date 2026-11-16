@@ -320,13 +320,13 @@ class Loader:
             self.conn.commit()
             if row is None:
                 return "new"
-            current_id, current_props = str(row[0]), self._props_of(str(row[0]))
+            current_id, current_props = str(row[0]), self.props_of(str(row[0]))
         if _canonical(current_props) == _canonical(entry["props"]):
             return "corroborating"
         entry["supersedes"] = current_id
         return "superseded"
 
-    def _props_of(self, fid: str) -> dict[str, Any]:
+    def props_of(self, fid: str) -> dict[str, Any]:
         row = self.conn.execute("SELECT file_key FROM ledger.facts WHERE fact_id = %s", (fid,)).fetchone()
         self.conn.commit()
         if row is None:

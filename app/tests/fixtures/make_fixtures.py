@@ -71,6 +71,32 @@ def main(font: str) -> None:
     mixed.set_metadata({"producer": "fixture", "creationDate": "D:20261116000000", "modDate": "D:20261116000000"})
     mixed.save(HERE / "tender-mixed.pdf", garbage=4, deflate=True, no_new_id=True)
 
+    award = pymupdf.open()
+    _text_page(
+        award,
+        [
+            ("en", MARK),
+            ("en", "Brihanmumbai Municipal Corporation, Storm Water Drains Department"),
+            ("en", "Standing Committee resolution TEST/SC/0003"),
+            ("en", "The work of desilting nullahs in K/West ward is awarded to"),
+            ("en", "M/s Shree Ganesh Infra Pvt. Ltd. at Rs. 98,40,000."),
+        ],
+        None,
+    )
+    _text_page(
+        award,
+        [
+            ("en", MARK),
+            ("en", "Mobilisation advance released to Shree Ganesh Infrastructure"),
+            ("en", "on 12 September 2026. No registration number is quoted in this notice."),
+        ],
+        None,
+    )
+    award.set_metadata({"producer": "fixture", "creationDate": "D:20261116000000", "modDate": "D:20261116000000"})
+    award.save(HERE / "award-notice.pdf", garbage=4, deflate=True, no_new_id=True)
+
+    (HERE / "damaged.pdf").write_bytes(b"%PDF-1.7\n" + b"this file was cut short in transit" * 3)
+
     picture = pymupdf.open()
     page = picture.new_page(width=200, height=80)
     page.insert_text((10, 40), "Site board photo (fixture)", fontname="helv", fontsize=10)

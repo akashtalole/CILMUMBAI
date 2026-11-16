@@ -59,6 +59,13 @@ def main(argv: list[str] | None = None) -> int:
     load.add_argument("--extractor", required=True, help="agent id and version, e.g. doc-extractor@3")
     load.add_argument("--ontology-version", help="ontology version the facts were extracted under")
 
+    agents = groups.add_parser("agents").add_subparsers(dest="command", required=True)
+    agents.add_parser("apply", help="create or update the agents and environment in the Claude account")
+    intake = groups.add_parser("intake").add_subparsers(dest="command", required=True)
+    run_cmd = intake.add_parser("run", help="read archived documents with the intake desk (SPEC-005)")
+    run_cmd.add_argument("sha256", nargs="+")
+    run_cmd.add_argument("--cap-usd", type=int, default=5, help="hard spending cap for the session, in dollars")
+
     ontology = groups.add_parser("ontology").add_subparsers(dest="command", required=True)
     build = ontology.add_parser("build", help="generate the record schema, whitelist and reference page")
     build.add_argument("--check", action="store_true", help="fail if the committed files are out of date")
@@ -66,6 +73,13 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.group == "ontology":
         return _ontology_build(check=args.check)
+    if args.group == "agents":
+        from hishob.agentkit.client import make_client
+        from hishob.agentkit.provision import apply
+
+        for item in apply(make_client()):
+            print(f"{item.action:9} {item.kind:11} {item.key:18} {item.id} {item.version or ''}")
+        return 0
     settings = Settings.from_env()
 
     if args.group == "db":
@@ -74,6 +88,18 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     store = build_archive(settings)
+    if args.group == "intake":
+        from dataclasses import asdict
+
+        from hishob.agentkit.client import make_client
+        from hishob.agentkit.intake import run_intake
+        from hishob.ledger import Loader
+
+        run = run_intake(
+            make_client(), store, Loader(store.registry.conn, store, store.data), args.sha256, cap_usd=args.cap_usd
+        )
+        print(json.dumps(asdict(run), ensure_ascii=False, indent=2))
+        return 0 if run.status == "complete" else 1
     if args.group == "load":
         from dataclasses import asdict
 
