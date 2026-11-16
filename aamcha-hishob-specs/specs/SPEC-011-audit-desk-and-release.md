@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | In progress: all acceptance criteria pass with scripted agents against the real API |
+| Status | In progress: all acceptance criteria pass with scripted agents, plus a live run; awaiting review |
 | Milestone | M1 |
 | Owner role | AI engineer |
 | Depends on | SPEC-007, SPEC-009 |
@@ -118,5 +118,23 @@ Regulation desk and jurisdiction cards (SPEC-026). Contractor network views (lat
 
 ### Not done yet
 
+- **Changes asked for by the Challenger are not checked in code.** A `publish with changes` verdict passes once the review exists; whether each change was made is left to the rubric grader and the reviewer at the release gate.
 - **Language and legal review** of the Marathi and Hindi banned-word lists.
 - **Officials named without an honorific** and not present as Person nodes are not caught by code; the Challenger is told to flag them.
+
+## First live run (16 November 2026)
+
+Ward K/W, on the facts from the first live intake (SPEC-005), which come from the synthetic test-fixture tender documents and the DataMeet ward boundaries. Command: `hishob audit run K/W --cap-usd 8`.
+
+| Measure | Result |
+|---|---|
+| Agents that ran | Audit lead; Challenger and Drafter as sub-agents |
+| Rubric grading | `needs_revision`, then `satisfied` |
+| Outputs | Ward brief, 1 case file with its review (`publish with changes`, 10 changes listed), 8 RTI applications, meeting questions, 8 gaps |
+| Cost and time | $2.54, 17 minutes |
+| What the brief said | The graph holds the ward and one partial award sentence ("The work of desilting nullahs in K/West ward is awarded to", which stops there); each of the five checks found nothing, stated as missing records rather than as nothing wrong; two ward nodes (K/W and K/West) that the records do not link |
+| Code check, as run | Failed the brief, so the run was marked incomplete: the brief points to its own files (`drafts/rti-01.md`, `cases/case-01-…`) and the identifier rule took those paths for unsourced work numbers. The fix request did not help, because the problem was in the check |
+| Fix | References to the run's own files and backticked graph node ids are removed before the value check; tender and work numbers written as text are still checked (regression test from this run) |
+| Code check, after the fix | All 13 outputs pass: no banned words, no people named, every fact id resolves and every cited value matches |
+
+What it showed beyond the acceptance tests: the desk says plainly when the records are thin instead of filling gaps; the RTI drafts ask for named records and leave the resident's details blank; and the intake left two nodes for one ward (K/W from the boundary file, K/West from a tender), which entity resolution in SPEC-005 should merge.

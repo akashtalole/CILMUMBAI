@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from hishob.agentkit.definitions import apply_order, load_agents
-from hishob.agentkit.outputs import arrange, banned_words, blocks, canonical, verdict
+from hishob.agentkit.outputs import NODE_ID, OUTPUT_REF, arrange, banned_words, blocks, canonical, verdict
 from hishob.agentkit.redact import honorific_names
 from hishob.agentkit.tools import AUDIT_TOOL_DEFINITIONS, AUDIT_TOOLS
 from tests.unit.test_spec005_agents import _enabled_tools
@@ -97,3 +97,14 @@ def test_spec011_ac5_people_named_after_an_honorific_are_found_landmarks_are_not
 def test_spec011_references_are_checked_per_paragraph_and_table_row() -> None:
     markdown = "# Case\n\nFirst line\ncontinues.\n\n| Claim | Value |\n|---|---|\n| Cost | Rs. 5 |\n\nLast."
     assert blocks(markdown) == ["First line continues.", "| Cost | Rs. 5 |", "Last."]
+
+
+def test_spec011_pointers_to_outputs_and_node_ids_are_not_claims_but_tender_numbers_are() -> None:
+    # From the first live run: the brief pointed to its own drafts, and the check took the paths for identifiers.
+    text = (
+        "(RTI applications `drafts/rti-01.md` to `rti-03.md`; see `cases/case-01-k-west-desilting-award-unlinked.md`)"
+    )
+    assert OUTPUT_REF.sub("", text).replace("`", "") == "(RTI applications  to ; see )"
+    assert NODE_ID.sub("", "graph node `adminward:k-w` and `tender:test_kw_roads_0001`") == "graph node  and "
+    claim = "The tender TEST/KW/ROADS/0001 and work no. 2026-RD-17 were cited."
+    assert OUTPUT_REF.sub("", claim) == claim and NODE_ID.sub("", claim) == claim

@@ -20,6 +20,13 @@ from hishob.agentkit.redact import honorific_names
 FACT_ID = re.compile(r"f_[0-9a-f]{32}")
 FACT_MARK = re.compile(r"\s?\[\s*f_[0-9a-f]{32}(?:\s*,\s*f_[0-9a-f]{32})*\s*\]")
 SHA256 = re.compile(r"\b[0-9a-f]{64}\b")
+# References to the run's own files and to graph node ids are pointers, not claims: they are removed before the
+# value check. A tender or work number written as text, not as a backticked node id, is still checked.
+OUTPUT_REF = re.compile(
+    r"`?(?<![\w/])(?:(?:cases|held|drafts)/)?(?:case|rti|complaint)-[\w.-]*\w(?:\.md)?`?"
+    r"|`?(?<![\w/])(?:cases|held|drafts)/[\w.-]*\w`?|\bquestions\.md\b|\bgaps\.jsonl\b|\bward-brief\.md\b"
+)
+NODE_ID = re.compile(r"`[a-z]+:[^`\s]+`")
 VERDICT = re.compile(r"^[\s>*_-]*verdict[\s*_]*:[\s*_`]*(publish with changes|publish|hold)\b", re.I | re.M)
 
 # R5. Conclusions, not facts. English by stem; Marathi and Hindi by stem too, so case endings are caught.
@@ -241,7 +248,8 @@ def _check_references(
         return out
     for block in blocks(text):
         cited = sorted(set(FACT_ID.findall(block)))
-        body = SHA256.sub("", FACT_ID.sub("", FACT_MARK.sub("", block))).strip()
+        body = SHA256.sub("", FACT_ID.sub("", FACT_MARK.sub("", block)))
+        body = NODE_ID.sub("", OUTPUT_REF.sub("", body)).strip()
         if not body:
             continue
         check = http.post("/answers/check", json={"text": body, "cited_fact_ids": cited}, headers=headers).json()
