@@ -14,6 +14,14 @@ def idle(reason: str = "end_turn") -> NS:
     return event("session.status_idle", stop_reason=NS(type=reason))
 
 
+def say(text: str) -> NS:
+    return event("agent.message", content=[NS(type="text", text=text)])
+
+
+def call(name: str, **arguments: Any) -> NS:
+    return event("agent.custom_tool_use", id=f"sevt_{name}", name=name, input=arguments)
+
+
 class _Stream:
     def __init__(self, events: list[NS]) -> None:
         self.events = events
@@ -26,11 +34,16 @@ class _Stream:
 
 
 class _Events:
-    def __init__(self, script: list[NS]) -> None:
+    """`script` is one list of events, replayed on every stream, or a list of lists, one per stream opened."""
+
+    def __init__(self, script: list[Any]) -> None:
+        self.turns = script if script and isinstance(script[0], list) else None
         self.script = script
         self.sent: list[dict[str, Any]] = []
 
     def stream(self, session_id: str) -> _Stream:
+        if self.turns is not None:
+            return _Stream(self.turns.pop(0) if self.turns else [idle()])
         return _Stream(self.script)
 
     def send(self, session_id: str, events: list[dict[str, Any]]) -> None:

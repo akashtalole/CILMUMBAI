@@ -91,6 +91,13 @@ def main(argv: list[str] | None = None) -> int:
     openapi = api.add_parser("openapi", help="write the OpenAPI document to api/openapi.json (SPEC-007)")
     openapi.add_argument("--check", action="store_true", help="fail if the committed document is out of date")
 
+    ask = groups.add_parser("ask", help="ask the citizen desk a question through a running API (SPEC-008)")
+    ask.add_argument("question")
+    ask.add_argument("--api", default="http://127.0.0.1:8000", help="base URL of the query API")
+    ask.add_argument("--lat", type=float)
+    ask.add_argument("--lon", type=float)
+    ask.add_argument("--language", choices=["mr", "hi", "en"])
+
     agents = groups.add_parser("agents").add_subparsers(dest="command", required=True)
     agents.add_parser("apply", help="create or update the agents and environment in the Claude account")
     intake = groups.add_parser("intake").add_subparsers(dest="command", required=True)
@@ -119,6 +126,20 @@ def main(argv: list[str] | None = None) -> int:
         target.parent.mkdir(exist_ok=True)
         target.write_text(document, encoding="utf-8")
         print(f"wrote {target}")
+        return 0
+    if args.group == "ask":
+        import httpx
+
+        from hishob.agentkit.citizen import answer_question
+        from hishob.agentkit.client import make_client
+
+        location = (args.lat, args.lon) if args.lat is not None and args.lon is not None else None
+        with httpx.Client(base_url=args.api, timeout=60) as http:
+            answer = answer_question(make_client(), http, args.question, language_hint=args.language, location=location)
+        print(answer.text)
+        if answer.draft_letter:
+            print("\n--- letter ---\n" + answer.draft_letter)
+        print(f"\n[{answer.status}, {answer.language}, {len(answer.cited_fact_ids)} facts cited]", file=sys.stderr)
         return 0
     if args.group == "agents":
         from hishob.agentkit.client import make_client

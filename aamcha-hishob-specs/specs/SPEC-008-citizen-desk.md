@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Draft |
+| Status | In progress: all acceptance criteria pass, plus a live run; awaiting second review and demo |
 | Milestone | M1 |
 | Owner role | AI engineer |
 | Depends on | SPEC-007 |
@@ -94,12 +94,38 @@ WhatsApp and voice (SPEC-019). Filing complaints into government systems.
 
 ## 10. Tasks
 
-| Id | Task | Size | Depends on | Verifies |
-|---|---|---|---|---|
-| T1 | Move agent file; lint rules for the desk | S | SPEC-005/T2 | AC8 |
-| T2 | Tool answering through the API under tier | M | SPEC-007/T3 | AC1 |
-| T3 | Citation check loop and fallback reply | M | SPEC-007/T5 | AC4 |
-| T4 | Redaction with fixtures | M | | AC7 |
-| T5 | Location prompt behaviour; fixture conversation | S | T2 | AC3 |
-| T6 | Liability statement from `who_is_responsible` | S | T2 | AC6 |
-| T7 | Language tests and post-only naming tests in the question set | M | SPEC-012/T3 | AC2, AC5 |
+| Id | Task | Size | Depends on | Verifies | State |
+|---|---|---|---|---|---|
+| T1 | Move agent file; lint rules for the desk | S | SPEC-005/T2 | AC8 | Done |
+| T2 | Tool answering through the API under tier | M | SPEC-007/T3 | AC1 | Done |
+| T3 | Citation check loop and fallback reply | M | SPEC-007/T5 | AC4 | Done |
+| T4 | Redaction with fixtures | M | | AC7 | Done |
+| T5 | Location prompt behaviour; fixture conversation | S | T2 | AC3 | Done |
+| T6 | Liability statement from `who_is_responsible` | S | T2 | AC6 | Done |
+| T7 | Language tests and post-only naming tests in the question set | M | SPEC-012/T3 | AC2, AC5 | Done |
+
+## Change log
+
+| Date | Change |
+|---|---|
+| 16 Nov 2026 | Implemented in `app/src/hishob/agentkit/` (`citizen.py`, `redact.py`, `language.py`, `tools.py`) and `app/agents/citizen-desk.md`; tests in `app/tests/unit/test_spec008_parts.py`, `app/tests/integration/test_spec008_citizen.py` and `app/tests/live/test_spec008_live.py`. Command: `hishob ask`. |
+
+### Decisions made while building
+
+- **Tools read through the API**, over HTTP, as the resident's tier. The desk cannot see what the resident could not.
+- **Citations are markers.** The agent writes `[f_…]` after each claim. Code strips them, runs the citation check, and builds the source list itself from the cited facts, so a source line can never be invented.
+- **Review in code** before anything is sent: citation check, reply language, no private person named, and the liability end date stated when there is one. One rewrite is requested with the problems listed; a second failure returns a reply built in code, in the resident's language, from what the tools returned and the gaps they reported.
+- **Redaction** removes phone numbers, emails, flat and house numbers, and names introduced as names or after an honorific. Landmarks are kept ("Shri Ganesh Mandir", "श्री गणेश मंदिराजवळ"), as are names on a keep list of office holders.
+- **Memory** is not attached yet: no memory stores exist. R8's read-only memory applies when they do.
+
+## First live run (16 November 2026)
+
+Question, in Marathi, with the resident's name and phone in it: who will fix the pothole on S. V. Road, and until when is the contractor responsible?
+
+| Measure | Result |
+|---|---|
+| What the model saw | `माझे नाव [name], फोन [phone]. …` |
+| Tools called | `find_place`, then `who_is_responsible` |
+| Reply | In Marathi: the contractor must repair at its own cost until 31 May 2031; complain first to the Assistant Engineer (Roads), K/West, then the Executive Engineer (Roads), Western Suburbs; offers to write the letter |
+| Checks | Passed on the first attempt; 8 facts cited |
+| Cost | $0.05 |

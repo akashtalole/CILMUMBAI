@@ -97,7 +97,9 @@ IDENTIFIER = re.compile(
     r"(?<![\w/])(?=[A-Za-z0-9_/-]*\d)(?=[A-Za-z0-9_/-]*[A-Za-z/_-])[A-Za-z0-9][A-Za-z0-9_/-]{5,}"
     r"|(?<!\d)\d{8,}(?!\d)"
 )
-NAME = re.compile(r"(?:M/s\.?\s+)?[A-Z][\w.&'-]*(?:\s+(?:[A-Z][\w.&'-]*|of|and|&))*\s+[A-Z][\w.&'-]*")
+# Capitalised words or initials ("S."), joined only by spaces, so a name never runs across a full stop.
+_CAP = r"(?:[A-Z][a-z][\w'&-]*|[A-Z]\.|[A-Z]{2,})"
+NAME = re.compile(rf"(?:M/s\.?\s+)?{_CAP}(?:\s+(?:{_CAP}|of|and|&))*\s+{_CAP}")
 ALLOWED_NAMES = {
     normalise(n)
     for n in (
