@@ -1,0 +1,873 @@
+{
+  "edges": {
+    "ABOUT": [
+      [
+        "Gap",
+        "AdminWard"
+      ],
+      [
+        "Gap",
+        "Agency"
+      ],
+      [
+        "Gap",
+        "Allocation"
+      ],
+      [
+        "Gap",
+        "Asset"
+      ],
+      [
+        "Gap",
+        "Award"
+      ],
+      [
+        "Gap",
+        "Bid"
+      ],
+      [
+        "Gap",
+        "Blacklisting"
+      ],
+      [
+        "Gap",
+        "Bridge"
+      ],
+      [
+        "Gap",
+        "BudgetHead"
+      ],
+      [
+        "Gap",
+        "Building"
+      ],
+      [
+        "Gap",
+        "Company"
+      ],
+      [
+        "Gap",
+        "Contract"
+      ],
+      [
+        "Gap",
+        "Contractor"
+      ],
+      [
+        "Gap",
+        "Corrigendum"
+      ],
+      [
+        "Gap",
+        "DefectLiabilityPeriod"
+      ],
+      [
+        "Gap",
+        "Department"
+      ],
+      [
+        "Gap",
+        "Director"
+      ],
+      [
+        "Gap",
+        "Drain"
+      ],
+      [
+        "Gap",
+        "ElectoralWard"
+      ],
+      [
+        "Gap",
+        "Expenditure"
+      ],
+      [
+        "Gap",
+        "FiscalYear"
+      ],
+      [
+        "Gap",
+        "Gap"
+      ],
+      [
+        "Gap",
+        "Garden"
+      ],
+      [
+        "Gap",
+        "Hospital"
+      ],
+      [
+        "Gap",
+        "Inspection"
+      ],
+      [
+        "Gap",
+        "IssueType"
+      ],
+      [
+        "Gap",
+        "Locality"
+      ],
+      [
+        "Gap",
+        "Milestone"
+      ],
+      [
+        "Gap",
+        "Payment"
+      ],
+      [
+        "Gap",
+        "Penalty"
+      ],
+      [
+        "Gap",
+        "Person"
+      ],
+      [
+        "Gap",
+        "Post"
+      ],
+      [
+        "Gap",
+        "Road"
+      ],
+      [
+        "Gap",
+        "School"
+      ],
+      [
+        "Gap",
+        "ServiceStandard"
+      ],
+      [
+        "Gap",
+        "SourceDocument"
+      ],
+      [
+        "Gap",
+        "Tender"
+      ],
+      [
+        "Gap",
+        "Toilet"
+      ],
+      [
+        "Gap",
+        "Work"
+      ]
+    ],
+    "AMENDS": [
+      [
+        "Corrigendum",
+        "Tender"
+      ]
+    ],
+    "COVERS": [
+      [
+        "Post",
+        "AdminWard"
+      ]
+    ],
+    "DIRECTOR_OF": [
+      [
+        "Director",
+        "Company"
+      ]
+    ],
+    "FOR_WORK": [
+      [
+        "Contract",
+        "Work"
+      ],
+      [
+        "Penalty",
+        "Work"
+      ],
+      [
+        "Tender",
+        "Work"
+      ]
+    ],
+    "FOR_YEAR": [
+      [
+        "Allocation",
+        "FiscalYear"
+      ],
+      [
+        "Expenditure",
+        "FiscalYear"
+      ]
+    ],
+    "FROM_AWARD": [
+      [
+        "Contract",
+        "Award"
+      ]
+    ],
+    "FUNDED_BY": [
+      [
+        "Work",
+        "Allocation"
+      ]
+    ],
+    "HANDLED_BY": [
+      [
+        "IssueType",
+        "Department"
+      ]
+    ],
+    "HAS_DLP": [
+      [
+        "Work",
+        "DefectLiabilityPeriod"
+      ]
+    ],
+    "HAS_SLA": [
+      [
+        "IssueType",
+        "ServiceStandard"
+      ]
+    ],
+    "HOLDS": [
+      [
+        "Person",
+        "Post"
+      ]
+    ],
+    "IMPOSED_ON": [
+      [
+        "Penalty",
+        "Contractor"
+      ]
+    ],
+    "IMPROVES": [
+      [
+        "Work",
+        "Asset"
+      ],
+      [
+        "Work",
+        "Bridge"
+      ],
+      [
+        "Work",
+        "Building"
+      ],
+      [
+        "Work",
+        "Drain"
+      ],
+      [
+        "Work",
+        "Garden"
+      ],
+      [
+        "Work",
+        "Hospital"
+      ],
+      [
+        "Work",
+        "Road"
+      ],
+      [
+        "Work",
+        "School"
+      ],
+      [
+        "Work",
+        "Toilet"
+      ]
+    ],
+    "IN": [
+      [
+        "Post",
+        "Department"
+      ]
+    ],
+    "IS": [
+      [
+        "Contractor",
+        "Company"
+      ]
+    ],
+    "ISSUED_BY": [
+      [
+        "Tender",
+        "Department"
+      ]
+    ],
+    "LOCATED_IN": [
+      [
+        "Asset",
+        "AdminWard"
+      ],
+      [
+        "Bridge",
+        "AdminWard"
+      ],
+      [
+        "Building",
+        "AdminWard"
+      ],
+      [
+        "Drain",
+        "AdminWard"
+      ],
+      [
+        "Garden",
+        "AdminWard"
+      ],
+      [
+        "Hospital",
+        "AdminWard"
+      ],
+      [
+        "Road",
+        "AdminWard"
+      ],
+      [
+        "School",
+        "AdminWard"
+      ],
+      [
+        "Toilet",
+        "AdminWard"
+      ]
+    ],
+    "OF": [
+      [
+        "Award",
+        "Tender"
+      ],
+      [
+        "Blacklisting",
+        "Contractor"
+      ],
+      [
+        "Inspection",
+        "Asset"
+      ],
+      [
+        "Inspection",
+        "Bridge"
+      ],
+      [
+        "Inspection",
+        "Building"
+      ],
+      [
+        "Inspection",
+        "Drain"
+      ],
+      [
+        "Inspection",
+        "Garden"
+      ],
+      [
+        "Inspection",
+        "Hospital"
+      ],
+      [
+        "Inspection",
+        "Road"
+      ],
+      [
+        "Inspection",
+        "School"
+      ],
+      [
+        "Inspection",
+        "Toilet"
+      ],
+      [
+        "Milestone",
+        "Work"
+      ]
+    ],
+    "ON": [
+      [
+        "Bid",
+        "Tender"
+      ]
+    ],
+    "OWNS": [
+      [
+        "Agency",
+        "Asset"
+      ],
+      [
+        "Agency",
+        "Bridge"
+      ],
+      [
+        "Agency",
+        "Building"
+      ],
+      [
+        "Agency",
+        "Drain"
+      ],
+      [
+        "Agency",
+        "Garden"
+      ],
+      [
+        "Agency",
+        "Hospital"
+      ],
+      [
+        "Agency",
+        "Road"
+      ],
+      [
+        "Agency",
+        "School"
+      ],
+      [
+        "Agency",
+        "Toilet"
+      ]
+    ],
+    "PARENT_OF": [
+      [
+        "BudgetHead",
+        "BudgetHead"
+      ]
+    ],
+    "PARTY_TO": [
+      [
+        "Contractor",
+        "Contract"
+      ]
+    ],
+    "PART_OF": [
+      [
+        "Department",
+        "Agency"
+      ]
+    ],
+    "REPORTS_TO": [
+      [
+        "Post",
+        "Post"
+      ]
+    ],
+    "REPRESENTS": [
+      [
+        "Person",
+        "ElectoralWard"
+      ]
+    ],
+    "RETENDER_OF": [
+      [
+        "Tender",
+        "Tender"
+      ]
+    ],
+    "SUBMITTED": [
+      [
+        "Contractor",
+        "Bid"
+      ]
+    ],
+    "TO": [
+      [
+        "Award",
+        "Contractor"
+      ]
+    ],
+    "UNDER": [
+      [
+        "Allocation",
+        "BudgetHead"
+      ],
+      [
+        "Expenditure",
+        "BudgetHead"
+      ]
+    ],
+    "UNDER_CONTRACT": [
+      [
+        "Payment",
+        "Contract"
+      ]
+    ],
+    "WITHIN": [
+      [
+        "ElectoralWard",
+        "AdminWard"
+      ],
+      [
+        "Locality",
+        "AdminWard"
+      ]
+    ]
+  },
+  "labels": {
+    "AdminWard": {
+      "module": "place",
+      "properties": {
+        "code": "string",
+        "geometry_wkt": "string",
+        "name": "string",
+        "name_en": "string"
+      }
+    },
+    "Agency": {
+      "module": "org",
+      "properties": {
+        "name": "string",
+        "name_en": "string"
+      }
+    },
+    "Allocation": {
+      "module": "money",
+      "properties": {
+        "amount_actual": "integer",
+        "amount_be": "integer",
+        "amount_re": "integer",
+        "name": "string",
+        "name_en": "string"
+      }
+    },
+    "Asset": {
+      "module": "works",
+      "properties": {
+        "geometry_wkt": "string",
+        "name": "string",
+        "name_en": "string",
+        "osm_way_id": "string"
+      }
+    },
+    "Award": {
+      "module": "procurement",
+      "properties": {
+        "awarded_on": "date",
+        "name": "string",
+        "name_en": "string",
+        "value": "integer"
+      }
+    },
+    "Bid": {
+      "module": "procurement",
+      "properties": {
+        "name": "string",
+        "name_en": "string",
+        "value": "integer"
+      }
+    },
+    "Blacklisting": {
+      "module": "procurement",
+      "properties": {
+        "from_date": "date",
+        "name": "string",
+        "name_en": "string",
+        "reason": "string",
+        "to_date": "date"
+      }
+    },
+    "Bridge": {
+      "module": "works",
+      "properties": {
+        "geometry_wkt": "string",
+        "name": "string",
+        "name_en": "string",
+        "osm_way_id": "string"
+      }
+    },
+    "BudgetHead": {
+      "module": "money",
+      "properties": {
+        "code": "string",
+        "kind": "string",
+        "name": "string",
+        "name_en": "string"
+      }
+    },
+    "Building": {
+      "module": "works",
+      "properties": {
+        "geometry_wkt": "string",
+        "name": "string",
+        "name_en": "string",
+        "osm_way_id": "string"
+      }
+    },
+    "Company": {
+      "module": "procurement",
+      "properties": {
+        "name": "string",
+        "name_en": "string",
+        "reg_no": "string"
+      }
+    },
+    "Contract": {
+      "module": "procurement",
+      "properties": {
+        "due_on": "date",
+        "duration_days": "integer",
+        "name": "string",
+        "name_en": "string",
+        "signed_on": "date",
+        "value": "integer"
+      }
+    },
+    "Contractor": {
+      "module": "procurement",
+      "properties": {
+        "name": "string",
+        "name_en": "string",
+        "reg_no": "string"
+      }
+    },
+    "Corrigendum": {
+      "module": "procurement",
+      "properties": {
+        "changed_field": "string",
+        "name": "string",
+        "name_en": "string",
+        "published_on": "date",
+        "ref_no": "string"
+      }
+    },
+    "DefectLiabilityPeriod": {
+      "module": "works",
+      "properties": {
+        "from_date": "date",
+        "name": "string",
+        "name_en": "string",
+        "to_date": "date"
+      }
+    },
+    "Department": {
+      "module": "org",
+      "properties": {
+        "name": "string",
+        "name_en": "string"
+      }
+    },
+    "Director": {
+      "module": "procurement",
+      "properties": {
+        "name": "string",
+        "name_en": "string"
+      }
+    },
+    "Drain": {
+      "module": "works",
+      "properties": {
+        "geometry_wkt": "string",
+        "length_km": "number",
+        "name": "string",
+        "name_en": "string",
+        "osm_way_id": "string"
+      }
+    },
+    "ElectoralWard": {
+      "module": "place",
+      "properties": {
+        "geometry_wkt": "string",
+        "name": "string",
+        "name_en": "string",
+        "number": "integer"
+      }
+    },
+    "Expenditure": {
+      "module": "money",
+      "properties": {
+        "amount": "integer",
+        "name": "string",
+        "name_en": "string"
+      }
+    },
+    "FiscalYear": {
+      "module": "money",
+      "properties": {
+        "name": "string",
+        "name_en": "string",
+        "year_label": "string"
+      }
+    },
+    "Gap": {
+      "module": "evidence",
+      "properties": {
+        "holder": "string",
+        "name": "string",
+        "name_en": "string",
+        "record_needed": "string"
+      }
+    },
+    "Garden": {
+      "module": "works",
+      "properties": {
+        "geometry_wkt": "string",
+        "name": "string",
+        "name_en": "string",
+        "osm_way_id": "string"
+      }
+    },
+    "Hospital": {
+      "module": "works",
+      "properties": {
+        "geometry_wkt": "string",
+        "name": "string",
+        "name_en": "string",
+        "osm_way_id": "string"
+      }
+    },
+    "Inspection": {
+      "module": "works",
+      "properties": {
+        "inspected_on": "date",
+        "name": "string",
+        "name_en": "string",
+        "result": "string"
+      }
+    },
+    "IssueType": {
+      "module": "org",
+      "properties": {
+        "code": "string",
+        "name": "string",
+        "name_en": "string"
+      }
+    },
+    "Locality": {
+      "module": "place",
+      "properties": {
+        "geometry_wkt": "string",
+        "name": "string",
+        "name_en": "string"
+      }
+    },
+    "Milestone": {
+      "module": "works",
+      "properties": {
+        "completed_on": "date",
+        "due_on": "date",
+        "name": "string",
+        "name_en": "string",
+        "title": "string"
+      }
+    },
+    "Payment": {
+      "module": "money",
+      "properties": {
+        "amount": "integer",
+        "name": "string",
+        "name_en": "string",
+        "paid_on": "date"
+      }
+    },
+    "Penalty": {
+      "module": "procurement",
+      "properties": {
+        "amount": "integer",
+        "imposed_on": "date",
+        "name": "string",
+        "name_en": "string",
+        "reason": "string"
+      }
+    },
+    "Person": {
+      "module": "org",
+      "properties": {
+        "name": "string",
+        "name_en": "string"
+      }
+    },
+    "Post": {
+      "module": "org",
+      "properties": {
+        "name": "string",
+        "name_en": "string",
+        "title": "string"
+      }
+    },
+    "Road": {
+      "module": "works",
+      "properties": {
+        "geometry_wkt": "string",
+        "length_km": "number",
+        "name": "string",
+        "name_en": "string",
+        "osm_way_id": "string"
+      }
+    },
+    "School": {
+      "module": "works",
+      "properties": {
+        "geometry_wkt": "string",
+        "name": "string",
+        "name_en": "string",
+        "osm_way_id": "string"
+      }
+    },
+    "ServiceStandard": {
+      "module": "org",
+      "properties": {
+        "days": "integer",
+        "name": "string",
+        "name_en": "string"
+      }
+    },
+    "SourceDocument": {
+      "module": "evidence",
+      "properties": {
+        "name": "string",
+        "name_en": "string",
+        "publisher": "string",
+        "sha256": "string",
+        "title": "string"
+      }
+    },
+    "Tender": {
+      "module": "procurement",
+      "properties": {
+        "bmc_bid_no": "string",
+        "category": "string",
+        "closes_on": "date",
+        "emd": "integer",
+        "estimated_cost": "integer",
+        "name": "string",
+        "name_en": "string",
+        "opened_on": "date",
+        "published_on": "date",
+        "ref_no": "string",
+        "status": "string",
+        "tender_id": "string",
+        "title": "string"
+      }
+    },
+    "Toilet": {
+      "module": "works",
+      "properties": {
+        "geometry_wkt": "string",
+        "name": "string",
+        "name_en": "string",
+        "osm_way_id": "string"
+      }
+    },
+    "Work": {
+      "module": "works",
+      "properties": {
+        "category": "string",
+        "completed_on": "date",
+        "due_on": "date",
+        "name": "string",
+        "name_en": "string",
+        "status": "string",
+        "title": "string"
+      }
+    }
+  },
+  "ontology_version": "0.1.0",
+  "tiers": [
+    "official",
+    "reported",
+    "citizen",
+    "derived"
+  ]
+}

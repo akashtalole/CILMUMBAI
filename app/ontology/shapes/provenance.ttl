@@ -1,0 +1,23 @@
+@prefix mco:  <https://akashtalole.github.io/CILMUMBAI/ontology/mco#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# Constitution C1: no source, no fact. Every node and relationship carries its provenance.
+mco:FactShape a sh:NodeShape ;
+    sh:targetClass mco:Fact ;
+    sh:property [ sh:path mco:source ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ;
+                  sh:pattern "^[0-9a-f]{64}$" ; sh:message "source must be the SHA-256 of an archived document" ] ;
+    sh:property [ sh:path mco:page ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:integer ; sh:minInclusive 1 ;
+                  sh:message "page is required and starts at 1" ] ;
+    sh:property [ sh:path mco:quote ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ; sh:minLength 1 ;
+                  sh:message "quote is required: the verbatim words that state the fact" ] ;
+    sh:property [ sh:path mco:tier ; sh:minCount 1 ; sh:maxCount 1 ; sh:in ( "official" "reported" "citizen" "derived" ) ;
+                  sh:message "tier must be official, reported, citizen or derived" ] ;
+    sh:property [ sh:path mco:confidence ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:decimal ;
+                  sh:minInclusive 0 ; sh:maxInclusive 1 ; sh:message "confidence is a number from 0 to 1" ] .
+
+mco:EdgeAssertionShape a sh:NodeShape ;
+    sh:targetClass mco:EdgeAssertion ;
+    sh:property [ sh:path mco:edgeTypeValue ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path mco:edgeSubject ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path mco:edgeObject ; sh:minCount 1 ; sh:maxCount 1 ] .

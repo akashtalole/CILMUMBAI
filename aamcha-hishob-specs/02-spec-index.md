@@ -107,7 +107,7 @@ web/                          static site (SPEC-020); a minimal page in SPEC-010
 | Spec | Status | Acceptance criteria | With passing tests |
 |---|---|---|---|
 | SPEC-001 | In progress | 7 | 7 |
-| SPEC-002 | Draft | 6 | 0 |
+| SPEC-002 | In progress | 6 | 6 |
 | SPEC-003 | Draft | 9 | 0 |
 | SPEC-004 | Draft | 6 | 0 |
 | SPEC-005 | Draft | 8 | 0 |

@@ -1,4 +1,4 @@
-"""Command line: `hishob db migrate`, `hishob archive add`, `hishob archive show`."""
+"""Command line: `hishob db migrate`, `hishob archive add|show`, `hishob ontology build [--check]`."""
 
 from __future__ import annotations
 
@@ -53,7 +53,13 @@ def main(argv: list[str] | None = None) -> int:
     show = archive.add_parser("show", help="print a document's registry entry")
     show.add_argument("sha256")
 
+    ontology = groups.add_parser("ontology").add_subparsers(dest="command", required=True)
+    build = ontology.add_parser("build", help="generate the record schema, whitelist and reference page")
+    build.add_argument("--check", action="store_true", help="fail if the committed files are out of date")
+
     args = parser.parse_args(argv)
+    if args.group == "ontology":
+        return _ontology_build(check=args.check)
     settings = Settings.from_env()
 
     if args.group == "db":
@@ -88,6 +94,23 @@ def main(argv: list[str] | None = None) -> int:
             indent=2,
         )
     )
+    return 0
+
+
+def _ontology_build(*, check: bool) -> int:
+    from hishob.schema import build
+
+    files = build.generate()
+    if check:
+        out_of_date = build.stale(files)
+        if out_of_date:
+            print("generated artefacts out of date: " + ", ".join(out_of_date), file=sys.stderr)
+            print("run: uv run hishob ontology build", file=sys.stderr)
+            return 1
+        print("generated artefacts are up to date")
+        return 0
+    build.write(files)
+    print("wrote: " + ", ".join(files))
     return 0
 
 

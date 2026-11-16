@@ -1,0 +1,33 @@
+@prefix mco:  <https://akashtalole.github.io/CILMUMBAI/ontology/mco#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix org:  <http://www.w3.org/ns/org#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix geo:  <http://www.opengis.net/ont/geosparql#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+mco:AdminWard a owl:Class ; mco:module "place" ; rdfs:subClassOf mco:Node , geo:Feature ;
+    rdfs:label "Administrative ward"@en , "प्रशासकीय विभाग (वॉर्ड)"@mr .
+mco:ElectoralWard a owl:Class ; mco:module "place" ; rdfs:subClassOf mco:Node , geo:Feature ;
+    rdfs:label "Electoral ward"@en , "निवडणूक प्रभाग"@mr .
+mco:Locality a owl:Class ; mco:module "place" ; rdfs:subClassOf mco:Node , geo:Feature ;
+    rdfs:label "Locality"@en , "परिसर"@mr .
+
+mco:code a owl:DatatypeProperty ; rdfs:range xsd:string ; mco:jsonKey "code" ;
+    mco:propertyOf mco:AdminWard , mco:BudgetHead , mco:IssueType ;
+    rdfs:label "code"@en , "संकेतांक"@mr .
+mco:number a owl:DatatypeProperty ; rdfs:range xsd:integer ; mco:jsonKey "number" ; mco:propertyOf mco:ElectoralWard ;
+    rdfs:label "number"@en , "क्रमांक"@mr .
+mco:geometryWkt a owl:DatatypeProperty ; rdfs:range xsd:string ; mco:jsonKey "geometry_wkt" ;
+    mco:propertyOf mco:AdminWard , mco:ElectoralWard , mco:Locality , mco:Asset ;
+    rdfs:label "geometry (WKT, WGS 84)"@en , "भौगोलिक आकार"@mr .
+
+mco:electoralWardWithin a owl:ObjectProperty ; mco:edgeType "WITHIN" ; mco:edgeFrom mco:ElectoralWard ; mco:edgeTo mco:AdminWard ;
+    rdfs:label "within"@en , "च्या आत"@mr .
+mco:localityWithin a owl:ObjectProperty ; mco:edgeType "WITHIN" ; mco:edgeFrom mco:Locality ; mco:edgeTo mco:AdminWard ;
+    rdfs:label "within"@en , "च्या आत"@mr .
+mco:locatedIn a owl:ObjectProperty ; mco:edgeType "LOCATED_IN" ; mco:edgeFrom mco:Asset ; mco:edgeTo mco:AdminWard ;
+    rdfs:label "located in"@en , "मध्ये स्थित"@mr .

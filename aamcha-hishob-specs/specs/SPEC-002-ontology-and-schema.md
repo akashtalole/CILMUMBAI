@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Draft |
+| Status | In progress: all acceptance criteria pass in CI; awaiting second review, and Marathi labels await the language reviewer |
 | Milestone | M0 |
 | Owner role | Graph engineer |
 | Depends on | |
@@ -52,8 +52,12 @@ app/ontology/
   shapes/*.ttl   glossary.ttl   VERSION
 app/src/hishob/schema/
   records.json      JSON Schema for one extracted record (node | edge | note)
-  whitelist.json    {"labels": {...}, "edges": {"FOR_WORK": {"from": ["Tender","Contract"], "to": ["Work"]}}}
+  whitelist.json    {"labels": {"Tender": {"module": ..., "properties": {"estimated_cost": "integer", ...}}},
+                     "edges": {"FOR_WORK": [["Contract","Work"], ["Penalty","Work"], ["Tender","Work"]]}}
+app/ontology/REFERENCE.md   generated reference page
 ```
+
+Each relationship is declared once per allowed pair with the annotations `mco:edgeType`, `mco:edgeFrom` and `mco:edgeTo`; each record property with `mco:jsonKey` and one or more `mco:propertyOf`. Annotations are used instead of `rdfs:domain` because RDFS reads several domains as an intersection, not a choice.
 
 Command: `hishob ontology build [--check]`.
 
@@ -82,17 +86,23 @@ Land and Planning, People, Services, Voice and Law modules (later specs add them
 
 ## 10. Tasks
 
-| Id | Task | Size | Depends on | Verifies |
-|---|---|---|---|---|
-| T1 | Core, Place and Evidence modules with labels | M | | AC1 |
-| T2 | Money, Procurement, Works, Organisation modules | L | T1 | AC1 |
-| T3 | Provenance shapes and per-class shapes | M | T1 | AC2, AC3 |
-| T4 | Generator for JSON Schema and whitelist | M | T2 | AC4, AC5 |
-| T5 | Generator for the reference page | S | T2 | AC4 |
-| T6 | `--check` mode and CI job | S | T4, T5 | AC6 |
+| Id | Task | Size | Depends on | Verifies | State |
+|---|---|---|---|---|---|
+| T1 | Core, Place and Evidence modules with labels | M | | AC1 | Done |
+| T2 | Money, Procurement, Works, Organisation modules | L | T1 | AC1 | Done |
+| T3 | Provenance shapes and per-class shapes | M | T1 | AC2, AC3 | Done |
+| T4 | Generator for JSON Schema and whitelist | M | T2 | AC4, AC5 | Done |
+| T5 | Generator for the reference page | S | T2 | AC4 | Done |
+| T6 | `--check` mode and CI job | S | T4, T5 | AC6 | Done |
 
 ## 11. Open questions
 
 | Question | Owner | Assumption until answered |
 |---|---|---|
 | Who reviews Marathi labels | Language reviewer | Product lead drafts; reviewer approves before M2 |
+
+## Change log
+
+| Date | Change |
+|---|---|
+| 16 Nov 2026 | Implemented in `app/ontology/` and `app/src/hishob/schema/`; tests in `app/tests/unit/test_spec002_ontology.py`. 39 node labels and 32 relationship types. The reference page is `app/ontology/REFERENCE.md` rather than `docs/ontology.md`. Added `FOR_WORK` from `Penalty` to `Work`, which the contractor graph needs. Marathi labels are drafts. |

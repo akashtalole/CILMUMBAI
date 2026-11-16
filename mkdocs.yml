@@ -125,6 +125,7 @@ nav:
           - SPEC-011 Audit desk and release: aamcha-hishob-specs/specs/SPEC-011-audit-desk-and-release.md
           - SPEC-012 Evaluation and promotion gate: aamcha-hishob-specs/specs/SPEC-012-evaluation-and-promotion-gate.md
           - SPEC-013 AWS lean infrastructure: aamcha-hishob-specs/specs/SPEC-013-aws-lean-infrastructure.md
+      - Ontology reference: app-ontology/REFERENCE.md
       - Templates:
           - Spec template: aamcha-hishob-specs/templates/spec-template.md
           - Task card: aamcha-hishob-specs/templates/task-card.md

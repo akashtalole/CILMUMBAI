@@ -1,0 +1,45 @@
+@prefix mco:  <https://akashtalole.github.io/CILMUMBAI/ontology/mco#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix org:  <http://www.w3.org/ns/org#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix geo:  <http://www.opengis.net/ont/geosparql#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+mco:Agency a owl:Class ; mco:module "org" ; rdfs:subClassOf mco:Node ; skos:closeMatch org:Organization ;
+    rdfs:label "Agency"@en , "प्राधिकरण"@mr ; rdfs:comment "BMC, MMRDA, MSRDC, PWD, MHADA, SRA, BEST and others."@en .
+mco:Department a owl:Class ; mco:module "org" ; rdfs:subClassOf mco:Node ; skos:closeMatch org:OrganizationalUnit ;
+    rdfs:label "Department"@en , "खाते"@mr .
+mco:Post a owl:Class ; mco:module "org" ; rdfs:subClassOf mco:Node ; skos:closeMatch org:Post ;
+    rdfs:label "Post"@en , "पद"@mr ; rdfs:comment "An office such as Assistant Engineer (Roads), K/West. Named by post, not person."@en .
+mco:Person a owl:Class ; mco:module "org" ; rdfs:subClassOf mco:Node ;
+    rdfs:label "Person (public role only)"@en , "व्यक्ती (केवळ सार्वजनिक पद)"@mr .
+mco:IssueType a owl:Class ; mco:module "org" ; rdfs:subClassOf mco:Node ;
+    rdfs:label "Issue type"@en , "तक्रारीचा प्रकार"@mr .
+mco:ServiceStandard a owl:Class ; mco:module "org" ; rdfs:subClassOf mco:Node ;
+    rdfs:label "Service standard"@en , "सेवा मानक"@mr .
+
+mco:days a owl:DatatypeProperty ; rdfs:range xsd:integer ; mco:jsonKey "days" ; mco:propertyOf mco:ServiceStandard ;
+    rdfs:label "days"@en , "दिवस"@mr .
+
+mco:partOf a owl:ObjectProperty ; mco:edgeType "PART_OF" ; mco:edgeFrom mco:Department ; mco:edgeTo mco:Agency ;
+    rdfs:label "part of"@en , "चा भाग"@mr .
+mco:postIn a owl:ObjectProperty ; mco:edgeType "IN" ; mco:edgeFrom mco:Post ; mco:edgeTo mco:Department ;
+    rdfs:label "in"@en , "मध्ये"@mr .
+mco:covers a owl:ObjectProperty ; mco:edgeType "COVERS" ; mco:edgeFrom mco:Post ; mco:edgeTo mco:AdminWard ;
+    rdfs:label "covers"@en , "कार्यक्षेत्र"@mr .
+mco:reportsTo a owl:ObjectProperty ; mco:edgeType "REPORTS_TO" ; mco:edgeFrom mco:Post ; mco:edgeTo mco:Post ;
+    rdfs:label "reports to"@en , "यांना अहवाल देते"@mr .
+mco:holds a owl:ObjectProperty ; mco:edgeType "HOLDS" ; mco:edgeFrom mco:Person ; mco:edgeTo mco:Post ;
+    rdfs:label "holds"@en , "धारण करते"@mr .
+mco:represents a owl:ObjectProperty ; mco:edgeType "REPRESENTS" ; mco:edgeFrom mco:Person ; mco:edgeTo mco:ElectoralWard ;
+    rdfs:label "represents"@en , "प्रतिनिधित्व करते"@mr .
+mco:owns a owl:ObjectProperty ; mco:edgeType "OWNS" ; mco:edgeFrom mco:Agency ; mco:edgeTo mco:Asset ;
+    rdfs:label "owns"@en , "मालकीचे"@mr .
+mco:handledBy a owl:ObjectProperty ; mco:edgeType "HANDLED_BY" ; mco:edgeFrom mco:IssueType ; mco:edgeTo mco:Department ;
+    rdfs:label "handled by"@en , "द्वारे हाताळले जाते"@mr .
+mco:hasSla a owl:ObjectProperty ; mco:edgeType "HAS_SLA" ; mco:edgeFrom mco:IssueType ; mco:edgeTo mco:ServiceStandard ;
+    rdfs:label "has service standard"@en , "सेवा मानक"@mr .
