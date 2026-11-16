@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Draft |
+| Status | In progress: all acceptance criteria pass; awaiting second review and demo (started 16 Nov 2026 at the product owner's request, before review) |
 | Milestone | M0 |
 | Owner role | Graph engineer |
 | Depends on | SPEC-001, SPEC-002 |
@@ -59,7 +59,16 @@ s3://…/staging/<batch>/held.jsonl                     {record, reason, detail}
 s3://…/staging/<batch>/report.json                    counts
 ```
 
-Held reasons: `schema_invalid`, `unknown_label`, `unknown_edge`, `domain_range`, `quote_not_found`, `page_out_of_range`, `dangling_endpoint`, `unknown_ontology_major`.
+Held reasons: `schema_invalid`, `unknown_label`, `unknown_edge`, `unknown_property`, `wrong_type`, `shape_violation`, `domain_range`, `unknown_source`, `page_out_of_range`, `quote_not_found`, `dangling_endpoint`, `label_conflict`, `unknown_ontology_major`. Notes (`kind: note`) are never loaded; they go to `staging/<batch>/notes.jsonl` for a person.
+
+Identity and fact ids:
+
+- Identity of a node is `node|<label>|<id>`; of an edge `edge|<type>|<from>|<to>`.
+- Fact id is a hash of identity, source, page and the canonical properties. Loading the same record again is a no-op counted as `unchanged`.
+- Same identity, different properties: appended with `supersedes` set to the current fact (R7).
+- Same identity and properties from another source or page: appended as corroboration, with no `supersedes`; the current fact does not change.
+
+The loader keeps an index of facts in Postgres (schema `ledger`) for supersession and endpoint checks. The index is derived from the ledger and can be rebuilt from it.
 
 ## 6. Non-functional requirements
 
@@ -82,19 +91,20 @@ Writing to the graph and indexes (SPEC-006). Review screen for held facts (SPEC-
 ## 9. Design notes
 
 - Reuse and harden `load()` and `quote_on_page()` from `civic_client.py`; read page text from SPEC-001 rather than reopening PDFs.
-- Normalise quotes and page text the same way: NFC, collapse whitespace, unify Devanagari nukta forms. Do not lowercase or strip punctuation: amounts and identifiers must match exactly.
+- Normalise quotes and page text the same way: NFC (which also unifies precomposed and decomposed nukta letters, because those are composition exclusions), remove zero-width joiners, non-joiners and soft hyphens, collapse whitespace. Do not lowercase or strip punctuation: amounts and identifiers must match exactly.
+- SHACL runs once per batch, not once per record, to meet the speed requirement.
 - Fact id: hash of kind, label or type, node ids and source sha256 and page.
 
 ## 10. Tasks
 
-| Id | Task | Size | Depends on | Verifies |
-|---|---|---|---|---|
-| T1 | Ledger writer and record model | M | SPEC-002/T4 | AC5, AC6 |
-| T2 | Schema and whitelist validation | S | T1 | AC1 |
-| T3 | Quote normaliser and check, with Marathi test fixtures | M | SPEC-001/T8 | AC2, AC3, AC4 |
-| T4 | Supersession | S | T1 | AC7 |
-| T5 | Dangling endpoint check against batch and ledger index | M | T1 | AC8 |
-| T6 | Batch report and command line | S | T2, T3 | AC9 |
+| Id | Task | Size | Depends on | Verifies | State |
+|---|---|---|---|---|---|
+| T1 | Ledger writer and record model | M | SPEC-002/T4 | AC5, AC6 | Done |
+| T2 | Schema and whitelist validation | S | T1 | AC1 | Done |
+| T3 | Quote normaliser and check, with Marathi test fixtures | M | SPEC-001/T8 | AC2, AC3, AC4 | Done |
+| T4 | Supersession | S | T1 | AC7 | Done |
+| T5 | Dangling endpoint check against batch and ledger index | M | T1 | AC8 | Done |
+| T6 | Batch report and command line | S | T2, T3 | AC9 | Done |
 
 ## 11. Open questions
 
@@ -102,3 +112,9 @@ Writing to the graph and indexes (SPEC-006). Review screen for held facts (SPEC-
 |---|---|---|
 | Should a near-match quote (one character off) be held or flagged | Product lead | Held |
 | Devanagari that a PDF draws with full shaping can extract as garbled text (seen while building SPEC-001's fixtures). How common is this in real BMC PDFs, and should such pages be treated like scans? | AI engineer | Measure on twenty real Marathi PDFs in M0; until then, a page whose text has Devanagari letters mixed with stray Latin-1 characters is treated as `scan_unchecked` |
+
+## Change log
+
+| Date | Change |
+|---|---|
+| 16 Nov 2026 | Implemented in `app/src/hishob/ledger/` with the index in migration `002_ledger.sql`; tests in `app/tests/integration/test_spec003_*.py` and `app/tests/unit/test_quotes.py`. Added hold reasons, the identity and fact-id rules, notes handling and an index rebuild (see section 5). Measured: 10,000 single-node records load in about 21 seconds locally. Ledger records carry a `seq` field giving their order within a file, used by the rebuild. |

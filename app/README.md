@@ -7,6 +7,7 @@ The implementation of [Aamcha Hishob](../mumbai-civic-platform/README.md), built
 | Spec | Status | What works |
 |---|---|---|
 | [SPEC-001](../aamcha-hishob-specs/specs/SPEC-001-document-archive.md) Document archive and registry | All 7 acceptance criteria pass; awaiting review | Archive files, URLs and uploads by content hash; never overwrite or delete; registry in Postgres; page text extraction; events to a file or SQS; command line |
+| [SPEC-003](../aamcha-hishob-specs/specs/SPEC-003-facts-ledger-and-loader.md) Facts ledger and loader | All 9 acceptance criteria pass; awaiting review | Validates extracted facts (schema, properties, SHACL per batch, source and page, quote check, edge endpoints), appends accepted facts to an append-only ledger, holds the rest with reasons, handles supersession and corroboration, and rebuilds its index from the ledger alone |
 | [SPEC-002](../aamcha-hishob-specs/specs/SPEC-002-ontology-and-schema.md) Ontology, shapes and generated schema | All 6 acceptance criteria pass; awaiting review | Mumbai Civic Ontology in Turtle (39 node labels, 32 relationship types, English and draft Marathi labels); SHACL shapes; generated record schema, whitelist and [reference page](ontology/REFERENCE.md); validators the loader will use |
 
 ## Set up
@@ -27,6 +28,7 @@ uv run hishob db migrate
 uv run hishob archive add ./tender.pdf --publisher bmc --licence "BMC public notice"
 uv run hishob archive add https://example.gov.in/notice.pdf --publisher bmc --licence "BMC public notice"
 uv run hishob archive show <sha256>
+uv run hishob load facts.jsonl --batch b-001 --extractor doc-extractor@1
 uv run hishob ontology build            # after editing ontology/*.ttl
 uv run hishob ontology build --check    # CI fails if generated files are stale
 ```
@@ -67,6 +69,7 @@ app/
   ontology/              SPEC-002: mco-*.ttl, shapes/, VERSION, generated REFERENCE.md
     archive/             SPEC-001: media, pages, scripts, storage, registry, fetch, events, service
     schema/              SPEC-002: model, build, whitelist, validate; generated records.json and whitelist.json
+    ledger/              SPEC-003: quote check, loader, ledger index
     cli.py  config.py  db.py
   tests/unit/            no database needed
   tests/integration/     acceptance tests; need Postgres

@@ -1,4 +1,4 @@
-"""Command line: `hishob db migrate`, `hishob archive add|show`, `hishob ontology build [--check]`."""
+"""Command line: `hishob db migrate`, `hishob archive add|show`, `hishob load`, `hishob ontology build [--check]`."""
 
 from __future__ import annotations
 
@@ -53,6 +53,12 @@ def main(argv: list[str] | None = None) -> int:
     show = archive.add_parser("show", help="print a document's registry entry")
     show.add_argument("sha256")
 
+    load = groups.add_parser("load", help="check a facts file and append accepted facts to the ledger (SPEC-003)")
+    load.add_argument("facts", type=Path)
+    load.add_argument("--batch", required=True, help="unique batch id")
+    load.add_argument("--extractor", required=True, help="agent id and version, e.g. doc-extractor@3")
+    load.add_argument("--ontology-version", help="ontology version the facts were extracted under")
+
     ontology = groups.add_parser("ontology").add_subparsers(dest="command", required=True)
     build = ontology.add_parser("build", help="generate the record schema, whitelist and reference page")
     build.add_argument("--check", action="store_true", help="fail if the committed files are out of date")
@@ -68,6 +74,17 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     store = build_archive(settings)
+    if args.group == "load":
+        from dataclasses import asdict
+
+        from hishob.ledger import Loader
+
+        loader = Loader(store.registry.conn, store, store.data)
+        report = loader.load_file(
+            args.facts, batch_id=args.batch, extractor=args.extractor, ontology_version=args.ontology_version
+        )
+        print(json.dumps({**asdict(report), "held_total": report.held_total}, ensure_ascii=False, indent=2))
+        return 0
     if args.command == "add":
         if args.source.startswith(("http://", "https://")):
             result = store.add_url(args.source, args.publisher, args.licence)

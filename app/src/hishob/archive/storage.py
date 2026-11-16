@@ -20,6 +20,9 @@ class ObjectStore(Protocol):
 
     def exists(self, key: str) -> bool: ...
 
+    def list(self, prefix: str) -> list[str]:
+        """Keys under a prefix, sorted."""
+
 
 class LocalStore:
     def __init__(self, root: Path) -> None:
@@ -47,6 +50,14 @@ class LocalStore:
 
     def exists(self, key: str) -> bool:
         return self._path(key).exists()
+
+    def list(self, prefix: str) -> list[str]:
+        root = self.root.resolve()
+        base = self._path(prefix) if prefix else root
+        if not base.exists():
+            return []
+        files = [base] if base.is_file() else [p for p in base.rglob("*") if p.is_file()]
+        return sorted(p.relative_to(root).as_posix() for p in files)
 
 
 class S3Store:
@@ -79,6 +90,12 @@ class S3Store:
                 return False
             raise
         return True
+
+    def list(self, prefix: str) -> list[str]:
+        keys: list[str] = []
+        for page in self.client.get_paginator("list_objects_v2").paginate(Bucket=self.bucket, Prefix=prefix):
+            keys.extend(item["Key"] for item in page.get("Contents", []))
+        return sorted(keys)
 
 
 def create_archive_bucket(client: Any, bucket: str, region: str, retention_years: int = 10) -> None:

@@ -56,19 +56,22 @@ def node_iri(node_id: str) -> URIRef:
     return URIRef(str(DATA) + quote(node_id, safe=":_-."))
 
 
-def to_graph(record: dict[str, Any]) -> Graph:
-    """Express one record as RDF for SHACL validation. Unknown props are skipped (the whitelist reports them)."""
+def to_graph(record: dict[str, Any], subject: URIRef | None = None) -> Graph:
+    """Express one record as RDF for SHACL validation. Unknown props are skipped (the whitelist reports them).
+
+    `subject` overrides the node's IRI, so that a batch can give every record its own subject.
+    """
     model = default_model()
     graph = Graph()
     if record.get("kind") == "node":
-        subject: URIRef | BNode = node_iri(str(record.get("id", "")))
+        subject = subject or node_iri(str(record.get("id", "")))
         graph.add((subject, RDF.type, MCO[str(record.get("label", "Node"))]))
         allowed = model.properties_for(str(record.get("label", "")))
         for key, value in (record.get("props") or {}).items():
             if key in allowed and key in model.properties:
                 graph.add((subject, URIRef(model.properties[key].iri), _literal(value, allowed[key])))
     else:
-        subject = BNode()
+        subject = subject or URIRef(str(DATA) + "_edge/" + str(BNode()))
         graph.add((subject, RDF.type, MCO.EdgeAssertion))
         if "type" in record:
             graph.add((subject, MCO.edgeTypeValue, Literal(record["type"])))
@@ -92,17 +95,36 @@ def shacl_problems(record: dict[str, Any]) -> list[str]:
     """Problems against the SHACL shapes, naming the record field at fault."""
     if record.get("kind") == "note":
         return []
+    return shacl_problems_batch([record]).get(0, [])
+
+
+def shacl_problems_batch(records: list[dict[str, Any]]) -> dict[int, list[str]]:
+    """Validate many records in one SHACL run. Returns {record index: problems} for records with problems."""
+    graph = Graph()
+    owners: dict[URIRef, int] = {}
+    for index, record in enumerate(records):
+        if record.get("kind") == "note":
+            continue
+        subject = URIRef(f"{DATA}_record/{index}")
+        owners[subject] = index
+        graph += to_graph(record, subject)
+    if not owners:
+        return {}
     ontology, shapes = _graphs()
-    conforms, report, _ = shacl_validate(to_graph(record), shacl_graph=shapes, ont_graph=ontology, inference="none")
+    conforms, report, _ = shacl_validate(graph, shacl_graph=shapes, ont_graph=ontology, inference="none")
     if conforms:
-        return []
+        return {}
     model = default_model()
     keys = {URIRef(p.iri): p.key for p in model.properties.values()}
     keys.update({MCO[k]: k for k in ("source", "page", "quote", "tier", "confidence")})
-    problems = []
+    found: dict[int, set[str]] = {}
     for result in report.subjects(RDF.type, SH.ValidationResult):
+        focus = report.value(result, SH.focusNode)
+        if focus not in owners:
+            continue
         path = report.value(result, SH.resultPath)
         field = keys.get(path, str(path).rsplit("#", 1)[-1]) if isinstance(path, URIRef) else "(record)"
-        message = report.value(result, SH.resultMessage)
-        problems.append(f"shape_violation: {field}: {message}")
-    return sorted(problems)
+        found.setdefault(owners[focus], set()).add(
+            f"shape_violation: {field}: {report.value(result, SH.resultMessage)}"
+        )
+    return {index: sorted(problems) for index, problems in found.items()}
