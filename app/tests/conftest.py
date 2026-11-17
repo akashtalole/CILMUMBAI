@@ -28,6 +28,8 @@ def conn() -> Iterator[psycopg.Connection[tuple[object, ...]]]:
     except psycopg.OperationalError as error:
         pytest.skip(f"no test database at HISHOB_TEST_DATABASE_URL: {error}")
     with connection.transaction():
+        connection.execute("DROP SCHEMA IF EXISTS alerts CASCADE")
+        connection.execute("DROP SCHEMA IF EXISTS account CASCADE")
         connection.execute("DROP SCHEMA IF EXISTS flow CASCADE")
         connection.execute("DROP SCHEMA IF EXISTS graphstore CASCADE")
         connection.execute("DROP SCHEMA IF EXISTS geo CASCADE")

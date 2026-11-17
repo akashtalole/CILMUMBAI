@@ -102,6 +102,72 @@
         "title": "Question",
         "type": "object"
       },
+      "SavedArea": {
+        "description": "A point with a radius, or named roads (SPEC-010/R1).",
+        "properties": {
+          "kind": {
+            "pattern": "^(point|roads)$",
+            "title": "Kind",
+            "type": "string"
+          },
+          "language": {
+            "pattern": "^(mr|hi|en)$",
+            "title": "Language",
+            "type": "string"
+          },
+          "lat": {
+            "anyOf": [
+              {
+                "maximum": 90.0,
+                "minimum": -90.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lat"
+          },
+          "lon": {
+            "anyOf": [
+              {
+                "maximum": 180.0,
+                "minimum": -180.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lon"
+          },
+          "radius_m": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Radius M"
+          },
+          "road_ids": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Road Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "kind",
+          "language"
+        ],
+        "title": "SavedArea",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "loc": {
@@ -144,6 +210,30 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/alerts": {
+      "get": {
+        "description": "The caller's alerts, newest first, each in its saved area's language with a link to the source page.",
+        "operationId": "my_alerts_alerts_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response My Alerts Alerts Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "My Alerts"
+      }
+    },
     "/answers/check": {
       "post": {
         "operationId": "answer_check_answers_check_post",
@@ -513,6 +603,99 @@
           }
         },
         "summary": "Source Page"
+      }
+    },
+    "/subscriptions": {
+      "get": {
+        "operationId": "subscriptions_subscriptions_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response Subscriptions Subscriptions Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Subscriptions"
+      },
+      "post": {
+        "operationId": "subscribe_subscriptions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SavedArea"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Subscribe Subscriptions Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Subscribe"
+      }
+    },
+    "/subscriptions/{subscription_id}": {
+      "delete": {
+        "operationId": "unsubscribe_subscriptions__subscription_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "subscription_id",
+            "required": true,
+            "schema": {
+              "title": "Subscription Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Unsubscribe"
       }
     },
     "/views/{name}": {

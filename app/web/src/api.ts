@@ -86,6 +86,24 @@ export interface SourcePage {
   fetched_at: string | null;
 }
 
+export interface SavedArea {
+  id: number;
+  kind: "point" | "roads";
+  lat: number | null;
+  lon: number | null;
+  radius_m: number | null;
+  road_ids: string[];
+  language: string;
+  created_at: string;
+}
+
+export interface Alert {
+  id: number;
+  created_at: string;
+  kind: string;
+  text: string;
+}
+
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -123,4 +141,15 @@ export const api = {
       body: JSON.stringify({ question, language, ...(location ?? {}) }),
     }),
   askStatus: (id: string) => call<AskJob>(`/ask/${id}`),
+  // Saved areas and alerts belong to an account (SPEC-010). Until sign-in exists, the token is an access code.
+  areas: (token: string) => call<SavedArea[]>(`/subscriptions`, { headers: auth(token) }),
+  saveArea: (token: string, area: Record<string, unknown>) =>
+    call<SavedArea>(`/subscriptions`, { method: "POST", headers: auth(token), body: JSON.stringify(area) }),
+  removeArea: (token: string, id: number) =>
+    fetch(`/subscriptions/${id}`, { method: "DELETE", headers: auth(token) }).then((r) => {
+      if (!r.ok) throw new ApiError(r.status, r.statusText);
+    }),
+  alerts: (token: string) => call<Alert[]>(`/alerts`, { headers: auth(token) }),
 };
+
+const auth = (token: string) => ({ Authorization: `Bearer ${token}` });

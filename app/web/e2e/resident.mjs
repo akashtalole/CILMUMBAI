@@ -117,6 +117,27 @@ for (const [name, options] of [
   check(await page.getByRole("link", { name: "Share on WhatsApp" }).isVisible(), `${name}: letter can be shared`);
   if (SHOTS) await page.screenshot({ path: `${SHOTS}/${name}-ask.png`, fullPage: true });
 
+  // Street alerts (SPEC-010): asks for an access code, then lists saved areas and alerts, in the chosen language
+  await page.evaluate(() => localStorage.removeItem("hishob.token"));
+  await page.getByRole("tab", { name: "Alerts" }).click();
+  check(await page.getByLabel("Access code").isVisible(), `${name}: alerts ask for an access code first`);
+  const areas = [{ id: 1, kind: "point", lat: 19.11, lon: 72.83, radius_m: 300, road_ids: [], language: "en", created_at: "2026-11-01T00:00:00Z" }];
+  const feed = [{ id: 9, kind: "tender_published", created_at: "2026-11-02T00:00:00Z",
+    text: "A tender has been published for work on S. V. Road.\nTender no.: TEST/KW/ROADS/0001\nDate: 2026-11-02\nSource: https://hishob.example/sources/abc/pages/1" }];
+  await page.route("**/subscriptions", (route) => route.fulfill({ contentType: "application/json", body: JSON.stringify(areas) }));
+  await page.route("**/alerts", (route) => route.fulfill({ contentType: "application/json", body: JSON.stringify(feed) }));
+  await page.getByLabel("Access code").fill("contributor.acct_test.0123456789");
+  await page.getByRole("button", { name: "OK" }).click();
+  await page.getByText("Within 300 m of a point").waitFor({ timeout: 10000 });
+  check(await page.getByText("TEST/KW/ROADS/0001").isVisible(), `${name}: an alert shows its tender number`);
+  check((await page.getByRole("link", { name: "Open the source page" }).getAttribute("href")) === "https://hishob.example/sources/abc/pages/1", `${name}: alert links to its source`);
+  await page.getByRole("button", { name: "मराठी" }).click();
+  check(await page.getByText("जतन केलेले भाग").isVisible(), `${name}: alerts tab in Marathi`);
+  check((await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)) <= 0, `${name}: alerts tab has no horizontal scroll`);
+  await page.getByRole("button", { name: "हा कोड विसरा" }).click();
+  check(await page.getByLabel("प्रवेश कोड").isVisible(), `${name}: forgetting the code signs out`);
+  if (SHOTS) await page.screenshot({ path: `${SHOTS}/${name}-alerts.png`, fullPage: true });
+
   check(errors.length === 0, `${name}: no page errors ${errors.join("; ")}`);
   await context.close();
 }

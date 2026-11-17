@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Alerts } from "./components/Alerts";
 import { Ask } from "./components/Ask";
 import { MapView } from "./components/MapView";
 import { MoneyTrail } from "./components/MoneyTrail";
@@ -7,7 +8,7 @@ import { Responsible } from "./components/Responsible";
 import { LANG_NAMES, type Lang } from "./i18n";
 import { useLang } from "./lang";
 
-type Tab = "responsible" | "money" | "ask";
+type Tab = "responsible" | "money" | "ask" | "alerts";
 const NOTICE = import.meta.env.VITE_DATA_NOTICE as string | undefined;
 
 export function App() {
@@ -18,7 +19,9 @@ export function App() {
     ["responsible", t.tabResponsible],
     ["money", t.tabMoney],
     ["ask", t.tabAsk],
+    ["alerts", t.tabAlerts],
   ];
+  const wide = tab === "responsible" || tab === "money";
 
   return (
     <div className="app">
@@ -48,8 +51,8 @@ export function App() {
         ))}
       </nav>
 
-      <main className={`layout ${tab === "ask" ? "single" : ""}`}>
-        {tab !== "ask" && (
+      <main className={`layout ${wide ? "" : "single"}`}>
+        {wide && (
           <div className="pane">
             <PlaceSearch chosen={place} onChoose={setPlace} />
             {place && (
@@ -61,7 +64,7 @@ export function App() {
             {tab === "responsible" ? <Responsible placeId={place?.id ?? null} /> : <MoneyTrail placeId={place?.id ?? null} />}
           </div>
         )}
-        {tab !== "ask" && (
+        {wide && (
           <div className="pane map-pane">
             <MapView placeId={place?.id ?? null} />
           </div>
@@ -69,6 +72,11 @@ export function App() {
         {tab === "ask" && (
           <div className="pane">
             <Ask />
+          </div>
+        )}
+        {tab === "alerts" && (
+          <div className="pane">
+            <Alerts place={place} />
           </div>
         )}
       </main>

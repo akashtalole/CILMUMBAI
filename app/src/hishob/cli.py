@@ -112,6 +112,10 @@ def main(argv: list[str] | None = None) -> int:
     audit_run.add_argument("--run-id", default=None)
     audit_run.add_argument("--cap-usd", type=int, default=10, help="hard spending cap for the session, in dollars")
 
+    alerts_cmd = groups.add_parser("alerts").add_subparsers(dest="command", required=True)
+    alerts_cmd.add_parser("run", help="queue alerts for new tenders, awards and corrigenda in saved areas (SPEC-010)")
+    alerts_cmd.add_parser("overdue", help="the daily check: queue alerts for works past their due date")
+
     workflow = groups.add_parser("workflow").add_subparsers(dest="command", required=True)
     wf_run = workflow.add_parser("run", help="start W1 for archived documents and wards (SPEC-009)")
     wf_run.add_argument("thread", help="a new, unique thread id")
@@ -141,6 +145,14 @@ def main(argv: list[str] | None = None) -> int:
         return _workflow(args, Settings.from_env())
     if args.group == "audit":
         return _audit(args, Settings.from_env())
+    if args.group == "alerts":
+        from hishob import alerts
+        from hishob.ledger import Loader
+
+        held = build_archive(Settings.from_env())
+        check = alerts.evaluate if args.command == "run" else alerts.evaluate_overdue
+        print(json.dumps({"queued": check(held.registry.conn, Loader(held.registry.conn, held, held.data))}))
+        return 0
     if args.group == "api":
         from hishob.api.app import openapi_document
 
@@ -309,7 +321,15 @@ def _graph(args: argparse.Namespace, store: Archive, settings: Settings) -> int:
         if args.command in {"apply", "rebuild"}:
             graph = GraphStore(driver, store.registry.conn, store.data, settings.graph_database)
             result = graph.apply() if args.command == "apply" else graph.rebuild()
-            print(json.dumps(asdict(result)))
+            applied = asdict(result)
+            if args.command == "apply":  # new facts were projected: queue street alerts for them (SPEC-010/R2)
+                from hishob import alerts
+                from hishob.ledger import Loader
+
+                applied["alerts_queued"] = alerts.evaluate(
+                    store.registry.conn, Loader(store.registry.conn, store, store.data)
+                )
+            print(json.dumps(applied))
             return 0
         views = Views(driver, settings.graph_database)
         if args.name == "who_is_responsible":

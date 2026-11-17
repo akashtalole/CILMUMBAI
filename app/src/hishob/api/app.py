@@ -19,6 +19,7 @@ from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
+from hishob import alerts
 from hishob.api import access, citations
 from hishob.api.ask import AskDesk, AskRun, Refused
 from hishob.api.ratelimit import RateLimiter
@@ -62,6 +63,17 @@ class Question(BaseModel):
     language: str | None = Field(default=None, pattern="^(mr|hi|en)$")
     lat: float | None = Field(default=None, ge=-90, le=90)
     lon: float | None = Field(default=None, ge=-180, le=180)
+
+
+class SavedArea(BaseModel):
+    """A point with a radius, or named roads (SPEC-010/R1)."""
+
+    kind: str = Field(pattern="^(point|roads)$")
+    language: str = Field(pattern="^(mr|hi|en)$")
+    lat: float | None = Field(default=None, ge=-90, le=90)
+    lon: float | None = Field(default=None, ge=-180, le=180)
+    radius_m: int | None = None
+    road_ids: list[str] = Field(default_factory=list, max_length=20)
 
 
 class Context:
@@ -188,6 +200,42 @@ def create_app(config: ApiConfig) -> FastAPI:
             out["error"] = "the desk could not answer this time"
         return out
 
+    def subscriber(ctx: Context) -> str:
+        """Saved areas belong to an account: contributor tier or above (SPEC-010/R1)."""
+        if ctx.account is None or not allows(ctx.tier, "contributor"):
+            raise HTTPException(401, "sign in to save an area")
+        return ctx.account
+
+    @app.post("/subscriptions", status_code=201)
+    def subscribe(body: SavedArea, ctx: Context = Depends(context)) -> dict[str, Any]:
+        account = subscriber(ctx)
+        try:
+            if body.kind == "point":
+                if body.lat is None or body.lon is None or body.radius_m is None:
+                    raise ValueError("a point needs lat, lon and radius_m")
+                saved = alerts.save_point(ctx.conn, account, body.lat, body.lon, body.radius_m, body.language)
+            else:
+                saved = alerts.save_roads(ctx.conn, account, body.road_ids, body.language)
+        except ValueError as problem:
+            raise HTTPException(422, str(problem)) from None
+        return _area(saved)
+
+    @app.get("/subscriptions")
+    def subscriptions(ctx: Context = Depends(context)) -> list[dict[str, Any]]:
+        return [_area(s) for s in alerts.list_subscriptions(ctx.conn, subscriber(ctx))]
+
+    @app.delete("/subscriptions/{subscription_id}", status_code=204)
+    def unsubscribe(subscription_id: int, ctx: Context = Depends(context)) -> Response:
+        if not alerts.unsubscribe(ctx.conn, subscriber(ctx), subscription_id):
+            raise HTTPException(404, "no such saved area")
+        return Response(status_code=204)
+
+    @app.get("/alerts")
+    def my_alerts(request: Request, ctx: Context = Depends(context)) -> list[dict[str, Any]]:
+        """The caller's alerts, newest first, each in its saved area's language with a link to the source page."""
+        base = str(request.base_url).rstrip("/")
+        return alerts.list_alerts(ctx.conn, subscriber(ctx), base_url=base)
+
     @app.get("/views/{name}")
     def view(
         name: str,
@@ -273,6 +321,13 @@ def openapi_document() -> str:
         )
     )
     return json.dumps(app.openapi(), indent=2, sort_keys=True, ensure_ascii=False) + "\n"
+
+
+def _area(saved: alerts.Subscription) -> dict[str, Any]:
+    out = asdict(saved)
+    del out["account_id"]  # the caller knows who they are; nothing else needs it
+    out["created_at"] = saved.created_at.isoformat()
+    return out
 
 
 def _is_node(value: Any) -> bool:
