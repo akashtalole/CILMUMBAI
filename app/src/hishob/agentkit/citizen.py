@@ -46,6 +46,7 @@ class Answer:
     problems: list[str] = field(default_factory=list)  # from the last review, if it fell back
     attempts: int = 0
     session_id: str | None = None
+    cost_usd: float | None = None
 
 
 def answer_question(
@@ -101,6 +102,7 @@ def answer_question(
         )
 
     gaps = [g for result in tools.seen if isinstance(result, dict) for g in result.get("gaps", [])]
+    cost = _cost(client, session.id)
     if problems:
         return Answer(
             text=fallback(language, tools.seen, gaps),
@@ -110,6 +112,7 @@ def answer_question(
             problems=problems,
             attempts=attempts,
             session_id=session.id,
+            cost_usd=cost,
         )
     cited = sorted(set(FACT_ID.findall(reply)))
     body = FACT_MARK.sub("", reply)
@@ -138,7 +141,17 @@ def answer_question(
         gaps=gaps,
         attempts=attempts,
         session_id=session.id,
+        cost_usd=cost,
     )
+
+
+def _cost(client: Any, session_id: str) -> float | None:
+    try:
+        usage = getattr(client.beta.sessions.retrieve(session_id), "usage", None)
+        cost = getattr(usage, "list_cost", None)
+        return int(cost.amount) / 100 if cost is not None else None
+    except Exception:  # cost is reporting, never a reason to lose an answer
+        return None
 
 
 def review(http: Any, reply: str, language: str, seen: list[Any], token: str | None = None) -> list[str]:

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Draft |
+| Status | In progress: all acceptance criteria pass with a stub system; a first live run and baseline are recorded below |
 | Milestone | M1 |
 | Owner role | AI engineer |
 | Depends on | SPEC-005, SPEC-007, SPEC-008 |
@@ -48,12 +48,20 @@ When done, three evaluation sets live in the repository, a harness runs them and
 
 ```
 app/evals/
-  extraction/<id>/{document.pdf → archive hash, expected.jsonl}
-  questions.jsonl     {id, language, route, question, location?, expected: {values, fact_ids, not_known}}
-  refusals.jsonl      {id, language, question, expected_behaviour}
-  baseline.json       scores of the last release
-hishob eval run [--set extraction|questions|refusals] [--against staging] --report out/
+  extraction/<id>/{document.pdf, expected.jsonl, meta.json}   10 invented documents; expected: {label, match, props}
+  questions.jsonl     {id, language, route, question, expected: {values: [{kind: amount|date|text, value}], cited: [node ids], not_known?}}
+  refusals.jsonl      {id, language, route, question, expected_behaviour, must_not: [regex], must_any: [regex]}
+  baseline.json       {tolerance, scores}: the last release
+  approvals.jsonl     {key, approved_score, reason, approver}: an owner's waiver of one regression
+  make_extraction_set.py   regenerates the ten documents
+
+hishob eval validate                       check the sets and scan them for personal data
+hishob eval run [--set …] --against <api>  run against the real desks; writes report.json and report.md
+hishob eval gate --report out/report.json  compare with the baseline; exit 1 on an unapproved regression
+hishob eval baseline --report …            record a report as the baseline of the release
 ```
+
+Differences from the draft: the question set names expected **node ids**, not fact ids, because fact ids are hashes of the source document and change with it; the harness resolves the facts a reply cites to their nodes. Refusals are scored with per-item regular expressions (`must_not`, `must_any`), not by a model.
 
 ## 6. Non-functional requirements
 
@@ -80,12 +88,40 @@ Growing the sets to full size (M2). Model-graded scoring of free text beyond key
 
 ## 10. Tasks
 
-| Id | Task | Size | Depends on | Verifies |
-|---|---|---|---|---|
-| T1 | Dataset formats and validator | S | | AC1 |
-| T2 | Ten labelled documents | L | SPEC-001 | AC1 |
-| T3 | Thirty questions, ten refusals, three languages | L | SPEC-006 | AC1 |
-| T4 | Scorers with stub tests | M | SPEC-007/T4 | AC2 |
-| T5 | Report with baseline comparison, cost and duration | M | T4 | AC3, AC6 |
-| T6 | CI job, path triggers, approval override | M | T5 | AC4, AC5 |
-| T7 | Personal-data scan | S | T1 | AC7 |
+| Id | Task | Size | Depends on | Verifies | State |
+|---|---|---|---|---|---|
+| T1 | Dataset formats and validator | S | | AC1 | Done |
+| T2 | Ten labelled documents | L | SPEC-001 | AC1 | Done (invented, three scripts); real documents to replace them as the corpus grows |
+| T3 | Thirty questions, ten refusals, three languages | L | SPEC-006 | AC1 | Done, on the demo world; the Marathi and Hindi wording needs the language reviewer |
+| T4 | Scorers with stub tests | M | SPEC-007/T4 | AC2 | Done |
+| T5 | Report with baseline comparison, cost and duration | M | T4 | AC3, AC6 | Done |
+| T6 | CI job, path triggers, approval override | M | T5 | AC4, AC5 | Done in `.github/workflows/evals.yml`; not yet run on GitHub (needs staging secrets) |
+| T7 | Personal-data scan | S | T1 | AC7 | Done |
+
+## Change log
+
+| Date | Change |
+|---|---|
+| 17 Nov 2026 | Implemented in `app/src/hishob/evals/` (`datasets`, `scoring`, `report`, `run`, `live`, `pii`), `app/evals/`, `hishob eval`, and `.github/workflows/evals.yml`. Tests in `app/tests/unit/test_spec012_evals.py`. |
+
+### Decisions made while building
+
+- **Scores are means of 0 or 1 per item**, so a group of ten items moves in steps of 0.1. The default **tolerance is 0.1**: one item worse is noise, two is a regression. A smaller tolerance would fail on ordinary model variation.
+- **The gate looks at overall and at each language**, as R5 says; routes are reported and compared but do not block.
+- **An approval waives one score only.** It names the key (`questions.values.mr`) and the score it approves, with an approver and a reason. A further drop, a blank reason or a different key is still blocking.
+- **Fail closed.** If a pull request changes agents, the ontology, the citation rules or the sets, and the repository has no staging secrets, the evaluation job fails with the missing names rather than passing unmeasured.
+- **Key values reuse the citation checker's parsers**, so ₹4.2 crore, ४.२ कोटी and 4.2 करोड़ are one figure, and dates match across English, Marathi and Hindi.
+- **The "not known" question** passes if the reply asserts no amount or date. Questions pass if every expected value is in the reply; free-text values match case-insensitively.
+- **Extraction** is scored per document on field accuracy (expected properties found with the right value), record recall, and the quote-match rate (records whose quote is on the page, scans excluded). It runs through the intake desk into a dedicated evaluation database.
+- **Questions go through the real desk** with the query API behind it, and each reply is also put through the API's citation check. A reply that fell back to the code-built text counts as a citation failure.
+
+### Found while building
+
+- **The personal-data scan found a real bug in the citizen desk's redaction.** The Hindi honorific `कु.` matched the start of **कुछ** (anything), turning "कुछ न करें" into "कु[name]" in a resident's question, and `सौ` (Mrs) matched the number **hundred**: "सौ रुपये" became "सौ [name]". Both abbreviations now need their full stop, a Devanagari honorific cannot continue a word, and a name's second word cannot be a conjunction (आणि, और). Regression test in `test_spec008_parts.py`.
+
+### Not done yet
+
+- **Real documents and real residents' questions.** The sets are invented and sit on one scenario, so they test the machinery and the languages, not the breadth of Mumbai's documents. Each question and refusal wording should be reviewed by a native speaker.
+- **Refusals are checked by keyword**, a proxy: a reply can contain a cue and still be poor. Model-graded scoring is out of scope for M1.
+- **The staging agents** are applied by each CI run to the staging Claude account (the lock is cached between runs); old versions are not cleaned up.
+- **Questions run against the demo world**, so staging must hold the demo seed (`app/demo/seed.py`) for the question set to have its verified answers.

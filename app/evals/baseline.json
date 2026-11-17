@@ -1,0 +1,5 @@
+{
+  "note": "Scores of the last release. Empty until the first recorded run: `hishob eval baseline --report out/report.json`.",
+  "tolerance": 0.1,
+  "scores": {}
+}

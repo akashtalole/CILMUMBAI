@@ -45,3 +45,11 @@ def test_the_definition_file_and_the_code_describe_the_same_tools() -> None:
     from_file = {t["name"]: t["input_schema"] for t in config["tools"] if t["type"] == "custom"}
     from_code = {t["name"]: t["input_schema"] for t in TOOL_DEFINITIONS}
     assert from_file == from_code
+
+
+def test_spec008_common_words_that_begin_like_an_honorific_are_not_names() -> None:
+    # Found by the SPEC-012 personal-data scan: कुछ (anything) and सौ (hundred) were redacted as names.
+    assert redact("सहायक इंजीनियर कुछ न करें तो अगला कौन है?") == "सहायक इंजीनियर कुछ न करें तो अगला कौन है?"
+    assert redact("ठेकेदाराला सौ रुपये दिले") == "ठेकेदाराला सौ रुपये दिले"
+    assert redact("सौ. सुनीता पाटील यांनी तक्रार केली") == "सौ. [name] यांनी तक्रार केली"
+    assert redact("कु. मीना आणि श्री रमेश पाटील") == "कु. [name] आणि श्री [name]"
