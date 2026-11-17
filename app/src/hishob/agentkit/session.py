@@ -12,6 +12,42 @@ from dataclasses import dataclass, field
 from typing import Any
 
 ToolHandler = Callable[[str, dict[str, Any]], str]
+BETA = ["managed-agents-2026-04-01"]
+
+
+def session_files(client: Any, session_id: str) -> list[Any]:
+    """Every file attached to a session, oldest first. The listing is paged (20 a page), and a run over many
+    documents writes more files than one page holds, so all pages are read."""
+    page = client.beta.files.list(scope_id=session_id, betas=BETA)
+    try:
+        items = list(page)  # the SDK's page object iterates across every page
+    except TypeError:  # a plain object holding one page in `.data`
+        items = list(page.data)
+    return sorted(items, key=lambda f: str(getattr(f, "created_at", "")))
+
+
+def newest_by_name(files: list[Any], names: tuple[str, ...]) -> list[Any]:
+    """The last-written file for each wanted name: an agent may write a draft and then its final version."""
+    latest: dict[str, Any] = {}
+    for item in files:  # oldest first, so a later file replaces an earlier one
+        name = item.filename.rsplit("/", 1)[-1]
+        if name in names:
+            latest[name] = item
+    return list(latest.values())
+
+
+def read_file(client: Any, file_id: str, sleep: Callable[[float], None], attempts: int = 4) -> bytes:
+    """Download a file, retrying while it is not yet readable: outputs appear in the listing a moment before
+    their content can be fetched."""
+    for attempt in range(attempts):
+        try:
+            data: bytes = client.beta.files.download(file_id).read()
+            return data
+        except Exception as error:
+            if attempt == attempts - 1 or type(error).__name__ not in {"NotFoundError", "FileNotDownloadableError"}:
+                raise
+            sleep(2 * (attempt + 1))
+    raise AssertionError("unreachable")
 
 
 @dataclass

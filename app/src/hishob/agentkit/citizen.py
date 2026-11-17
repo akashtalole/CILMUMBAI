@@ -120,7 +120,7 @@ def answer_question(
     parts = LETTER.split(body, maxsplit=1)
     if len(parts) == 2:
         body, letter = parts[0].strip(), parts[1].strip()
-    sources = [_source(http, fid, token) for fid in cited]
+    sources = [found for fid in cited if (found := _source(http, fid, token)) is not None]
     status = "asked_location" if not cited and body.rstrip().endswith("?") else "answered"
     text = (
         body
@@ -192,9 +192,14 @@ def fallback(language: str, seen: list[Any], gaps: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
-def _source(http: Any, fid: str, token: str | None) -> dict[str, Any]:
+def _source(http: Any, fid: str, token: str | None) -> dict[str, Any] | None:
+    """The document line behind a cited fact, or None if the API cannot give it now (an error or a limit): the
+    answer is still shown, only without that source line."""
     headers = {"Authorization": f"Bearer {token}"} if token else {}
-    fact = http.get(f"/facts/{fid}", headers=headers).json()
+    response = http.get(f"/facts/{fid}", headers=headers)
+    if response.status_code != 200:
+        return None
+    fact = response.json()
     document = http.get(f"/sources/{fact['source']}/pages/{fact['page']}", headers=headers)
     publisher = document.json().get("publisher", "") if document.status_code == 200 else ""
     return {

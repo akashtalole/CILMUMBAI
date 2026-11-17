@@ -1,5 +1,338 @@
 {
-  "note": "Scores of the last release. Empty until the first recorded run: `hishob eval baseline --report out/report.json`.",
-  "tolerance": 0.1,
-  "scores": {}
+  "note": "Scores of the release recorded 2026-11-17T08:54:03+00:00 at 80b0cc9f537e",
+  "tolerance": 0.05,
+  "scores": {
+    "extraction": {
+      "overall": {
+        "field_accuracy": 0.975,
+        "quote_match": 1.0,
+        "record_recall": 1.0
+      },
+      "by_language": {
+        "en": {
+          "field_accuracy": 0.9583,
+          "quote_match": 1.0,
+          "record_recall": 1.0
+        },
+        "hi": {
+          "field_accuracy": 1.0,
+          "quote_match": 1.0,
+          "record_recall": 1.0
+        },
+        "mr": {
+          "field_accuracy": 1.0,
+          "quote_match": 1.0,
+          "record_recall": 1.0
+        }
+      },
+      "by_route": {
+        "award": {
+          "field_accuracy": 1.0,
+          "quote_match": 1.0,
+          "record_recall": 1.0
+        },
+        "completion": {
+          "field_accuracy": 1.0,
+          "quote_match": 1.0,
+          "record_recall": 1.0
+        },
+        "corrigendum": {
+          "field_accuracy": 1.0,
+          "quote_match": 1.0,
+          "record_recall": 1.0
+        },
+        "dlp": {
+          "field_accuracy": 1.0,
+          "quote_match": 1.0,
+          "record_recall": 1.0
+        },
+        "payment": {
+          "field_accuracy": 1.0,
+          "quote_match": 1.0,
+          "record_recall": 1.0
+        },
+        "penalty": {
+          "field_accuracy": 1.0,
+          "quote_match": 1.0,
+          "record_recall": 1.0
+        },
+        "tender": {
+          "field_accuracy": 1.0,
+          "quote_match": 1.0,
+          "record_recall": 1.0
+        },
+        "work_order": {
+          "field_accuracy": 0.75,
+          "quote_match": 1.0,
+          "record_recall": 1.0
+        }
+      },
+      "support": {
+        "overall": {
+          "field_accuracy": 10,
+          "quote_match": 10,
+          "record_recall": 10
+        },
+        "by_language": {
+          "en": {
+            "field_accuracy": 6,
+            "quote_match": 6,
+            "record_recall": 6
+          },
+          "hi": {
+            "field_accuracy": 2,
+            "quote_match": 2,
+            "record_recall": 2
+          },
+          "mr": {
+            "field_accuracy": 2,
+            "quote_match": 2,
+            "record_recall": 2
+          }
+        },
+        "by_route": {
+          "award": {
+            "field_accuracy": 1,
+            "quote_match": 1,
+            "record_recall": 1
+          },
+          "completion": {
+            "field_accuracy": 1,
+            "quote_match": 1,
+            "record_recall": 1
+          },
+          "corrigendum": {
+            "field_accuracy": 1,
+            "quote_match": 1,
+            "record_recall": 1
+          },
+          "dlp": {
+            "field_accuracy": 1,
+            "quote_match": 1,
+            "record_recall": 1
+          },
+          "payment": {
+            "field_accuracy": 1,
+            "quote_match": 1,
+            "record_recall": 1
+          },
+          "penalty": {
+            "field_accuracy": 1,
+            "quote_match": 1,
+            "record_recall": 1
+          },
+          "tender": {
+            "field_accuracy": 3,
+            "quote_match": 3,
+            "record_recall": 3
+          },
+          "work_order": {
+            "field_accuracy": 1,
+            "quote_match": 1,
+            "record_recall": 1
+          }
+        }
+      }
+    },
+    "questions": {
+      "overall": {
+        "citation": 1.0,
+        "cited": 0.9583,
+        "not_known": 1.0,
+        "reviewed": 0.9259,
+        "values": 0.8889
+      },
+      "by_language": {
+        "en": {
+          "citation": 1.0,
+          "cited": 0.875,
+          "not_known": 1.0,
+          "reviewed": 0.7778,
+          "values": 0.8889
+        },
+        "hi": {
+          "citation": 1.0,
+          "cited": 1.0,
+          "not_known": 1.0,
+          "reviewed": 1.0,
+          "values": 0.8889
+        },
+        "mr": {
+          "citation": 1.0,
+          "cited": 1.0,
+          "not_known": 1.0,
+          "reviewed": 1.0,
+          "values": 0.8889
+        }
+      },
+      "by_route": {
+        "gaps": {
+          "citation": 1.0,
+          "reviewed": 0.6667,
+          "values": 0.3333
+        },
+        "liability": {
+          "citation": 1.0,
+          "cited": 1.0,
+          "reviewed": 1.0,
+          "values": 1.0
+        },
+        "not_known": {
+          "citation": 1.0,
+          "not_known": 1.0
+        },
+        "trace_money": {
+          "citation": 1.0,
+          "cited": 0.9167,
+          "reviewed": 0.9167,
+          "values": 0.9167
+        },
+        "who_is_responsible": {
+          "citation": 1.0,
+          "cited": 1.0,
+          "reviewed": 1.0,
+          "values": 1.0
+        },
+        "work_status": {
+          "citation": 1.0,
+          "cited": 1.0,
+          "reviewed": 1.0,
+          "values": 1.0
+        }
+      },
+      "support": {
+        "overall": {
+          "citation": 28,
+          "cited": 24,
+          "not_known": 3,
+          "reviewed": 27,
+          "values": 27
+        },
+        "by_language": {
+          "en": {
+            "citation": 8,
+            "cited": 8,
+            "not_known": 1,
+            "reviewed": 9,
+            "values": 9
+          },
+          "hi": {
+            "citation": 10,
+            "cited": 8,
+            "not_known": 1,
+            "reviewed": 9,
+            "values": 9
+          },
+          "mr": {
+            "citation": 10,
+            "cited": 8,
+            "not_known": 1,
+            "reviewed": 9,
+            "values": 9
+          }
+        },
+        "by_route": {
+          "gaps": {
+            "citation": 2,
+            "reviewed": 3,
+            "values": 3
+          },
+          "liability": {
+            "citation": 3,
+            "cited": 3,
+            "reviewed": 3,
+            "values": 3
+          },
+          "not_known": {
+            "citation": 3,
+            "not_known": 3
+          },
+          "trace_money": {
+            "citation": 11,
+            "cited": 12,
+            "reviewed": 12,
+            "values": 12
+          },
+          "who_is_responsible": {
+            "citation": 6,
+            "cited": 6,
+            "reviewed": 6,
+            "values": 6
+          },
+          "work_status": {
+            "citation": 3,
+            "cited": 3,
+            "reviewed": 3,
+            "values": 3
+          }
+        }
+      }
+    },
+    "refusals": {
+      "overall": {
+        "decline": 1.0
+      },
+      "by_language": {
+        "en": {
+          "decline": 1.0
+        },
+        "hi": {
+          "decline": 1.0
+        },
+        "mr": {
+          "decline": 1.0
+        }
+      },
+      "by_route": {
+        "advice": {
+          "decline": 1.0
+        },
+        "harm": {
+          "decline": 1.0
+        },
+        "invention": {
+          "decline": 1.0
+        },
+        "judgement": {
+          "decline": 1.0
+        },
+        "private_data": {
+          "decline": 1.0
+        }
+      },
+      "support": {
+        "overall": {
+          "decline": 10
+        },
+        "by_language": {
+          "en": {
+            "decline": 4
+          },
+          "hi": {
+            "decline": 3
+          },
+          "mr": {
+            "decline": 3
+          }
+        },
+        "by_route": {
+          "advice": {
+            "decline": 2
+          },
+          "harm": {
+            "decline": 1
+          },
+          "invention": {
+            "decline": 1
+          },
+          "judgement": {
+            "decline": 3
+          },
+          "private_data": {
+            "decline": 3
+          }
+        }
+      }
+    }
+  }
 }

@@ -174,3 +174,14 @@ def test_a_requested_letter_is_returned_separately_and_checked(desk) -> None:  #
     assert answer.status == "answered", answer.problems
     assert answer.draft_letter is not None
     assert answer.draft_letter.startswith("To the Assistant Engineer") and "LETTER" not in answer.text
+
+
+def test_spec008_a_source_lookup_that_fails_does_not_crash_the_answer(desk) -> None:  # type: ignore[no-untyped-def]
+    # Found by the first live SPEC-012 run: a rate-limited API reply has no "source", and the desk raised KeyError.
+    from hishob.agentkit.citizen import _source
+
+    class Limited:
+        def get(self, *args, **kwargs):  # type: ignore[no-untyped-def]
+            return type("R", (), {"status_code": 429, "json": lambda self: {"detail": "too many requests"}})()
+
+    assert _source(Limited(), "f_" + "0" * 32, None) is None

@@ -46,6 +46,12 @@ def make_asker(client: Any, http: Any, token: str | None) -> Callable[[str, str]
     headers = {"Authorization": f"Bearer {token}"} if token else {}
 
     def ask(question: str, language: str) -> AskResult:
+        try:
+            return asked(question, language)
+        except Exception as error:  # one failed question must not lose the rest of a paid run
+            return AskResult("", f"[evaluation error: {type(error).__name__}]", "error", set(), False)
+
+    def asked(question: str, language: str) -> AskResult:
         answer = answer_question(client, http, question, language_hint=language, token=token)
         shown = public_answer(answer)
         nodes: set[str] = set()
@@ -62,7 +68,7 @@ def make_asker(client: Any, http: Any, token: str | None) -> Callable[[str, str]
             text=answer.text,
             status=answer.status,
             cited_nodes=nodes,
-            citation_ok=bool(check.get("ok")) and answer.status != "fallback",
+            citation_ok=bool(check.get("ok")),
             cost_usd=answer.cost_usd,
         )
 

@@ -23,6 +23,7 @@ class ItemScore:
     route: str
     metrics: dict[str, float | None]  # None: the metric does not apply to this item
     notes: list[str] = field(default_factory=list)  # what went wrong, for the report
+    reply: str = ""  # an excerpt of the reply that was scored, shown in the report for failed items
 
 
 @dataclass
@@ -44,12 +45,25 @@ class AskResult:
 # ---- extraction ------------------------------------------------------------------------------------------------
 
 
+# Properties the ontology allows as alternatives for naming an entity: a Work may carry its name as `name` or `title`.
+ALIASES = {"title": ("title", "name"), "name": ("name", "title")}
+HONORIFIC_PREFIX = re.compile(r"^m/s\.?\s+", re.IGNORECASE)
+
+
+def _lookup(props: dict[str, Any], key: str) -> Any:
+    for candidate in ALIASES.get(key, (key,)):
+        if candidate in props:
+            return props[candidate]
+    return None
+
+
 def _equal(expected: Any, actual: Any) -> bool:
     if isinstance(expected, bool) or isinstance(actual, bool):
         return bool(expected == actual)
     if isinstance(expected, int | float) and isinstance(actual, int | float):
         return abs(float(expected) - float(actual)) < 0.5
-    e, a = normalise(str(expected)).casefold(), normalise(str(actual)).casefold()
+    e = HONORIFIC_PREFIX.sub("", normalise(str(expected)).casefold())  # "M/s Anand Ltd." and "Anand Ltd." are one firm
+    a = HONORIFIC_PREFIX.sub("", normalise(str(actual)).casefold())
     return e == a or (len(e) >= 5 and e in a)  # free-text fields may carry extra words around the expected phrase
 
 
@@ -74,12 +88,14 @@ def score_extraction(item: ExtractionItem, result: ExtractionResult) -> ItemScor
             n
             for n in nodes.values()
             if n["label"].casefold() == label.casefold()
-            and all(k in n["props"] and _equal(v, n["props"][k]) for k, v in match.items())
+            and all(_lookup(n["props"], k) is not None and _equal(v, _lookup(n["props"], k)) for k, v in match.items())
         ]
         # with nothing to match on, take the candidate that gets the most properties right
         best = max(
             candidates,
-            key=lambda n: sum(k in n["props"] and _equal(v, n["props"][k]) for k, v in props.items()),
+            key=lambda n: sum(
+                _lookup(n["props"], k) is not None and _equal(v, _lookup(n["props"], k)) for k, v in props.items()
+            ),
             default=None,
         )
         found += best is not None
@@ -88,10 +104,11 @@ def score_extraction(item: ExtractionItem, result: ExtractionResult) -> ItemScor
         checked = {**match, **props}
         for key, value in checked.items():
             fields += 1
-            ok = best is not None and key in best["props"] and _equal(value, best["props"][key])
+            got = _lookup(best["props"], key) if best is not None else None
+            ok = got is not None and _equal(value, got)
             correct += ok
             if not ok and best is not None:
-                notes.append(f"{label}.{key}: expected {value!r}, got {best['props'].get(key)!r}")
+                notes.append(f"{label}.{key}: expected {value!r}, got {got!r}")
     # quotes: of the records whose page has a text layer, how many quote the page exactly
     checkable = matched = 0
     for record in result.records:
@@ -150,14 +167,22 @@ def score_question(item: QuestionItem, answer: AskResult) -> ItemScore:
         cited = 0.0 if absent else 1.0
         if absent:
             notes.append(f"did not cite {absent}")
-    if not answer.citation_ok:
+    # A fallback is the reply built in code when the model's own reply failed review twice. It makes no claims, so
+    # there is nothing to citation-check: `citation` does not apply, and `reviewed` records that the model needed it.
+    fell_back = answer.status == "fallback"
+    citation: float | None = None if fell_back else (1.0 if answer.citation_ok else 0.0)
+    reviewed: float | None = None if item.not_known else (0.0 if fell_back else 1.0)
+    if not fell_back and not answer.citation_ok:
         notes.append("citation check failed")
+    if reviewed == 0.0:
+        notes.append("the model's reply failed review twice; the code-built fallback was sent")
     return ItemScore(
         item.id,
         item.language,
         item.route,
-        {"values": values, "not_known": not_known, "cited": cited, "citation": 1.0 if answer.citation_ok else 0.0},
+        {"values": values, "not_known": not_known, "cited": cited, "citation": citation, "reviewed": reviewed},
         notes,
+        reply=answer.body[:400],
     )
 
 
@@ -170,4 +195,4 @@ def score_refusal(item: RefusalItem, reply: str) -> ItemScore:
     notes = [f"said something it must not: /{p}/" for p in item.must_not if re.search(p, reply, flags)]
     if item.must_any and not any(re.search(p, reply, flags) for p in item.must_any):
         notes.append("no decline or redirect cue in the reply")
-    return ItemScore(item.id, item.language, item.route, {"decline": 0.0 if notes else 1.0}, notes)
+    return ItemScore(item.id, item.language, item.route, {"decline": 0.0 if notes else 1.0}, notes, reply=reply[:400])

@@ -435,7 +435,7 @@ def _eval(args: argparse.Namespace, settings: Settings) -> int:
             print("evaluation sets are valid and hold no personal data")
         return 1 if problems or found else 0
     if args.command in {"gate", "baseline"}:
-        data = json.loads(Path(args.report).read_text(encoding="utf-8"))
+        data = report.reaggregate(json.loads(Path(args.report).read_text(encoding="utf-8")))
         baseline = report.load_baseline()
         if args.command == "baseline":
             baseline["scores"] = {name: {k: v for k, v in s.items() if k != "n"} for name, s in data["sets"].items()}
