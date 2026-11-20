@@ -21,6 +21,7 @@ Status of every spec is **Draft** until reviewed. Milestones are defined in [03-
 | [SPEC-011](specs/SPEC-011-audit-desk-and-release.md) | Audit desk and release | M1 | 007, 009 | AI engineer | 0003, 0011 |
 | [SPEC-012](specs/SPEC-012-evaluation-and-promotion-gate.md) | Evaluation harness and promotion gate | M1 | 005, 007, 008 | AI engineer | 0019 |
 | [SPEC-020](specs/SPEC-020-web-application.md) | Web application (resident view written; rest later) | M1 / M2 | 004, 006, 007, 008 | Full-stack engineer | 0014, 0015, 0016 |
+| [SPEC-030](specs/SPEC-030-photo-report.md) | Photo report (Jawabdar) | M2 | 007, 008, 020 | AI engineer | 0003, 0011, 0018 |
 | [SPEC-013](specs/SPEC-013-aws-lean-infrastructure.md) | AWS infrastructure, lean profile | M2 | 001 to 012 | Platform engineer | 0012, 0017, 0018, 0020, 0021 |
 
 ### Later specs (scope only; written when their milestone approaches)
@@ -121,5 +122,6 @@ web/                          static site (SPEC-020); a minimal page in SPEC-010
 | SPEC-012 | In progress | 7 | 7 |
 | SPEC-013 | Draft | 8 | 0 |
 | SPEC-020 | In progress | 9 | 9 |
+| SPEC-030 | In progress | 7 | 7 |
 
 Update this table in the same pull request that changes a spec's status.

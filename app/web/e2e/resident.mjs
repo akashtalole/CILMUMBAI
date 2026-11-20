@@ -117,6 +117,32 @@ for (const [name, options] of [
   check(await page.getByRole("link", { name: "Share on WhatsApp" }).isVisible(), `${name}: letter can be shared`);
   if (SHOTS) await page.screenshot({ path: `${SHOTS}/${name}-ask.png`, fullPage: true });
 
+  // Photo report (SPEC-030): choose a photo, see what was found, get the sourced answer and a letter
+  const TINY_JPEG = Buffer.from("/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=", "base64");
+  let sentPhoto = null;
+  await page.route("**/report?**", async (route) => {
+    sentPhoto = { url: route.request().url(), type: route.request().headers()["content-type"], bytes: route.request().postDataBuffer()?.length ?? 0 };
+    await route.fulfill({ status: 202, contentType: "application/json", body: '{"id":"job2","status":"running"}' });
+  });
+  await page.route("**/report/job2", (route) => route.fulfill({ contentType: "application/json", body: JSON.stringify({
+    id: "job2", status: "done", elapsed_s: 6,
+    answer: { status: "answered", issue: "pothole", confidence: "high", location_from: "device", answer: MOCK.answer } }) }));
+  await page.getByRole("tab", { name: "Ask" }).click();
+  await page.getByTestId("photo-input").setInputFiles({ name: "pothole.jpg", mimeType: "image/jpeg", buffer: TINY_JPEG });
+  await page.getByText("We see:").waitFor({ timeout: 10000 });
+  check((await page.locator(".saw strong").innerText()) === "Pothole", `${name}: the photo's finding is shown`);
+  check(await page.locator(".photo .answer").isVisible(), `${name}: the photo report shows the sourced answer`);
+  check(await page.locator(".photo .answer a.whatsapp").isVisible(), `${name}: the letter can be shared`);
+  check(await page.locator(".photo-preview").isVisible(), `${name}: the chosen photo is previewed`);
+  check(sentPhoto !== null && sentPhoto.type === "image/jpeg" && sentPhoto.bytes > 0 && /language=en/.test(sentPhoto.url) && /lat=19\.11/.test(sentPhoto.url) && /lon=72\.8355/.test(sentPhoto.url),
+    `${name}: the photo goes up as an image with the language and the device's position`);
+  await page.unroute("**/report/job2");
+  await page.route("**/report/job2", (route) => route.fulfill({ contentType: "application/json", body: JSON.stringify({
+    id: "job2", status: "done", elapsed_s: 4, answer: { status: "unclear", issue: "none", confidence: "low", location_from: "device", answer: null } }) }));
+  await page.getByTestId("photo-input").setInputFiles({ name: "unclear.jpg", mimeType: "image/jpeg", buffer: TINY_JPEG });
+  await page.getByText("We could not tell what the photo shows").waitFor({ timeout: 10000 });
+  check(true, `${name}: an unclear photo says so and points to the other tab`);
+
   // Street alerts (SPEC-010): asks for an access code, then lists saved areas and alerts, in the chosen language
   await page.evaluate(() => localStorage.removeItem("hishob.token"));
   await page.getByRole("tab", { name: "Alerts" }).click();

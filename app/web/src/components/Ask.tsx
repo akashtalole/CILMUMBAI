@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { ApiError, api, type Answer } from "../api";
 import { useLang } from "../lang";
-import { Rich } from "./Rich";
+import { AnswerCard } from "./AnswerCard";
+import { PhotoReport } from "./PhotoReport";
 
 /** Ask the citizen desk in any of three languages. The answer comes back with its sources and, when useful,
  * a letter the resident can copy, share or download. */
@@ -13,7 +14,6 @@ export function Ask() {
   const [elapsed, setElapsed] = useState(0);
   const [answer, setAnswer] = useState<Answer | null>(null);
   const [message, setMessage] = useState("");
-  const [copied, setCopied] = useState(false);
   const poll = useRef<number>();
 
   useEffect(() => () => window.clearTimeout(poll.current), []);
@@ -54,19 +54,6 @@ export function Ask() {
       setMessage(status === 503 ? t.askDisabled : status === 429 ? t.askBusy : t.askFailed);
       setState("error");
     }
-  };
-
-  const copy = async (text: string) => {
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1500);
-  };
-  const download = (text: string) => {
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
-    link.download = "letter.txt";
-    link.click();
-    URL.revokeObjectURL(link.href);
   };
 
   return (
@@ -119,53 +106,9 @@ export function Ask() {
 
       {state === "error" && <p className="notice error">{message}</p>}
 
-      {answer && (
-        <article className="card answer" aria-live="polite">
-          {answer.status === "fallback" && <p className="notice">{t.fallbackNote}</p>}
-          <Rich text={answer.body} />
-          {answer.sources.length > 0 && (
-            <details className="answer-sources" open>
-              <summary>{t.answerSources}</summary>
-              <ul>
-                {unique(answer.sources).map((s) => (
-                  <li key={s.fact_id}>
-                    <q>{s.quote}</q>
-                    <span className="meta">{t.sourceOf(s.publisher || "?", s.page)}</span>
-                  </li>
-                ))}
-              </ul>
-            </details>
-          )}
-          {answer.draft_letter && (
-            <div className="letter">
-              <h4>{t.letter}</h4>
-              <pre>{answer.draft_letter}</pre>
-              <div className="actions">
-                <button type="button" className="secondary" onClick={() => copy(answer.draft_letter!)}>
-                  {copied ? t.copied : t.copy}
-                </button>
-                <a className="button whatsapp" href={`https://wa.me/?text=${encodeURIComponent(answer.draft_letter)}`} target="_blank" rel="noreferrer">
-                  {t.share}
-                </a>
-                <button type="button" className="secondary" onClick={() => download(answer.draft_letter!)}>
-                  {t.download}
-                </button>
-              </div>
-            </div>
-          )}
-        </article>
-      )}
+      {answer && <AnswerCard answer={answer} />}
+
+      <PhotoReport />
     </section>
   );
-}
-
-/** Several facts often cite the same line of the same page; show each passage once. */
-function unique(sources: Answer["sources"]): Answer["sources"] {
-  const seen = new Set<string>();
-  return sources.filter((s) => {
-    const key = `${s.document}|${s.page}|${s.quote}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
 }

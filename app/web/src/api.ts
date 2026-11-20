@@ -79,6 +79,21 @@ export interface AskJob {
   error?: string;
 }
 
+export interface PhotoResult {
+  status: "answered" | "unclear" | "no_location";
+  issue: string | null;
+  confidence: string | null;
+  location_from: string | null;
+  answer: Answer | null;
+}
+
+export interface PhotoJob {
+  id: string;
+  status: "running" | "done" | "failed";
+  elapsed_s: number;
+  answer?: PhotoResult;
+}
+
 export interface SourcePage {
   publisher: string;
   licence: string;
@@ -141,6 +156,14 @@ export const api = {
       body: JSON.stringify({ question, language, ...(location ?? {}) }),
     }),
   askStatus: (id: string) => call<AskJob>(`/ask/${id}`),
+  // The photo is the request body itself, as an image: it is sent once and never stored (SPEC-030).
+  report: (photo: Blob, language: string, where: { lat: number; lon: number }) =>
+    call<{ id: string }>(`/report?language=${language}&lat=${where.lat}&lon=${where.lon}`, {
+      method: "POST",
+      headers: { "Content-Type": photo.type || "image/jpeg" },
+      body: photo,
+    }),
+  reportStatus: (id: string) => call<PhotoJob>(`/report/${id}`),
   // Saved areas and alerts belong to an account (SPEC-010). Until sign-in exists, the token is an access code.
   areas: (token: string) => call<SavedArea[]>(`/subscriptions`, { headers: auth(token) }),
   saveArea: (token: string, area: Record<string, unknown>) =>

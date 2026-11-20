@@ -99,7 +99,11 @@ IDENTIFIER = re.compile(
 )
 # Capitalised words or initials ("S."), joined only by spaces, so a name never runs across a full stop.
 _CAP = r"(?:[A-Z][a-z][\w'&-]*|[A-Z]\.|[A-Z]{2,})"
-NAME = re.compile(rf"(?:M/s\.?\s+)?{_CAP}(?:\s+(?:{_CAP}|of|and|&))*\s+{_CAP}")
+# A name runs along one line: spaces and tabs join its words, never a line break. Otherwise the last words of an address
+# block and the first word of the next paragraph ("Western Suburbs", blank line, "Subject") read as one name.
+_GAP = r"[ \t\u00a0]+"
+LEADING_WORD = re.compile(r"^(?:The|A|An|To|Dear)[ \t\u00a0]+")
+NAME = re.compile(rf"(?:M/s\.?{_GAP})?{_CAP}(?:{_GAP}(?:{_CAP}|of|and|&))*{_GAP}{_CAP}")
 ALLOWED_NAMES = {
     normalise(n)
     for n in (
@@ -229,7 +233,9 @@ def check(answer: str, facts: list[dict[str, Any]], missing_ids: list[str] | Non
         spans.append(m.span())
     rest = _blank(text, spans)
     for m in NAME.finditer(rest):
-        name = m.group(0).strip()
+        name = LEADING_WORD.sub("", m.group(0).strip())  # "The Executive Engineer": the article is not part of the name
+        if not NAME.fullmatch(name):
+            continue  # what is left is a single word, not a name
         norm = normalise(name)
         words = norm.split()
         if norm in ALLOWED_NAMES or all(w in MONTHS or w in WORD_DAYS for w in words):

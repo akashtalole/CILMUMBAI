@@ -34,7 +34,13 @@ from hishob.place import geo
 
 log = logging.getLogger("hishob.api.requests")
 VIEW_NAMES = ("trace_money", "who_is_responsible", "work_status", "ward_summary", "gaps_for")
-FREE_TEXT_PARAMS = {"q", "text"}  # logged by length only: they can carry anything a person types (C7)
+FREE_TEXT_PARAMS = {
+    "q",
+    "text",
+    "lat",
+    "lon",
+}  # logged by length only: typed text, or where a phone says its owner is (C7)
+MAX_PHOTO_BYTES = 10_000_000
 
 
 @dataclass
@@ -49,6 +55,8 @@ class ApiConfig:
     ask: AskRun | None = None  # runs the citizen desk; None turns POST /ask off (no Claude credentials)
     ask_per_hour: int = 10
     ask_max_running: int = 4
+    photo: AskRun | None = None  # reads a photo report; None turns POST /report off (no Claude credentials)
+    photo_per_hour: int = 5
     web_dir: Path | None = None  # the built web app (app/web/dist), served at /
 
 
@@ -111,6 +119,7 @@ def create_app(config: ApiConfig) -> FastAPI:
     # per-minute limit is not spent on them.
     internal_key = secrets.token_urlsafe(24)
     desk = AskDesk(config.ask, config.ask_per_hour, config.ask_max_running) if config.ask else None
+    photo_desk = AskDesk(config.photo, config.photo_per_hour, 2) if config.photo else None
 
     def context(request: Request) -> Iterator[Context]:
         tier, account = resolve(request.headers.get("authorization"), config.token_secret)
@@ -125,7 +134,7 @@ def create_app(config: ApiConfig) -> FastAPI:
         client = request.client.host if request.client else "unknown"
         internal = hmac.compare_digest(request.headers.get("x-hishob-internal", ""), internal_key)
         # Polling for an answer is an in-memory lookup by an unguessable id; it must not use up the limit.
-        internal = internal or (request.method == "GET" and request.url.path.startswith("/ask/"))
+        internal = internal or (request.method == "GET" and request.url.path.startswith(("/ask/", "/report/")))
         if tier == "public" and not internal and not limiter.allow(client):
             response: Response = JSONResponse({"detail": "too many requests"}, status_code=429)
         else:
@@ -187,18 +196,66 @@ def create_app(config: ApiConfig) -> FastAPI:
             raise HTTPException(429, str(reason)) from None
         return {"id": job.id, "status": job.status}
 
-    @app.get("/ask/{job_id}")
-    def ask_status(job_id: str) -> dict[str, Any]:
-        job = desk.get(job_id) if desk else None
-        if job is None:
-            raise HTTPException(404, "no such question")
-        end = job.finished if job.finished is not None else desk.clock() if desk else job.started
+    def job_status(owner: AskDesk | None, job_id: str, what: str) -> dict[str, Any]:
+        job = owner.get(job_id) if owner else None
+        if job is None or owner is None:
+            raise HTTPException(404, f"no such {what}")
+        end = job.finished if job.finished is not None else owner.clock()
         out: dict[str, Any] = {"id": job.id, "status": job.status, "elapsed_s": round(end - job.started, 1)}
         if job.answer is not None:
             out["answer"] = job.answer
         if job.error is not None:
             out["error"] = "the desk could not answer this time"
         return out
+
+    @app.get("/ask/{job_id}")
+    def ask_status(job_id: str) -> dict[str, Any]:
+        return job_status(desk, job_id, "question")
+
+    @app.post("/report", status_code=202)
+    async def report(
+        request: Request,
+        language: str = Query(pattern="^(mr|hi|en)$"),
+        lat: float | None = Query(default=None, ge=-90, le=90),
+        lon: float | None = Query(default=None, ge=-180, le=180),
+    ) -> dict[str, Any]:
+        """Report a problem from a photo: the request body is the image itself (SPEC-030). Returns a job id; poll
+        GET /report/{id}. The photo is processed in memory and is never stored or logged."""
+        from hishob.agentkit.photo import PhotoError, read_photo
+
+        if photo_desk is None:
+            raise HTTPException(503, "photo reports are not enabled on this server")
+        if not request.headers.get("content-type", "").startswith("image/"):
+            raise HTTPException(415, "send the photo as the request body with an image content type")
+        if int(request.headers.get("content-length") or 0) > MAX_PHOTO_BYTES:
+            raise HTTPException(413, "the photo is larger than 10 MB")
+        chunks: list[bytes] = []
+        total = 0
+        async for chunk in request.stream():  # a client with no length header is cut off at the limit
+            total += len(chunk)
+            if total > MAX_PHOTO_BYTES:
+                raise HTTPException(413, "the photo is larger than 10 MB")
+            chunks.append(chunk)
+        try:
+            photo = read_photo(b"".join(chunks))
+        except PhotoError as problem:
+            raise HTTPException(422, str(problem)) from None
+        from fastapi.testclient import TestClient
+
+        authorization = request.headers.get("authorization")
+        token = authorization.removeprefix("Bearer ").strip() if authorization else None
+        http = TestClient(app, raise_server_exceptions=False, headers={"x-hishob-internal": internal_key})
+        where = (lat, lon) if lat is not None and lon is not None else None
+        client = request.client.host if request.client else "unknown"
+        try:
+            job = photo_desk.submit(client, http, "photo", photo=photo, language=language, location=where, token=token)
+        except Refused as reason:
+            raise HTTPException(429, str(reason)) from None
+        return {"id": job.id, "status": job.status}
+
+    @app.get("/report/{job_id}")
+    def report_status(job_id: str) -> dict[str, Any]:
+        return job_status(photo_desk, job_id, "report")
 
     def subscriber(ctx: Context) -> str:
         """Saved areas belong to an account: contributor tier or above (SPEC-010/R1)."""
@@ -411,6 +468,8 @@ def serve() -> FastAPI:
             public_per_minute=int(os.environ.get("HISHOB_PUBLIC_PER_MINUTE", "60")),
             ask=_live_desk() if os.environ.get("HISHOB_ASK_ENABLED", "1") != "0" else None,
             ask_per_hour=int(os.environ.get("HISHOB_ASK_PER_HOUR", "10")),
+            photo=_live_photo() if os.environ.get("HISHOB_PHOTO_ENABLED", "1") != "0" else None,
+            photo_per_hour=int(os.environ.get("HISHOB_PHOTO_PER_HOUR", "5")),
             web_dir=web,
         )
     )
@@ -428,5 +487,18 @@ def _live_desk() -> AskRun | None:
         return public_answer(
             answer_question(make_client(), http, question, language_hint=kwargs.pop("language"), **kwargs)
         )
+
+    return run
+
+
+def _live_photo() -> AskRun | None:
+    """The real photo report: a vision model names the problem, the citizen desk answers. Needs Claude credentials."""
+    if not (os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AWS_WORKSPACE_ID")):
+        return None
+    from hishob.agentkit.client import make_client
+    from hishob.agentkit.photo import public_report, report_from_photo
+
+    def run(http: Any, question: str, **kwargs: Any) -> dict[str, Any]:
+        return public_report(report_from_photo(make_client(), http, kwargs.pop("photo"), **kwargs))
 
     return run

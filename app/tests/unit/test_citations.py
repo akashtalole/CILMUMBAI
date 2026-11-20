@@ -76,3 +76,31 @@ def test_spec007_ac6_hindi_answer_with_wrong_amount_fails() -> None:
 def test_rounding_follows_what_the_answer_states() -> None:
     assert check("About ₹98 lakh.", [AWARD]).ok
     assert not check("About ₹9 lakh.", [AWARD]).ok
+
+
+def test_a_name_does_not_run_across_a_line_break() -> None:
+    # Found by the photo report: a letter's address block ended "Executive Engineer (Roads), Western Suburbs", then a
+    # blank line, then "Subject: ...". The words were joined into the name "Western Suburbs Subject", which no fact
+    # holds, so the desk's English letters were rejected and replaced by the fallback.
+    facts = [
+        {
+            "quote": "Executive Engineer (Roads), Western Suburbs",
+            "props": {"title": "Executive Engineer (Roads), Western Suburbs"},
+        }
+    ]
+    letter = (
+        "To,\nThe Executive Engineer (Roads), Western Suburbs\n\nSubject: A pothole on the road\n\nAbout the pothole."
+    )
+    assert check(letter, facts).ok
+    names = [c.text for c in check(letter, facts).matched + check(letter, facts).unmatched if c.kind == "name"]
+    assert not any("Subject" in n or "About" in n for n in names)
+    # a real name that is not in the facts is still caught, on one line
+    assert [c.text for c in check("Complain to Ramesh Patil today.", facts).unmatched if c.kind == "name"] == [
+        "Ramesh Patil"
+    ]
+
+
+def test_a_leading_article_is_not_part_of_a_name() -> None:
+    facts = [{"quote": "Assistant Engineer (Roads), K/West", "props": {"title": "Assistant Engineer (Roads), K/West"}}]
+    assert check("Respectfully, to The Assistant Engineer (Roads), K/West about the road.", facts).ok
+    assert check("Dear Assistant Engineer, please act.", facts).ok  # "Dear" and a single word left: no name at all
