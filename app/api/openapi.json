@@ -36,6 +36,36 @@
         "title": "AnswerCheck",
         "type": "object"
       },
+      "GateDecision": {
+        "properties": {
+          "decision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            ],
+            "title": "Decision"
+          },
+          "reason": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "decision",
+          "reason"
+        ],
+        "title": "GateDecision",
+        "type": "object"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -673,6 +703,126 @@
           }
         },
         "summary": "Report Status"
+      }
+    },
+    "/review/files": {
+      "get": {
+        "description": "One staged output, as text, for the reviewer to read before releasing it.",
+        "operationId": "review_file_review_files_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "maxLength": 300,
+              "minLength": 1,
+              "title": "Key",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Review File Review Files Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Review File"
+      }
+    },
+    "/review/threads": {
+      "get": {
+        "description": "Workflow runs, newest first: where each waits, what is staged and held, and the decisions so far.",
+        "operationId": "review_threads_review_threads_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response Review Threads Review Threads Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Review Threads"
+      }
+    },
+    "/review/threads/{thread}/decision": {
+      "post": {
+        "description": "Answer a gate. Only a reviewer can, the reason is required, and the decision is recorded.",
+        "operationId": "review_decide_review_threads__thread__decision_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "thread",
+            "required": true,
+            "schema": {
+              "title": "Thread",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GateDecision"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Review Decide Review Threads  Thread  Decision Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Review Decide"
       }
     },
     "/sources/{sha256}/pages/{page}": {

@@ -50,11 +50,20 @@ def main() -> None:
     for name in ("tender-en.pdf", "award-notice.pdf"):
         archive.add_file(FIXTURES / name, publisher="bmc", licence=LICENCE)
     loader = Loader(conn, archive, archive.data)
-    import_wards(archive, loader, FIXTURES / "wards-fixture.geojson", kind="admin", name_property="name",
-                 publisher="demo", licence=LICENCE, batch_id="demo-wards")
-    import_roads(archive, loader, FIXTURES / "roads-fixture.json", publisher="demo", licence=LICENCE,
-                 batch_id="demo-roads")
-    records = [remap(r) for r in SCENARIO if not (r.get("id") == "road:sv")]
+    import_wards(
+        archive,
+        loader,
+        FIXTURES / "wards-fixture.geojson",
+        kind="admin",
+        name_property="name",
+        publisher="demo",
+        licence=LICENCE,
+        batch_id="demo-wards",
+    )
+    import_roads(
+        archive, loader, FIXTURES / "roads-fixture.json", publisher="demo", licence=LICENCE, batch_id="demo-roads"
+    )
+    records = [remap(r) for r in SCENARIO if r.get("id") != "road:sv"]
     report = loader.load(records, batch_id="demo-scenario", extractor="demo-seed@1")
     print(f"scenario: {report.accepted} facts loaded, {report.held_total} held")
     geo.build(conn)

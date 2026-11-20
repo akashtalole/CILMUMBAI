@@ -248,11 +248,49 @@ class Engine:
             app.invoke(Command(resume=decision), {"configurable": {"thread_id": thread}})
             return _status(app, thread)
 
+    def threads(self, limit: int = 50) -> list[str]:
+        """The runs this store knows, most recent first (for a review screen)."""
+        with self._app():  # makes sure the checkpoint tables exist
+            pass
+        with psycopg.connect(self.database_url, autocommit=True, options="-c search_path=flow") as conn:
+            rows = conn.execute(
+                "SELECT thread_id FROM checkpoints GROUP BY thread_id ORDER BY max(checkpoint_id) DESC LIMIT %s",
+                (limit,),
+            ).fetchall()
+        return [str(r[0]) for r in rows]
+
+    def decisions(self, thread: str) -> list[dict[str, Any]]:
+        """Every gate decision on a run, oldest first: who decided what, and why."""
+        with psycopg.connect(self.database_url, autocommit=True, row_factory=dict_row) as conn:
+            rows = conn.execute(
+                "SELECT gate, decision, reason, account_id, decided_at FROM flow.decisions"
+                " WHERE thread_id = %s ORDER BY id",
+                (thread,),
+            ).fetchall()
+        return [{**r, "decision": json.loads(r["decision"]), "decided_at": r["decided_at"].isoformat()} for r in rows]
+
     def retry(self, thread: str) -> Status:
         """Run again a step that failed (for example after a crash). Completed steps are not repeated."""
         with self._app() as app:
             app.invoke(None, {"configurable": {"thread_id": thread}})
             return _status(app, thread)
+
+
+class PublishOnlySteps:
+    """The steps for a process that only answers gates and publishes, such as the API behind the review screen. The
+    paid desks (intake, audit) run in the worker; here they refuse, so a resume can never start one by accident."""
+
+    def __init__(self, data: Any, public: Any) -> None:
+        self.data, self.public = data, public
+
+    def intake(self, hashes: list[str], run_id: str) -> dict[str, Any]:
+        raise RuntimeError("the intake desk runs in the worker, not here")
+
+    def audit(self, ward: str, run_id: str) -> dict[str, Any]:
+        raise RuntimeError("the audit desk runs in the worker, not here")
+
+    def publish(self, audit: dict[str, Any]) -> list[str]:
+        return publish_outputs(self.data, self.public, audit)
 
 
 def handle_message(engine: Engine, body: dict[str, Any]) -> Status:

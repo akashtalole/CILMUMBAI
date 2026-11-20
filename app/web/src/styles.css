@@ -231,3 +231,19 @@ select { font: inherit; color: inherit; background: var(--surface); border: 1px 
 .photo .hint { margin: 4px 0 14px; }
 .photo-preview { display: block; max-width: 100%; max-height: 260px; border-radius: 14px; margin: 14px 0; border: 1px solid var(--line); object-fit: cover; }
 .saw { margin: 16px 0 4px; font-size: 1.1rem; }
+
+/* review */
+.run { margin: 16px 0; }
+.run-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.runlog { margin: 8px 0 12px; padding-left: 20px; color: var(--ink-2); font-size: 0.9rem; }
+.ward { border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin: 12px 0; }
+.files { margin: 6px 0 8px; padding-left: 18px; }
+.files.held { color: var(--ink-2); }
+.file { white-space: pre-wrap; background: var(--surface-2); border-radius: 10px; padding: 10px 12px; margin: 6px 0; max-height: 280px; overflow: auto; font-size: 0.88rem; }
+.history { margin-top: 12px; color: var(--ink-2); }
+
+/* voice input */
+.voice { display: flex; align-items: center; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
+.mic.on { background: var(--accent); color: #fff; border-color: var(--accent); animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 6px rgb(217 72 15 / 22%); } }
+@media (prefers-reduced-motion: reduce) { .mic.on { animation: none; } }

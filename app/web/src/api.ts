@@ -119,6 +119,32 @@ export interface Alert {
   text: string;
 }
 
+export interface Gate {
+  gate: string; // review_facts or release
+  question: string;
+  wards?: string[];
+  staged?: Record<string, string[]>;
+  held?: number | Record<string, Record<string, string>>; // a count at review_facts; held cases with reasons at release
+  loaded?: number;
+}
+
+export interface Decision {
+  gate: string;
+  decision: string | string[];
+  reason: string;
+  account_id: string;
+  decided_at: string;
+}
+
+export interface ReviewRun {
+  thread: string;
+  log: string[];
+  waiting: Gate | null;
+  finished: boolean;
+  published: string[];
+  decisions: Decision[];
+}
+
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -173,6 +199,16 @@ export const api = {
       if (!r.ok) throw new ApiError(r.status, r.statusText);
     }),
   alerts: (token: string) => call<Alert[]>(`/alerts`, { headers: auth(token) }),
+  // The review screen: reviewer tier only (SPEC-021).
+  reviewRuns: (token: string) => call<ReviewRun[]>(`/review/threads`, { headers: auth(token) }),
+  reviewFile: (token: string, key: string) =>
+    call<{ key: string; text: string; truncated: boolean }>(`/review/files?key=${encodeURIComponent(key)}`, { headers: auth(token) }),
+  decide: (token: string, thread: string, decision: string | string[], reason: string) =>
+    call<ReviewRun>(`/review/threads/${encodeURIComponent(thread)}/decision`, {
+      method: "POST",
+      headers: auth(token),
+      body: JSON.stringify({ decision, reason }),
+    }),
 };
 
 const auth = (token: string) => ({ Authorization: `Bearer ${token}` });

@@ -55,6 +55,7 @@ class ApiConfig:
     ask: AskRun | None = None  # runs the citizen desk; None turns POST /ask off (no Claude credentials)
     ask_per_hour: int = 10
     ask_max_running: int = 4
+    review: Any = None  # a workflows.w1.Engine that answers gates and publishes; None turns the /review endpoints off
     photo: AskRun | None = None  # reads a photo report; None turns POST /report off (no Claude credentials)
     photo_per_hour: int = 5
     web_dir: Path | None = None  # the built web app (app/web/dist), served at /
@@ -82,6 +83,11 @@ class SavedArea(BaseModel):
     lon: float | None = Field(default=None, ge=-180, le=180)
     radius_m: int | None = None
     road_ids: list[str] = Field(default_factory=list, max_length=20)
+
+
+class GateDecision(BaseModel):
+    decision: str | list[str]  # continue, stop, approve, hold, or the wards to release
+    reason: str = Field(min_length=1, max_length=1000)
 
 
 class Context:
@@ -293,6 +299,65 @@ def create_app(config: ApiConfig) -> FastAPI:
         base = str(request.base_url).rstrip("/")
         return alerts.list_alerts(ctx.conn, subscriber(ctx), base_url=base)
 
+    def reviewer(ctx: Context) -> str:
+        """The review screen is for the reviewer tier only (SPEC-021/R1)."""
+        if ctx.account is None or not allows(ctx.tier, "reviewer"):
+            raise HTTPException(403, "reviewer access is needed")
+        if config.review is None:
+            raise HTTPException(503, "the review screen is not enabled on this server")
+        return ctx.account
+
+    @app.get("/review/threads")
+    def review_threads(ctx: Context = Depends(context)) -> list[dict[str, Any]]:
+        """Workflow runs, newest first: where each waits, what is staged and held, and the decisions so far."""
+        reviewer(ctx)
+        out = []
+        for thread in config.review.threads(30):
+            status = config.review.status(thread)
+            out.append(
+                {
+                    "thread": thread,
+                    "log": status.log,
+                    "waiting": status.waiting,
+                    "finished": status.finished,
+                    "published": status.published,
+                    "decisions": config.review.decisions(thread),
+                }
+            )
+        return out
+
+    @app.get("/review/files")
+    def review_file(key: str = Query(min_length=1, max_length=300), ctx: Context = Depends(context)) -> dict[str, Any]:
+        """One staged output, as text, for the reviewer to read before releasing it."""
+        reviewer(ctx)
+        if not key.startswith("staging/") or ".." in key.split("/") or "\\" in key:
+            raise HTTPException(404, "no such file")
+        try:
+            raw = config.data.get(key)
+        except Exception:
+            raise HTTPException(404, "no such file") from None
+        return {"key": key, "text": raw[:200_000].decode("utf-8", errors="replace"), "truncated": len(raw) > 200_000}
+
+    @app.post("/review/threads/{thread}/decision")
+    def review_decide(thread: str, body: GateDecision, ctx: Context = Depends(context)) -> dict[str, Any]:
+        """Answer a gate. Only a reviewer can, the reason is required, and the decision is recorded."""
+        from hishob.workflows.w1 import GateError
+
+        account = reviewer(ctx)
+        try:
+            status = config.review.resume(thread, body.decision, reason=body.reason, account=account, tier=ctx.tier)
+        except GateError as refused:
+            raise HTTPException(403, str(refused)) from None
+        except ValueError as problem:
+            raise HTTPException(409 if "not waiting" in str(problem) else 422, str(problem)) from None
+        return {
+            "thread": thread,
+            "log": status.log,
+            "waiting": status.waiting,
+            "finished": status.finished,
+            "published": status.published,
+        }
+
     @app.get("/views/{name}")
     def view(
         name: str,
@@ -468,6 +533,7 @@ def serve() -> FastAPI:
             public_per_minute=int(os.environ.get("HISHOB_PUBLIC_PER_MINUTE", "60")),
             ask=_live_desk() if os.environ.get("HISHOB_ASK_ENABLED", "1") != "0" else None,
             ask_per_hour=int(os.environ.get("HISHOB_ASK_PER_HOUR", "10")),
+            review=_review_engine(settings, data),
             photo=_live_photo() if os.environ.get("HISHOB_PHOTO_ENABLED", "1") != "0" else None,
             photo_per_hour=int(os.environ.get("HISHOB_PHOTO_PER_HOUR", "5")),
             web_dir=web,
@@ -502,3 +568,21 @@ def _live_photo() -> AskRun | None:
         return public_report(report_from_photo(make_client(), http, kwargs.pop("photo"), **kwargs))
 
     return run
+
+
+def _review_engine(settings: Any, data: ObjectStore) -> Any:
+    """The engine behind the review screen: it answers gates and publishes to the public store. Off unless access
+    tiers are configured, since only a reviewer may use it."""
+    if os.environ.get("HISHOB_REVIEW_ENABLED", "1") == "0" or not os.environ.get("HISHOB_TOKEN_SECRET"):
+        return None
+    from hishob.archive.storage import LocalStore, S3Store
+    from hishob.workflows.w1 import Engine, PublishOnlySteps
+
+    public: ObjectStore
+    if settings.storage == "s3":
+        import boto3
+
+        public = S3Store(boto3.client("s3"), os.environ["HISHOB_PUBLIC_BUCKET"])
+    else:
+        public = LocalStore(settings.local_root / "public")
+    return Engine(settings.database_url, PublishOnlySteps(data, public))

@@ -1,29 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { ApiError, api, type Alert, type SavedArea } from "../api";
 import { useLang } from "../lang";
+import { forgetToken, readToken, saveToken } from "../token";
 import type { Chosen } from "./PlaceSearch";
 
-const KEY = "hishob.token";
 const RADII = [100, 300, 500, 1000];
-
-function stored(): string {
-  // A link may carry the code in its fragment (#token=…), which is never sent to a server.
-  const fromLink = new URLSearchParams(window.location.hash.slice(1)).get("token");
-  try {
-    if (fromLink) {
-      localStorage.setItem(KEY, fromLink);
-      history.replaceState(null, "", window.location.pathname);
-    }
-    return localStorage.getItem(KEY) ?? "";
-  } catch {
-    return fromLink ?? "";
-  }
-}
 
 /** Saved areas and the alerts queued for them (SPEC-010). */
 export function Alerts({ place }: { place: Chosen | null }) {
   const { t, lang } = useLang();
-  const [token, setToken] = useState(stored);
+  const [token, setToken] = useState(readToken);
   const [draft, setDraft] = useState("");
   const [areas, setAreas] = useState<SavedArea[] | null>(null);
   const [alerts, setAlerts] = useState<Alert[]>([]);
@@ -31,11 +17,7 @@ export function Alerts({ place }: { place: Chosen | null }) {
   const [message, setMessage] = useState("");
 
   const forget = () => {
-    try {
-      localStorage.removeItem(KEY);
-    } catch {
-      /* ignore */
-    }
+    forgetToken();
     setToken("");
     setAreas(null);
   };
@@ -85,11 +67,7 @@ export function Alerts({ place }: { place: Chosen | null }) {
           className="card"
           onSubmit={(e) => {
             e.preventDefault();
-            try {
-              localStorage.setItem(KEY, draft.trim());
-            } catch {
-              /* ignore */
-            }
+            saveToken(draft.trim());
             setToken(draft.trim());
           }}
         >

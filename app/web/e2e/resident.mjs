@@ -57,6 +57,30 @@ for (const [name, options] of [
   const page = await context.newPage();
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
+  let asks = 0;
+  page.on("request", (r) => r.method() === "POST" && new URL(r.url()).pathname === "/ask" && asks++);
+  // A stand-in for the browser's speech recogniser: headless Chrome has no microphone.
+  await page.addInitScript(() => {
+    window.__voice = { lang: null, mode: "ok", starts: 0 };
+    // Recent Chromium has the unprefixed name too, so replace both.
+    window.webkitSpeechRecognition = window.SpeechRecognition = class {
+      start() {
+        window.__voice.starts++;
+        window.__voice.lang = this.lang;
+        setTimeout(() => {
+          if (window.__voice.mode === "denied") {
+            this.onerror && this.onerror({ error: "not-allowed" });
+          } else {
+            const results = [Object.assign([{ transcript: "एस. व्ही. रोडवर खड्डा" }], { isFinal: true })];
+            this.onresult && this.onresult({ resultIndex: 0, results });
+          }
+          this.onend && this.onend();
+        }, 60);
+      }
+      stop() {}
+      abort() {}
+    };
+  });
   await page.goto(BASE);
 
   // AC4: Marathi first, all three languages, choice remembered
@@ -142,6 +166,38 @@ for (const [name, options] of [
   await page.getByTestId("photo-input").setInputFiles({ name: "unclear.jpg", mimeType: "image/jpeg", buffer: TINY_JPEG });
   await page.getByText("We could not tell what the photo shows").waitFor({ timeout: 10000 });
   check(true, `${name}: an unclear photo says so and points to the other tab`);
+
+  // Voice input (SPEC-020/R10): speech fills the question box in the interface language and is never sent by itself
+  await page.getByRole("tab", { name: "Ask" }).click();
+  const asksBeforeSpeaking = asks;
+  await page.getByRole("button", { name: "Speak" }).click();
+  await page.waitForFunction(() => document.querySelector("textarea")?.value.includes("खड्डा"));
+  check((await page.evaluate(() => window.__voice.lang)) === "en-IN", `${name}: English listens for en-IN`);
+  await page.getByRole("button", { name: "मराठी" }).click();
+  await page.getByRole("button", { name: "बोला" }).click();
+  await page.waitForFunction(() => (document.querySelector("textarea")?.value.match(/खड्डा/g) ?? []).length === 2);
+  check((await page.evaluate(() => window.__voice.lang)) === "mr-IN", `${name}: Marathi listens for mr-IN`);
+  await page.getByRole("button", { name: "हिंदी" }).click();
+  await page.getByRole("button", { name: "बोलें" }).click();
+  await page.waitForFunction(() => (document.querySelector("textarea")?.value.match(/खड्डा/g) ?? []).length === 3);
+  check((await page.evaluate(() => window.__voice.lang)) === "hi-IN", `${name}: Hindi listens for hi-IN`);
+  check(asks === asksBeforeSpeaking, `${name}: speaking does not send the question`);
+  check(await page.getByText("आपकी आवाज़ को लिखित रूप में बदलने").isVisible(), `${name}: the page says the browser may send the voice to its speech service`);
+  await page.evaluate(() => (window.__voice.mode = "denied"));
+  await page.getByRole("button", { name: "बोलें" }).click();
+  await page.getByText("माइक्रोफ़ोन की अनुमति नहीं है").waitFor({ timeout: 5000 });
+  check(true, `${name}: a refused microphone is explained`);
+  await page.getByRole("button", { name: "English" }).click();
+  const plain = await context.newPage(); // a browser with no speech support
+  await plain.addInitScript(() => {
+    Object.defineProperty(window, "SpeechRecognition", { value: undefined, configurable: true });
+    Object.defineProperty(window, "webkitSpeechRecognition", { value: undefined, configurable: true });
+  });
+  await plain.goto(BASE);
+  await plain.getByRole("button", { name: "English" }).click();
+  await plain.getByRole("tab", { name: "Ask" }).click();
+  check((await plain.getByRole("button", { name: "Speak" }).count()) === 0, `${name}: no microphone button where the browser cannot listen`);
+  await plain.close();
 
   // Street alerts (SPEC-010): asks for an access code, then lists saved areas and alerts, in the chosen language
   await page.evaluate(() => localStorage.removeItem("hishob.token"));

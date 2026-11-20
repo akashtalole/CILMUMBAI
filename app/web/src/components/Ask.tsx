@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ApiError, api, type Answer } from "../api";
 import { useLang } from "../lang";
+import { useSpeech } from "../speech";
 import { AnswerCard } from "./AnswerCard";
 import { PhotoReport } from "./PhotoReport";
 
@@ -15,6 +16,7 @@ export function Ask() {
   const [answer, setAnswer] = useState<Answer | null>(null);
   const [message, setMessage] = useState("");
   const poll = useRef<number>();
+  const voice = useSpeech(lang, (heard) => setQuestion((q) => (q.trim() ? `${q.trim()} ${heard}` : heard)));
 
   useEffect(() => () => window.clearTimeout(poll.current), []);
 
@@ -74,6 +76,25 @@ export function Ask() {
           maxLength={1000}
           aria-label={t.askPlaceholder}
         />
+        {voice.supported && (
+          <div className="voice">
+            <button
+              type="button"
+              className={`secondary mic ${voice.listening ? "on" : ""}`}
+              aria-pressed={voice.listening}
+              onClick={voice.listening ? voice.stop : voice.start}
+            >
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden>
+                <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-3.1A7 7 0 0 0 19 11z" fill="currentColor" />
+              </svg>
+              {voice.listening ? t.voiceStop : t.voiceStart}
+            </button>
+            <span className="meta" role="status">
+              {voice.listening ? (voice.interim || t.voiceListening) : voice.problem === "denied" ? t.voiceDenied : voice.problem === "nospeech" ? t.voiceNoSpeech : voice.problem ? t.voiceFailed : ""}
+            </span>
+          </div>
+        )}
+        {voice.supported && <p className="hint small">{t.voiceNote}</p>}
         <p className="hint small">{t.privacy}</p>
         <div className="ask-row">
           <label className="check">
