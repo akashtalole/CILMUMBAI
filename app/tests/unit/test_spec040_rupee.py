@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import csv
 import dataclasses
+import json
 from collections import Counter
 from contextlib import contextmanager
 from pathlib import Path
@@ -241,6 +242,7 @@ def test_spec040_ac7_the_build_writes_files_a_judge_can_open(tmp_path: Path, bun
     paths = build.write(bundle, tmp_path)
     assert {p.name for p in paths} == {
         "bundle.json",
+        "notes.json",
         "flags.csv",
         "complaints_linked.csv",
         "next_rupee.csv",
@@ -294,3 +296,41 @@ def test_spec040_ac7_without_a_bundle_the_endpoints_say_so(tmp_path: Path) -> No
     assert TestClient(app).get("/rupee/summary").status_code == 503
     off = create_app(ApiConfig(connect=nothing, sources=store, data=store, graph_driver=None))
     assert TestClient(off).get("/rupee/summary").status_code == 404
+
+
+# AC8 · R9: the static export ------------------------------------------------------------------------------------
+
+
+def test_spec040_ac8_the_static_export_holds_the_same_answers_as_the_api(
+    tmp_path: Path, bundle, web: TestClient
+) -> None:  # type: ignore[no-untyped-def]
+    from hishob.rupee import export
+
+    build.write(bundle, tmp_path / "b")
+    out = tmp_path / "site"
+    got = export.run(tmp_path / "b", out)
+    assert got["wards"] == 24 and got["contractors"] == 8 and got["complaints"] == 6501
+    assert json.loads((out / "summary.json").read_text()) == web.get("/rupee/summary").json() | {
+        "built_at": json.loads((out / "summary.json").read_text())["built_at"]
+    }
+    ward = json.loads((out / "ward" / "F-S.json").read_text())  # the slash in F/S cannot be in a file name
+    assert ward == web.get("/rupee/ward", params={"code": "F/S"}).json()
+    assert len(json.loads((out / "flags.json").read_text())["items"]) == len(bundle["flags"])
+    shard = json.loads((out / "complaints" / f"{export.shard('BMC25-000013')}.json").read_text())
+    for lang in ("en", "mr", "hi"):
+        api = web.get("/rupee/complaint", params={"id": "BMC25-000013", "lang": lang}).json()
+        assert shard["BMC25-000013"]["answers"][lang] == api["answer"]
+
+
+def test_spec040_ac5_a_saved_note_is_reused_only_while_it_still_passes(data, bundle) -> None:  # type: ignore[no-untyped-def]
+    c = bundle["contractors"][0]
+    facts = narrate.contractor_facts(c)
+    good = f"{facts['name']} met the SLA on {facts['sla_met_pct']}% of {facts['jobs']} jobs."
+    saved = {f"contractor:{c['contractor_id']}": {"text": good, "by": "claude-x", "problems": []}}
+    again = build.compute(data, client=None, saved=saved)
+    mine = next(x for x in again["contractors"] if x["contractor_id"] == c["contractor_id"])
+    assert mine["note"] == {"text": good, "by": "claude-x", "problems": []}
+    saved[f"contractor:{c['contractor_id']}"]["text"] = good + " It did 99999 jobs."  # no longer matches the figures
+    again = build.compute(data, client=None, saved=saved)
+    mine = next(x for x in again["contractors"] if x["contractor_id"] == c["contractor_id"])
+    assert mine["note"]["by"] == "template"

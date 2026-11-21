@@ -10,6 +10,10 @@ on:
       - "docs-hooks/**"
       - "requirements-docs.txt"
       - ".github/workflows/docs.yml"
+      - "app/src/hishob/rupee/**"
+      - "app/src/hishob/api/rupee.py"
+      - "app/web/src/**"
+      - "app/datasets/**"
   pull_request:
     paths:
       - "**.md"
@@ -19,6 +23,9 @@ on:
       - "requirements-docs.txt"
       - ".github/workflows/docs.yml"
       - "aamcha-hishob-specs/tools/**"
+      - "app/src/hishob/rupee/**"
+      - "app/web/src/**"
+      - "app/datasets/**"
   workflow_dispatch:
 
 permissions:
@@ -43,6 +50,20 @@ jobs:
           cache: pip
           cache-dependency-path: requirements-docs.txt
       - run: pip install -r requirements-docs.txt
+      - uses: astral-sh/setup-uv@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/web/package-lock.json
+      - name: Build Follow the Rupee as a static site (no server, no API key)
+        # Claude's notes come from the committed notes.json; any that no longer pass the checks become templates.
+        run: |
+          cd app
+          uv sync --locked
+          uv run hishob rupee build --notes datasets/follow-the-rupee/results/notes.json --out var/rupee
+          uv run hishob rupee export --bundle var/rupee --out ../docs/rupee/json
+          cd web && npm ci && npm run build:rupee && cp -r dist-rupee/. ../../docs/rupee/
       - name: Check spec traceability
         run: python aamcha-hishob-specs/tools/check_specs.py
       - run: mkdocs build --strict
@@ -62,6 +83,20 @@ jobs:
           cache: pip
           cache-dependency-path: requirements-docs.txt
       - run: pip install -r requirements-docs.txt
+      - uses: astral-sh/setup-uv@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/web/package-lock.json
+      - name: Build Follow the Rupee as a static site (no server, no API key)
+        # Claude's notes come from the committed notes.json; any that no longer pass the checks become templates.
+        run: |
+          cd app
+          uv sync --locked
+          uv run hishob rupee build --notes datasets/follow-the-rupee/results/notes.json --out var/rupee
+          uv run hishob rupee export --bundle var/rupee --out ../docs/rupee/json
+          cd web && npm ci && npm run build:rupee && cp -r dist-rupee/. ../../docs/rupee/
       - name: Publish to the gh-pages branch
         run: |
           git config user.name "github-actions[bot]"

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:rupee": "tsc -b && VITE_RUPEE_ONLY=1 VITE_RUPEE_STATIC=1 vite build --base ./ --outDir dist-rupee",
     "preview": "vite preview",
     "typecheck": "tsc -b"
   },

@@ -70,8 +70,8 @@ class Store:
         return self._loaded
 
 
-def router(bundle_dir: Path) -> APIRouter:
-    store = Store(bundle_dir)
+def router(bundle_dir: Path, store: Store | None = None) -> APIRouter:
+    store = store or Store(bundle_dir)
     r = APIRouter(prefix="/rupee", tags=["rupee"])
 
     @r.get("/summary")

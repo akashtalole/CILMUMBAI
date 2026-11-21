@@ -25,15 +25,28 @@ def _csv(path: Path, rows: list[dict[str, Any]], fields: list[str]) -> None:
             w.writerow({k: ("|".join(v) if isinstance(v, list) else v) for k, v in r.items()})
 
 
-def compute(data: Dataset, client: Any = None) -> dict[str, Any]:
+def _note(client: Any, kind: str, key: str, facts: dict[str, Any], saved: dict[str, Any]) -> dict[str, Any]:
+    """A note saved from an earlier run is reused if it still passes the checks against today's figures; otherwise
+    Claude writes a new one (or the template does, with no client)."""
+    old = saved.get(f"{kind}:{key}")
+    words = narrate.PROMPTS[kind][1]
+    if old and old.get("by") != "template" and not narrate.check(old["text"], facts, words):
+        return {"text": old["text"], "by": old["by"], "problems": []}
+    return narrate.write(client, kind, facts)
+
+
+def compute(data: Dataset, client: Any = None, saved: dict[str, Any] | None = None) -> dict[str, Any]:
+    saved = saved or {}
     flags = audit.run(data)
     linked = link.run(data)
     cards = score.run(data, flags, linked)
     planned = plan.run(data, linked, cards["wards"])
     for c in cards["contractors"]:
-        c["note"] = narrate.write(client, "contractor", narrate.contractor_facts(c))
+        c["note"] = _note(client, "contractor", c["contractor_id"], narrate.contractor_facts(c), saved)
     for w in cards["wards"]:
-        w["note"] = narrate.write(client, "ward", narrate.ward_facts(w, planned["wards"][w["ward_code"]]))
+        w["note"] = _note(
+            client, "ward", w["ward_code"], narrate.ward_facts(w, planned["wards"][w["ward_code"]]), saved
+        )
     spend = sum(wo.num("cost_inr") for wo in data.work_orders)
     budget = sum(w.num("monsoon_repair_budget_inr_2025") for w in data.wards)
     counts = Counter(f.rule for f in flags)
@@ -76,6 +89,9 @@ def compute(data: Dataset, client: Any = None) -> dict[str, Any]:
 def write(bundle: dict[str, Any], out: Path) -> list[Path]:
     out.mkdir(parents=True, exist_ok=True)
     paths = []
+    p = out / "notes.json"
+    p.write_text(json.dumps(notes(bundle), ensure_ascii=False, indent=1), encoding="utf-8")
+    paths.append(p)
     p = out / "bundle.json"
     p.write_text(json.dumps(bundle, ensure_ascii=False), encoding="utf-8")
     paths.append(p)
@@ -157,8 +173,17 @@ def write(bundle: dict[str, Any], out: Path) -> list[Path]:
     return paths
 
 
-def run(data_dir: Path | str = DEFAULT_DIR, out: Path | str = DEFAULT_OUT, client: Any = None) -> dict[str, Any]:
-    bundle = compute(load(data_dir), client)
+def notes(bundle: dict[str, Any]) -> dict[str, Any]:
+    return {f"contractor:{c['contractor_id']}": c["note"] for c in bundle["contractors"]} | {
+        f"ward:{w['ward_code']}": w["note"] for w in bundle["wards"]
+    }
+
+
+def run(
+    data_dir: Path | str = DEFAULT_DIR, out: Path | str = DEFAULT_OUT, client: Any = None, saved: Path | None = None
+) -> dict[str, Any]:
+    old = json.loads(saved.read_text(encoding="utf-8")) if saved and saved.exists() else {}
+    bundle = compute(load(data_dir), client, old)
     write(bundle, Path(out))
     return bundle
 

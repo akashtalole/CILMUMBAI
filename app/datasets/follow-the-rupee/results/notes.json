@@ -1,0 +1,162 @@
+{
+ "contractor:CT05": {
+  "text": "Deccan Paving Solutions (synthetic) earns a B, 69 out of 100, across 287 jobs in 24 wards. A score of 50 means as expected for these jobs, given method, rain and ward.\n\nSpeed: 60 percent of jobs met the deadline, against 49 percent expected (score 60). Durability: 9 percent of repairs reopened within 30 days, against 24 percent expected (score 81). Cost: the typical bill was 1.02 times the rate card (score 66), though 4 jobs were billed above 1.5 times it.\n\nTo improve: clean up billing. Records show 5 duplicate bills, and 53 jobs were paid for on roads still under the contractor's guarantee period.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "contractor:CT01": {
+  "text": "Sahyadri Infra Works (synthetic) earns a B, 63 overall, across 337 jobs in 24 wards. A score of 50 means as expected for these jobs, given method, rain and ward.\n\nSpeed: 62 percent of repairs met the deadline, against 51 percent expected. Durability scored 72: 14 percent of repairs reopened within 30 days, where 24 percent would be expected. Billing scored 55, close to expected. The typical bill was 1.06 times the rate card, though 3 jobs were billed above 1.5 times it.\n\nTo improve: billing records. There are 8 duplicate bills, and 69 jobs were paid for on roads still under the contractor's guarantee period. Cleaner billing would lift this score.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "contractor:CT08": {
+  "text": "Mithi Infra Projects (fictional) gets a C, overall 59. A score of 50 means \"as expected for these jobs, given method, rain and ward.\" The firm did 319 jobs across 24 wards, costing ₹1,71,43,836.\n\nSpeed: 52, about as expected. 52% of jobs met the deadline, against 50% expected.\n\nLasting repairs: 77, its best score. 12% of repairs reopened within 30 days, against 25% expected.\n\nCost: 48, slightly below expected. The typical bill was 1.04 times the rate card. 10 jobs were billed above 1.5 times the rate card, and the records show 4 duplicate bills. 79 jobs were paid for on roads still under the contractor's guarantee period.\n\nTo improve: bring billing in line with the rate card and clear up the duplicate bills.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "contractor:CT02": {
+  "text": "Konkan Roadcon Pvt Ltd (synthetic) earns a C, overall 56. A score of 50 means as expected for these jobs, given method, rain and ward. Across 337 jobs in 24 wards, speed scored 49: 46% of repairs met the deadline, against 47% expected. Durability scored 45: 27% of repairs were reopened within 30 days, against 24% expected. Billing scored 75: the typical bill was 1.05 times the rate card, though 5 jobs were billed above 1.5 times it. One thing to improve: make repairs last, so fewer roads need reopening within a month.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "contractor:CT06": {
+  "text": "Shivneri Construction (synthetic) gets a C, with an overall score of 54. A score of 50 means as expected for these jobs, given method, rain and ward. The company did 289 jobs across 24 wards and was paid ₹1,46,72,446.\n\nSpeed scores 49. It met the repair deadline on 47% of jobs, against about 48% expected.\n\nLasting power scores 46. 26% of its repairs reopened within 30 days, against 24% expected.\n\nCost scores 68, its best result. The typical bill was 1.05 times the rate card. Three jobs were billed above 1.5 times the rate card, and the records show 8 duplicate bills.\n\nOne thing to improve: make repairs last, so fewer roads reopen within a month.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "contractor:CT04": {
+  "text": "Western Coast Asphalt Co (synthetic) gets grade C, with an overall score of 49. A score of 50 means as expected for these jobs, given method, rain and ward. Speed is 50: 47% of jobs met the deadline, against 48% expected. Durability is weak at 21: 39% of repairs reopened within 30 days, where 25% would be expected. Billing scores 76. The typical bill was 1.06 times the rate card, though 5 of 299 jobs were billed above 1.5 times it, and 3 bills were duplicates. Records also show 48 jobs paid for on roads still within the contractor's guarantee period. To improve: make repairs last, so fewer roads reopen within a month.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "contractor:CT07": {
+  "text": "Arabian Sea Engineering (fictional, synthetic data) earns a D, with an overall score of 32. A score of 50 means as expected for these jobs, given method, rain and ward. The records cover 328 jobs across 24 wards.\n\nSpeed scored 42. 44% of jobs met their deadline, against 52% expected.\n\nDurability scored 34. 32% of repairs reopened within 30 days, against 25% expected.\n\nBilling scored 21. The typical bill was 1.08 times the rate card, but 37 jobs were billed above 1.5 times it, and 3 bills were duplicates.\n\nTo improve: bill within the rate card and remove duplicate bills.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "contractor:CT03": {
+  "text": "Mahalaxmi Civil Contractors (synthetic) gets grade E, an overall 20 out of 100. A score of 50 means \"as expected for these jobs, given method, rain and ward,\" so this is well below that. Across 303 jobs in 24 wards, 39% of repairs met the deadline, where about 52% was expected. Within 30 days, 38% of repairs were reopened, against 25% expected. The typical bill was 1.08 times the rate card, but 42 jobs were billed above 1.5 times it, and the records show 10 duplicate bills. 53 paid jobs were on roads still in the contractor's guarantee period. One thing to improve: check every bill against the rate card before submitting it.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "ward:A": {
+  "text": "Ward A (Colaba, Fort, Churchgate) scores 47, grade C; a score of 50 means \"as expected for these jobs, given method, rain and ward.\" Across 29 jobs, ₹16,55,330 was spent against a ₹16,00,000 budget (103%), leaving it ₹55,330 over. Repairs held poorly: ₹5,82,099 went on fixes that failed within 30 days, and durability scored 30. Records put ₹4,06,680 in question: one bill above 1.5 times the rate card, one duplicate bill, and 9 payments (₹3,63,827) on roads still within the contractor's guarantee period. Four issues are open and overdue. Next fixes: first, replace the broken manhole cover on Veer Nariman Road (₹47,629), a severity 5 hazard near a school with a 24-hour deadline. Second, patch the Colaba Causeway pothole (₹16,437), which has 5 complaints, 21 \"me too\" votes and one accident. Third, patch the Veer Nariman Road pothole (₹16,437), where heavy traffic and 14 bus routes meet a prior accident.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "ward:B": {
+  "text": "Ward B (Dongri, Masjid Bunder) scores 58, grade C, where 50 means as expected for these jobs given method, rain and ward. Of the ₹43,00,000 budget, ₹35,07,952 (82%) has been spent on 44 jobs, leaving ₹7,92,048. Repairs held only partly: durability scored 55, and ₹5,78,915 went on fixes that failed within 30 days. Records put ₹5,74,135 in question. Five bills were above 1.5 times the rate card, and three payments, ₹1,73,383, were made on roads still within the contractor's guarantee period. No duplicate bills were found. Seven issues are open and overdue. Next fixes: first, the Mohammed Ali Road manhole (₹47,629), a severity 5 issue on the ambulance road to Sir JJ Hospital. Second, desilting P D'Mello Road (₹73,252), which is near a school and a flood-prone spot. Third, patching the Nishanpada Road pothole (₹16,437), which has 66 \"me too\" reports and the same flood risk.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "ward:C": {
+  "text": "Ward C (Kalbadevi, Bhuleshwar, Marine Lines) gets grade D, with an overall score of 33, where 50 means as expected for these jobs given method, rain and ward. Of the ₹9,00,000 budget, ₹7,96,803 (88%) has gone on 20 jobs, leaving ₹1,03,197. The repairs have not held well: durability scored 26, and ₹2,47,660 was spent on fixes that failed within 30 days. Eight issues are open and overdue. ₹1,90,409 is in question because two bills were above 1.5 times the rate card, and five payments totalling ₹1,83,276 were made on roads still within the contractor's guarantee period (DLP). No duplicate bills were found. Next, fix three open manholes, each a severity 5 issue with a 24-hour limit. Nepean Sea Road and Princess Street (₹47,629 each) both had an accident last year and are near schools. Kalbadevi Road is near a school and has one complaint backed by 31 \"me too\" reports. The original contractor should be called back to fix it under the guarantee at no cost.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "ward:D": {
+  "text": "Ward D (Grant Road, Malabar Hill, Tardeo) scores 44, grade D, where 50 means as expected for these jobs, given method, rain and ward. Of the ₹16,00,000 budget, ₹12,72,300 (80%) is spent on 40 jobs, leaving ₹3,27,700. Repairs held fairly well (durability 61), but billing scored 11. ₹5,40,368 is in question: 11 payments (₹5,25,710) were made on roads still under the contractor's guarantee period, one bill was above 1.5 times the rate card, and one was a duplicate. Also, ₹2,35,027 went on fixes that failed within 30 days, and 5 issues are open and overdue. Next fixes: Pandita Ramabai Road waterlogging, at no cost, by calling the original contractor under the guarantee, as it is a severity 4 issue near a school; Peddar Road pothole, ₹16,437, for heavy traffic and one accident; Tardeo Road pothole, ₹16,437, with 39 \"me too\" reports.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "ward:E": {
+  "text": "Ward E (Byculla, Agripada, Mumbai Central) scores 40, grade D, where 50 means as expected for these jobs, given method, rain and ward. Against a budget of ₹53,00,000, ₹63,22,991 has been spent on 118 jobs (119%), which is ₹10,22,991 over. Repairs often did not hold: ₹20,11,624 went on fixes that failed within 30 days. In question is ₹26,93,520. The records show 9 bills above 1.5 times the rate card, 2 duplicate bills, and 41 payments (₹24,96,332) made on roads still within the contractor's guarantee period. 19 issues remain open and overdue. The next three fixes are all on Bellasis Road, the ambulance route to BYL Nair Hospital, near Byculla Station West, which flooded above 100 mm on 14 days last season. First, the cave-in (₹1,93,560); second, the broken manhole (₹47,629). Both are severity 5 issues with a 24-hour deadline. Third, the choked drain (₹73,252), which has 87 \"me too\" reports.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "ward:F/S": {
+  "text": "F/S ward (Parel, Lalbaug, Sewri) scores 55, grade C; a score of 50 means as expected for these jobs, given method, rain and ward. Of the ₹98,00,000 budget, ₹80,26,151 (82%) is spent across 135 jobs, leaving ₹17,73,849. Repairs mostly held (durability 67), but ₹13,35,554 went on fixes that failed within 30 days, and speed is weak at 36, with 26 overdue open issues. In question is ₹10,28,873: 7 bills above 1.5 times the rate card, 2 duplicate bills, and 14 payments (₹6,76,407) on roads still under the contractor's guarantee period. The next three fixes are all on Dr Babasaheb Ambedkar Road, 354 m from Hindmata Junction, which floods above 60 mm a day (17 such days last season). First, a dewatering pump (₹64,251) for waterlogging. Second, a manhole cover and grating (₹47,629), a 24-hour severity 5 hazard. Third, desilting the choked drain (₹73,252), since this is the ambulance road to KEM Hospital.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "ward:F/N": {
+  "text": "F/N ward (Matunga, Sion, Wadala) scores 43 out of 100, grade D; 50 would mean as expected for these jobs, given method, rain and ward. Of the ₹1,05,00,000 budget, ₹94,12,574 (90%) is spent across 150 jobs, leaving ₹10,87,426. Repairs held up poorly: ₹21,34,363 went on fixes that failed within 30 days. Another ₹28,27,782 is in question: 6 bills above 1.5 times the rate card, 3 duplicate bills, and 37 payments (₹22,21,383) on roads still under the contractor's guarantee period. 32 issues are open and overdue. Next fixes: first, the open manhole on Eastern Express Highway (₹47,629), a severity 5 hazard near a flood-prone spot, with 3 accidents, 1 fatal. Second, waterlogging on Sion Trombay Road (₹64,251), near a school. Third, the pothole on the same highway (₹16,437), near LTMG Sion Hospital.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "ward:G/S": {
+  "text": "G/S ward scores 39 (grade D); a score of 50 would mean as expected for these jobs, given method, rain and ward. Of the ₹32,00,000 budget, ₹28,21,986 (88%) is spent across 64 jobs, with Sahyadri Infra Works the largest by spend. Repairs held poorly: ₹10,57,467 went on fixes that failed within 30 days. In question is ₹10,59,034 paid on 21 roads still under the contractor's guarantee period (DLP), when repairs should be free. No bills were above 1.5 times the rate card and none were duplicates, but 14 issues are open and overdue. Next, on Senapati Bapat Marg: first, call the original contractor under the guarantee and deploy a pump for waterlogging, at ₹0, since it is a severity 4 issue near flood-prone Worli Naka, with 4 complaints. Second, a ₹64,251 pump nearby, where 3,805 vehicles and 23 bus routes pass at peak hour. Third, a free hot mix patch for a guaranteed pothole with 6 complaints.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "ward:G/N": {
+  "text": "G/N ward (Dadar West, Mahim, Dharavi) scores 44 out of 100, grade D, where 50 means as expected for these jobs given method, rain and ward. Of the ₹84,00,000 budget, ₹67,55,738 (80%) is spent across 139 jobs, leaving ₹16,44,262. Repairs did not hold well: ₹17,29,109 went on fixes that failed within 30 days. Records put ₹17,04,075 in question, including 3 bills above 1.5 times the rate card, 7 duplicate bills, and 23 payments (₹9,86,130) on roads still under the contractor's guarantee period (DLP). Also, 25 issues are open and overdue. The next three fixes are: waterlogging on Senapati Bapat Marg (₹64,251), a 48-hour issue with 2 accidents on the ambulance road to Mahim Fever Hospital; the pothole on the same road (₹16,437), with 13 complaints; and the broken manhole on 90 Feet Road Dharavi, a 24-hour issue near a school, which the original contractor should fix under DLP at ₹0.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "ward:H/E": {
+  "text": "H/E ward (Bandra East, Santacruz East, Khar East) scores 52, grade C, where 50 means as expected for these jobs, given method, rain and ward. Of the ₹82,00,000 budget, ₹61,45,533 (75%) is spent across 111 jobs, leaving ₹20,54,467. Durability is the weakest area at 47: ₹16,12,052 went on fixes that failed within 30 days. ₹13,40,927 is in question: 6 bills were above 1.5 times the rate card, 5 bills are duplicates, and 17 payments (₹8,96,301) were made on roads still under the contractor's guarantee period. 16 issues remain open and overdue. Next fixes: replace the broken manhole cover on Vakola Bridge Road (severity 5, 1,847 peak-hour vehicles); do the same on Kalanagar Road, near a municipal school; then deploy a dewatering pump on Vakola Bridge Road, which has 28 bus routes.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "ward:H/W": {
+  "text": "Ward H/W scored 35 (grade D); a score of 50 would mean as expected for these jobs, given method, rain and ward. Of the ₹43,00,000 budget, ₹42,45,242 (99%) is spent across 62 jobs, leaving ₹54,758. Repairs held only partly: ₹13,91,670 went on fixes that failed within 30 days. Records show ₹22,83,487 in question. This includes 29 payments totalling ₹22,37,982 made on roads still within the contractor's guarantee period, one bill above 1.5 times the rate card, and one duplicate bill. Ten issues remain open and overdue. The next three fixes are all on Linking Road, near KB Bhabha Hospital, where 2 road-condition accidents happened in 2024-25, one fatal. First, the open manhole (₹47,629), a severity 5 issue with a 24-hour deadline. Second, a pothole (₹16,437), with 26 \"me too\" reports. Third, broken paver blocks (₹59,705), with 38.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "ward:K/E": {
+  "text": "K/E ward earns a B (64; a score of 50 means as expected for these jobs, given method, rain and ward). Of the ₹91,00,000 budget, ₹82,64,048 (91%) is spent across 165 jobs, with Konkan Roadcon Pvt Ltd (synthetic) the largest by spend. Billing scores 90 and durability 52, about as expected, yet ₹17,41,105 went on fixes that failed within 30 days. The records show ₹4,02,110 in question: 3 bills above 1.5 times the rate card, 2 duplicate bills, and 7 payments (₹3,03,578) made on roads still within the contractor's guarantee period. 29 issues remain open and overdue. With ₹8,35,952 left, fix first the open manhole on Andheri Kurla Road (₹47,629), where 3 accidents, 1 fatal, occurred and a school is near. Next, the open manhole on Western Express Highway (₹47,629), also near a school. Third, a pump for waterlogging on Mahakali Caves Road (₹64,251), the ambulance route to Trauma Care Centre.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "ward:K/W": {
+  "text": "K/W ward scores 50 (grade C), meaning about as expected for these jobs, given method, rain and ward. Of the ₹89,00,000 budget, ₹78,45,240 (88%) is spent across 143 jobs, leaving ₹10,54,760. Repairs held less well than hoped: ₹18,66,600 went on fixes that failed within 30 days, and durability scored 46. Billing scored 44, and ₹20,93,883 is in question. The records show 10 bills above 1.5 times the rate card, 3 duplicate bills, and 29 payments (₹17,14,069) on roads still under the contractor's guarantee period. 25 issues remain open and overdue. Next fixes are three open or broken manholes, a 24-hour safety issue. Juhu Tara Road (₹47,629) is near a flood-prone subway and had an accident. SV Road (₹47,629) had 4 accidents and is near a school. Link Road costs ₹0 if the original contractor is called under the guarantee, and it is also near the school.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "ward:P/S": {
+  "text": "P/S (Goregaon) scored 51, grade C; 50 means as expected for these jobs, given method, rain and ward. Of the ₹48,00,000 budget, ₹43,49,997 (91%) is spent across 82 jobs, leaving ₹4,50,003. Repairs held slightly better than expected (durability 57), yet ₹3,40,751 went on fixes that failed within 30 days. ₹7,92,887 is in question: 5 bills were above 1.5 times the rate card, 1 bill is duplicated, and 14 payments (₹4,97,073) were made on roads still under the contractor's guarantee period (DLP). The weakest area is backlog (33), with 18 issues open and overdue. Next fixes: Link Road waterlogging, because it is the ambulance route to Siddharth Hospital and had 2 accidents; the MG Road open manhole near a school, with 19 \"me too\" reports, repaired by the original contractor under DLP; and SV Road waterlogging, with 3,981 vehicles at peak hour, also under DLP.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "ward:P/N": {
+  "text": "P/N (Malad) gets a C, 59 out of 100. Of the ₹77,00,000 budget, ₹70,06,462 (91%) is spent across 141 jobs, leaving ₹6,93,538. A score of 50 means \"as expected for these jobs, given method, rain and ward,\" so durability at 50 is average, but ₹18,16,577 still went on fixes that failed within 30 days. About ₹9,65,363 is in question: 7 bills were above 1.5 times the rate card, 2 were duplicate bills, and 20 payments (₹6,14,828) were made on roads still under the contractor's guarantee period. 24 issues are open and overdue. The next three fixes are the broken manhole on Malad Subway (₹47,629), because it is the most urgent and 2 road accidents happened there last year, then dewatering pumps on Marve Road and Malad Subway (₹64,251 each). Both sites sit close to the subway, which floods in heavy rain and at big tides.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "ward:R/S": {
+  "text": "R/S (Kandivali) scores a C, 58 out of 100, where 50 means \"as expected for these jobs, given method, rain and ward\". Of the ₹66,00,000 budget, ₹66,42,234 was spent on 121 jobs (101%), leaving it ₹42,234 over. The repairs held only partly. Durability scored 59, and ₹10,20,154 went on fixes that failed within 30 days. ₹8,82,095 is in question: 7 bills were above 1.5 times the rate card, and 11 payments (₹5,43,742) were made on roads still under the contractor's guarantee period. No duplicate bills were found, but 21 issues remain open and overdue. The next three fixes are:\n\n1. The open manhole on SV Road (₹47,629), a 24-hour safety issue on a road with 4,670 peak-hour vehicles and 24 bus routes.\n2. The Link Road pothole (₹16,437), near a school, where 3 road-condition accidents were recorded in 2024-25.\n3. The Charkop Road pothole (₹16,437), on the ambulance route to Shatabdi Hospital.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "ward:R/C": {
+  "text": "R/C (Borivali) scores 43, grade D, where 50 means about what is expected for these jobs given method, rain and ward. Of ₹33,12,447 spent across 86 jobs, against a ₹29,00,000 budget (114% used), ₹5,39,981 went on fixes that failed within 30 days. Repairs mostly held (durability 72), and no bill exceeded 1.5 times the rate card, but billing scores 8: two duplicate bills appear, and 30 payments, ₹14,61,912, were made on roads still under the contractor's guarantee period. That money is in question. Twenty issues remain open and overdue. Next fixes: the Western Express Highway cave-in (₹1,93,560), a severity 5 issue with a 24-hour deadline on a road carrying 13,193 vehicles at peak; its waterlogging (₹64,251), also severe; and a pothole (₹16,437) on the ambulance route to Bhagwati Hospital.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "ward:R/N": {
+  "text": "R/N (Dahisar) scores 58, grade C, where 50 means as expected for these jobs given method, rain and ward. Of the ₹48,00,000 budget, ₹35,33,838 (74%) has been spent across 82 jobs, leaving ₹12,66,162. Repairs held less well than the billing did: durability scores 45, and ₹11,60,682 went on fixes that failed within 30 days. Billing scores 66, and no bill was above 1.5 times the rate card. Still, ₹5,78,060 is in question, including one duplicate bill and 22 payments (₹5,35,961) made on roads still under the contractor's guarantee period. Ten issues are open and overdue. The next three fixes are all on Western Express Highway, and each can be done at no cost by calling the original contractor under that guarantee. The open manhole and the cave-in come first, as both are severity 5 with a 24-hour deadline. The pothole, near a school, comes third. All three sit 424 m from Dahisar Subway, which floods often, and an accident was recorded nearby in 2024-25.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "ward:L": {
+  "text": "Ward L (Kurla) scores 48, grade C; 50 means as expected for these jobs, given method, rain and ward. Across 232 jobs, ₹1,30,43,418 was spent against a ₹1,19,00,000 budget (110%). Repairs mostly held (durability 64), but ₹18,20,204 went on fixes that failed within 30 days. Billing scores lowest, at 29. The records show 8 bills above 1.5 times the rate card, 4 duplicate bills, and 52 payments (₹39,59,357) made on roads still under the contractor's guarantee period (DLP). In all, ₹44,35,438 is in question, and 30 issues are overdue. Next, call the original contractor under the guarantee, at no cost, to fix the cave-in, the broken manhole and the waterlogging on Kurla Andheri Road. All three are urgent and lie near Kamani Junction, which floods often. Three road-condition accidents happened here in 2024-25.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "ward:M/E": {
+  "text": "Ward M/E scores 52 (grade C); 50 means as expected for these jobs, so this is near par, with durability (47) and speed (43) a little weak. ₹72,35,685 of the ₹91,00,000 budget (80%) is spent on 148 jobs, leaving ₹18,64,315, and Mithi Infra Projects (synthetic) had the largest spend. ₹14,27,808 went on fixes that failed within 30 days. Records put ₹15,31,499 in question: 6 bills above 1.5 times the rate card, 2 duplicate bills, and 32 payments (₹13,80,088) on roads within the contractor's guarantee period. 18 issues are open and overdue. Next fixes: replace the open manhole cover on Ghatkopar Mankhurd Link Road (₹47,629; 5 accidents, 1 fatal, ambulance route); the second manhole there (₹47,629; 4,954 peak-hour vehicles, near a school); and a pump for Deonar Village Road waterlogging (₹64,251; 4 accidents, 2 fatal).",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "ward:M/W": {
+  "text": "Chembur (M/W) scores 46 out of 100, grade C. A score of 50 means about what you would expect for these jobs given method, rain and ward, so this is slightly below. The ward has spent ₹46,89,823 on 87 jobs against a ₹44,00,000 budget (107%), which is ₹2,89,823 over. Repairs often did not hold: ₹11,50,699 went on fixes that failed within 30 days. About ₹14,51,533 is in question. Four bills were above 1.5 times the rate card, and 23 payments, totalling ₹12,75,227, were made on roads still within the contractor's guarantee period. No duplicate bills appear, but 15 issues are open and overdue. The next three fixes are all on RC Marg, near flood-prone Chembur Shell Colony. First is the broken manhole, the most urgent because it is a top-severity hazard and an accident was recorded there; the original contractor should fix it at no cost. Second is waterlogging near a school, needing a pump at ₹64,251. Third is waterlogging at the accident spot, with a pump at no cost under the guarantee.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "ward:N": {
+  "text": "Ward N (Ghatkopar, Vikhroli) scores 56, grade C; a score of 50 means as expected for these jobs, given method, rain and ward. Of the ₹62,00,000 budget, ₹59,99,557 (97%) is spent across 112 jobs, leaving ₹2,00,443. Repairs mostly held (durability 60), but ₹9,70,747 went on fixes that failed within 30 days. Records put ₹10,43,853 in question: 6 bills above 1.5 times the rate card, 3 duplicate bills, and 15 payments (₹7,05,327) made on roads still within the contractor's guarantee period. Also, 19 issues are open and overdue. The next three fixes are all on LBS Marg, which lies 321 m from a dip that floods on heavy-rain days and at big tides, and is the ambulance road to Rajawadi Hospital. First, a dewatering pump for waterlogging (₹64,251). Second, desilting the choked drain (₹73,252). Third, a hot mix pothole patch (₹16,437). Clearing the water first should help the patch last.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "ward:S": {
+  "text": "Ward S (Bhandup, Powai, Kanjurmarg) scores 52, grade C, where 50 means as expected for these jobs, given method, rain and ward. Of the ₹95,00,000 budget, ₹74,89,270 (79%) is spent across 123 jobs, leaving ₹20,10,730. Repairs held poorly: durability scores 34, and ₹22,19,613 went on fixes that failed within 30 days. ₹13,78,355 is in question: 6 bills above 1.5 times the rate card, 3 duplicate bills, and 16 payments, ₹9,59,710 in all, on roads still under the contractor's guarantee period. 16 issues are open and overdue. Next fixes: first, a dewatering pump on Powai Adi Shankaracharya Marg for waterlogging, as it is the ambulance road to Bhandup Maternity Home and near a flood-prone road. Second, a hot mix patch on the same road, where 7 complaints and 36 \"me too\" reports wait. Third, a pump on LBS Marg, since waterlogging has a 48-hour deadline and the road is near the same flood-prone stretch.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ },
+ "ward:T": {
+  "text": "Ward T (Mulund) scores 46 out of 100, grade C, where 50 means about what is expected for these jobs given method, rain and ward. Of the ₹51,00,000 budget, ₹39,53,564 (78%) is spent across 65 jobs, mostly with Arabian Sea Engineering (synthetic). Repairs did not hold well: ₹16,77,820 went on fixes that failed within 30 days. ₹5,51,198 is in question, including 6 bills above 1.5 times the rate card and 12 payments, ₹4,55,154 in all, made on roads still under the contractor's guarantee period. No duplicate bills appear. 17 issues remain open and overdue. With ₹11,46,436 left, fix next: Devidayal Road waterlogging, the ambulance route to the hospital; Eastern Express Highway waterlogging, which carries heavy bus and vehicle traffic; and Devidayal Road's broken manhole, near a school and a 24-hour deadline.",
+  "by": "claude-sonnet-5-5",
+  "problems": []
+ }
+}

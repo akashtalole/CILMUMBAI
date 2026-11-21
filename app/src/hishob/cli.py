@@ -158,6 +158,10 @@ def main(argv: list[str] | None = None) -> int:
     rupee_build.add_argument("--data", type=Path, default=None, help="dataset folder (default: the bundled one)")
     rupee_build.add_argument("--out", type=Path, default=Path("var/rupee"))
     rupee_build.add_argument("--claude", action="store_true", help="have Claude write the notes (needs an API key)")
+    rupee_build.add_argument("--notes", type=Path, default=None, help="reuse checked notes from an earlier notes.json")
+    rupee_export = rupee.add_parser("export", help="write the built results as static JSON for a plain web host")
+    rupee_export.add_argument("--bundle", type=Path, default=Path("var/rupee"))
+    rupee_export.add_argument("--out", type=Path, required=True)
 
     args = parser.parse_args(argv)
     if args.group == "rupee":
@@ -556,12 +560,17 @@ def _rupee(args: argparse.Namespace) -> int:
     from hishob.rupee import build
     from hishob.rupee.data import DEFAULT_DIR
 
+    if args.command == "export":
+        from hishob.rupee import export
+
+        print(json.dumps(export.run(args.bundle, args.out)))
+        return 0
     client = None
     if args.claude:
         from hishob.agentkit.client import make_client
 
         client = make_client()
-    bundle = build.run(args.data or DEFAULT_DIR, args.out, client)
+    bundle = build.run(args.data or DEFAULT_DIR, args.out, client, args.notes)
     print(build.headline(bundle))
     print(f"written to {args.out}")
     return 0

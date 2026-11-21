@@ -497,7 +497,7 @@ export function Rupee() {
   ];
   return (
     <section className="rupee">
-      <h2 className="section-title">Follow the Rupee: Mumbai monsoon roads, 2025</h2>
+      <h2 className="section-title">Mumbai monsoon road repairs, June to October 2025</h2>
       <p className="demo-banner">Synthetic data from the Claude Impact Lab Mumbai challenge. No real contractors or citizens.</p>
       <Money s={s} />
       <nav className="tabs sub" role="tablist">

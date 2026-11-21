@@ -34,6 +34,7 @@ When this is done, anyone can open a ward and see its budget against its spend, 
 | R6 | `hishob rupee build` shall write the flags, linked complaints, plan and scorecards as CSV files and one JSON bundle; the same data shall always give the same flags, scores and ranking. |
 | R7 | Given a complaint number, the system shall say in Marathi, Hindi or English what happened to it: the work order, contractor, date, cost, whether it met the SLA, whether it held and any flag on the bill; or that it is still open, and past its SLA, and where to follow it up. |
 | R8 | The API shall serve the bundle read-only under /rupee (summary, ward, contractor, flags, work order, complaint, plan, ward shapes), say 503 when nothing has been built, and be off when not configured; the web app shall show it with every figure linking to its row in the dataset. |
+| R9 | `hishob rupee export` shall write the same answers as the endpoints as static files, so the tool runs on any plain web host with no server, database or API key; Claude's checked notes shall be reused from a saved notes file only while they still pass the checks against the current figures. |
 
 ## 4. Acceptance criteria
 
@@ -46,14 +47,16 @@ When this is done, anyone can open a ward and see its budget against its spend, 
 | AC5 | A scripted model | It returns a good note, an accusation, an invented number and a cut-off reply | Only the good note is kept; the others are replaced by the template with the problem recorded; with no model the template is used; the templates pass the same checks | R5 |
 | AC6 | A fixed complaint, an open one and an unknown number | Each is looked up in English, Marathi and Hindi | The fixed one names its work order, contractor and cost in the chosen language; the open one says so with no work order; the unknown one is not found | R7 |
 | AC7 | A built bundle | The files are written and the endpoints called | Five files are written and the flags CSV cites rows; each endpoint answers from the bundle, ward codes with a slash work, unknown ids are 404, no bundle is 503 and an unconfigured server has no /rupee | R6, R8 |
+| AC8 | A built bundle, and saved notes, one of which no longer matches the figures | The static files are exported and the build is run with the saved notes | Summary, ward and flags files equal the endpoint answers, a ward with a slash gets a safe file name, every complaint's answers in three languages match the endpoint; the matching note is reused and the stale one becomes the template | R5, R9 |
 
-AC1 to AC7 are `app/tests/unit/test_spec040_rupee.py`.
+AC1 to AC8 are `app/tests/unit/test_spec040_rupee.py`; AC8's static site is also checked in a browser at its published sub-path.
 
 ## 5. Interfaces and data contracts
 
 - Input: `app/datasets/follow-the-rupee/data/*.csv` and `*.geojson`, copied unchanged from the challenge repository (CC BY 4.0; see `SOURCE.md`).
 - Evidence: `file.csv#L<line>`, line 1 the header. The web app opens it on GitHub at that line.
-- CLI: `hishob rupee build [--data DIR] [--out var/rupee] [--claude]`.
+- CLI: `hishob rupee build [--data DIR] [--out var/rupee] [--claude] [--notes notes.json]`; `hishob rupee export --bundle var/rupee --out DIR`.
+- Static site: `npm run build:rupee` (VITE_RUPEE_ONLY, VITE_RUPEE_STATIC) plus the export in `json/`; the docs workflow publishes it at https://akashtalole.github.io/CILMUMBAI/rupee/.
 - Outputs: `bundle.json`, `flags.csv`, `complaints_linked.csv`, `next_rupee.csv`, `scorecards.csv`.
 - API: `GET /rupee/summary`, `/rupee/ward?code=`, `/rupee/contractor?id=`, `/rupee/flags?rule=&ward=&contractor=`, `/rupee/workorder?id=`, `/rupee/complaint?id=&lang=`, `/rupee/plan`, `/rupee/wards.geojson`. `HISHOB_RUPEE_DIR` sets where the bundle is (default `var/rupee`).
 

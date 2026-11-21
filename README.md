@@ -2,6 +2,12 @@
 
 Plans and starter code for the Claude Impact Lab Mumbai hackathon (21 November 2026) on civic budget and accountability.
 
+> **Impact Lab demo: [Follow the Rupee](https://akashtalole.github.io/CILMUMBAI/rupee/)**. Open a ward and see where its
+> monsoon road money went, which bills are in question and why (each linked to its dataset row), fair grades for the
+> ward and every contractor, the next fixes ranked by risk within the remaining budget, and what happened to any
+> complaint, in Marathi, Hindi or English. Built on the challenge's synthetic dataset; see
+> [SPEC-040](aamcha-hishob-specs/specs/SPEC-040-follow-the-rupee.md) and `app/datasets/follow-the-rupee/results/`.
+
 | Folder | What it is |
 |---|---|
 | [mumbai-civic-platform/](mumbai-civic-platform/) | **Start here.** The final recommendation, **Aamcha Hishob** (आमचा हिशोब): one knowledge graph of Mumbai's civic data with a search and intelligence layer, data catalogue, ontology and implementation plan. |

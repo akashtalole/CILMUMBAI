@@ -151,7 +151,7 @@ async function get<T>(path: string): Promise<T> {
 }
 const q = encodeURIComponent;
 
-export const rupee = {
+const live = {
   summary: () => get<Summary>("/rupee/summary"),
   ward: (code: string) => get<WardFull>(`/rupee/ward?code=${q(code)}`),
   contractor: (id: string) => get<ContractorFull>(`/rupee/contractor?id=${q(id)}`),
@@ -159,6 +159,41 @@ export const rupee = {
   complaint: (id: string, lang: string) => get<Trail>(`/rupee/complaint?id=${q(id)}&lang=${lang}`),
   wardShapes: () => get<GeoJSON.FeatureCollection>("/rupee/wards.geojson"),
 };
+
+// Static mode (VITE_RUPEE_STATIC=1): the same answers, read from files `hishob rupee export` wrote to json/ next to the page,
+// so the tool runs on any plain web host with no server.
+const DATA = "./json/";
+const safe = (code: string) => code.toUpperCase().replace("/", "-");
+let allFlags: Promise<Flag[]> | null = null;
+interface Stored {
+  complaint: Trail["complaint"];
+  work_order: Trail["work_order"];
+  flags: Flag[];
+  answers: Record<string, string>;
+}
+const shards = new Map<number, Promise<Record<string, Stored>>>();
+const files = {
+  summary: () => get<Summary>(`${DATA}summary.json`),
+  ward: (code: string) => get<WardFull>(`${DATA}ward/${safe(code)}.json`),
+  contractor: (id: string) => get<ContractorFull>(`${DATA}contractor/${id.toUpperCase()}.json`),
+  flags: async (rule: string, ward: string) => {
+    allFlags ??= get<{ items: Flag[] }>(`${DATA}flags.json`).then((f) => f.items);
+    const items = (await allFlags).filter((f) => (!rule || f.rule === rule) && (!ward || f.ward_code === ward));
+    return { total: items.length, items };
+  },
+  complaint: async (id: string, lang: string): Promise<Trail> => {
+    const cid = id.trim().toUpperCase();
+    const n = Math.floor(Number(cid.split("-").pop()?.replace(/\D/g, "") || "0") / 100);
+    if (!shards.has(n)) shards.set(n, get<Record<string, Stored>>(`${DATA}complaints/${n}.json`).catch(() => ({})));
+    const hit = (await shards.get(n)!)[cid];
+    if (!hit) throw Object.assign(new Error("no such complaint"), { status: 404 });
+    return { answer: hit.answers[lang] ?? hit.answers.en, lang, complaint: hit.complaint, work_order: hit.work_order, flags: hit.flags };
+  },
+  wardShapes: () => get<GeoJSON.FeatureCollection>(`${DATA}wards.geojson`),
+};
+
+export const STATIC = import.meta.env.VITE_RUPEE_STATIC === "1";
+export const rupee = STATIC ? files : live;
 
 export const inr = (n: number) => {
   const sign = n < 0 ? "-" : "";
