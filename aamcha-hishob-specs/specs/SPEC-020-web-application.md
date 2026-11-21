@@ -35,6 +35,7 @@ When this slice is done, a resident can find their road by name in either script
 | R7 | A map shall show the chosen road or ward, and shall still show it if the basemap cannot be reached. |
 | R8 | The API shall serve the built page from the same origin; the page shall work on a phone with no sideways scrolling. |
 | R9 | No text in an answer shall be able to inject markup into the page. |
+| R10 | Where the browser can recognise speech, a resident shall be able to speak a question: it is recognised in the interface language (mr-IN, hi-IN or en-IN), placed in the question box for the resident to check and edit, and never sent by itself; the page shall say the browser may send the voice to its own speech service, explain a refused microphone, and show no microphone button where the browser cannot listen. |
 
 ## 4. Acceptance criteria
 
@@ -49,8 +50,9 @@ When this slice is done, a resident can find their road by name in either script
 | AC7 | A ward with a boundary | Its shape is requested; the page shows the road | GeoJSON comes back (404 for an unknown place); the map draws the road | R7 |
 | AC8 | A build in the web directory; a phone viewport | `/` and an API route are requested; the page is measured | The page and the API both answer; the page is no wider than the screen | R8 |
 | AC9 | An answer containing a script tag, bold text, bullets and a repeated source | It is shown | Bold and bullets render, no script element exists, the repeated source appears once | R9, R5 |
+| AC10 | A browser with a stand-in speech recogniser | The resident speaks in each language, then with the microphone refused, and in a browser with no recogniser | Each language uses its locale and the words are added to the box without sending the question; the voice notice shows; the refusal is explained; there is no microphone button without a recogniser | R10 |
 
-AC1 to AC4 and AC7 to AC9 are checked in a browser by `app/web/e2e/resident.mjs` at phone and desktop sizes; AC5 to AC8 by `app/tests/integration/test_spec020_resident_api.py`.
+AC1 to AC4, AC7 to AC10 are checked in a browser by `app/web/e2e/resident.mjs` at phone and desktop sizes; AC5 to AC8 by `app/tests/integration/test_spec020_resident_api.py`.
 
 ## 5. Interfaces and data contracts
 
@@ -102,11 +104,13 @@ Ward pages, alerts sign-up (SPEC-010), sign-in (SPEC-013, Cognito), pre-rendered
 | T5 | Ask view with letter sharing and safe rendering | M | T2, T3 | AC5, AC9 | Done |
 | T6 | Map with fallback | S | T1 | AC7 | Done |
 | T7 | Demo seed and browser test | S | | AC1 to AC9 | Done |
+| T8 | Voice input | S | T3 | AC10 | Done |
 
 ## Change log
 
 | Date | Change |
 |---|---|
+| 20 Nov 2026 | Voice input added (`app/web/src/speech.ts`, the Ask tab). |
 | 16 Nov 2026 | Resident view built: `app/web/` (React), API additions in `app/src/hishob/api/{app,ask}.py` and `place/geo.py`, demo seed `app/demo/seed.py`, tests `app/tests/integration/test_spec020_resident_api.py` and `app/web/e2e/resident.mjs`. One live question in Marathi through the page: answered correctly from the records in 20 seconds. |
 
 ### Found while building
@@ -117,7 +121,11 @@ Ward pages, alerts sign-up (SPEC-010), sign-in (SPEC-013, Cognito), pre-rendered
 - **Several facts cite one line**, so the same passage was listed four times; sources are now shown once each.
 - **The test suite and the demo share one Neo4j** on a development machine; running the tests empties the demo graph. Rebuild it with `hishob graph rebuild` against the demo database.
 
+- **Recent Chromium has the unprefixed `SpeechRecognition`** as well as the prefixed name, and headless builds expose it without a working microphone. The page prefers the unprefixed name, so a test must replace both, and "no support" means both are absent.
+
 ### Not done yet
+
+- Voice quality is whatever the browser provides, and Marathi recognition differs a great deal between browsers and phones. It has been tested with a stand-in recogniser only; try it on real phones with real speakers from the areas served before relying on it.
 
 - The Marathi and Hindi interface text needs the language reviewer.
 - Missing-record text from the API (gaps) is in English only.

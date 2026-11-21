@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Draft |
+| Status | In progress: all acceptance criteria pass; delivery by email is not built, alerts are read in the web app |
 | Milestone | M1 |
 | Owner role | Full-stack engineer |
 | Depends on | SPEC-004, SPEC-006, SPEC-007 |
@@ -47,7 +47,16 @@ When done, a resident saves an area and receives a message when a tender in it i
 `account.subscriptions(id, account_id, kind, geom, radius_m, road_ids, language, created_at)`;
 `alerts.outbox(id, subscription_id, event_key UNIQUE, payload, created_at, sent_at)`.
 
-Delivery at M1: email or a page listing a subscriber's alerts. WhatsApp delivery comes with SPEC-019.
+Delivery at M1: a page listing a subscriber's alerts (the Alerts tab). Email delivery needs an email service and the account store's contact details; it is not built. WhatsApp delivery comes with SPEC-019.
+
+```
+POST   /subscriptions     {kind: point|roads, language, lat?, lon?, radius_m?, road_ids?} -> 201; 422 bad radius or unknown road; 401 not signed in
+GET    /subscriptions     the caller's saved areas
+DELETE /subscriptions/{id}   204; 404 if not the caller's
+GET    /alerts            the caller's alerts, newest first, rendered in each area's language, with source links
+hishob alerts run         queue alerts for new tenders, awards and corrigenda (also run by `hishob graph apply`)
+hishob alerts overdue     the daily overdue check
+```
 
 ## 6. Non-functional requirements
 
@@ -73,10 +82,32 @@ WhatsApp delivery (SPEC-019). Full web app (SPEC-020); a minimal sign-up page is
 
 ## 10. Tasks
 
-| Id | Task | Size | Depends on | Verifies |
-|---|---|---|---|---|
-| T1 | Subscription model and validation | S | SPEC-004/T3 | AC1 |
-| T2 | Event matcher on projector watermark | M | SPEC-006/T2 | AC2, AC5 |
-| T3 | Daily overdue check | S | T2 | AC3 |
-| T4 | Alert templates in three languages | M | | AC4, AC6 |
-| T5 | Minimal sign-up page and email delivery | M | T1, T4 | |
+| Id | Task | Size | Depends on | Verifies | State |
+|---|---|---|---|---|---|
+| T1 | Subscription model and validation | S | SPEC-004/T3 | AC1 | Done |
+| T2 | Event matcher on projector watermark | M | SPEC-006/T2 | AC2, AC5 | Done |
+| T3 | Daily overdue check | S | T2 | AC3 | Done |
+| T4 | Alert templates in three languages | M | | AC4, AC6 | Done (Marathi and Hindi wording to be reviewed) |
+| T5 | Minimal sign-up page and email delivery | M | T1, T4 | | Page done (Alerts tab); email not built |
+
+## Change log
+
+| Date | Change |
+|---|---|
+| 17 Nov 2026 | Implemented in `app/src/hishob/alerts/` (`subscriptions.py`, `matcher.py`, `render.py`), migration `008_alerts.sql`, endpoints in `api/app.py`, the Alerts tab in `app/web/`, and `hishob alerts`. Tests in `app/tests/integration/test_spec010_alerts.py` and `app/web/e2e/resident.mjs`. |
+
+### Decisions made while building
+
+- **Matching runs on the ledger index and PostGIS, not the graph.** An event is a Tender, Award or Corrigendum node linked to a work that improves a road. A saved point matches any segment of that road's name within the radius; a road subscription matches the road by name, so the several segments of one street count as one.
+- **One alert per subscriber per event, not per fact.** The key is the subscription and the event's node, so a later corrected cost on the same tender does not alert again. An overdue alert's key includes the due date, so an extended date that passes again is a new event.
+- **No back-alerts.** An event counts only if its node was first loaded after the area was saved, so a new subscriber is not sent a street's history. The overdue check is the exception.
+- **`hishob graph apply` queues alerts** after projecting, which keeps alerts within minutes of new facts (non-functional requirement). The output stays one JSON object, with `alerts_queued` added.
+- **The saved area holds an account id and a place, nothing else.** Alert payloads hold facts only; the subscriber's language lives on the area. Rendering happens when the alert is read.
+- **Until sign-in (SPEC-013), the web app asks for the signed access code** it was given, kept in the browser, or taken from a `#token=` link fragment, which is never sent to a server.
+
+### Not done yet
+
+- Email delivery, and contact details in the account store.
+- A daily scheduler for `hishob alerts overdue` (the deployment runs it from cron or a scheduled task; not wired).
+- The overdue check scans every work each day; fine for one city's works, to be indexed when it is not.
+- A work's location confidence comes from the `IMPROVES` edge's confidence. Alerts for assets other than roads, and for works matched to a ward only, are not yet generated.

@@ -112,6 +112,25 @@ def main(argv: list[str] | None = None) -> int:
     audit_run.add_argument("--run-id", default=None)
     audit_run.add_argument("--cap-usd", type=int, default=10, help="hard spending cap for the session, in dollars")
 
+    alerts_cmd = groups.add_parser("alerts").add_subparsers(dest="command", required=True)
+    alerts_cmd.add_parser("run", help="queue alerts for new tenders, awards and corrigenda in saved areas (SPEC-010)")
+    alerts_cmd.add_parser("overdue", help="the daily check: queue alerts for works past their due date")
+
+    evals = groups.add_parser("eval").add_subparsers(dest="command", required=True)
+    evals.add_parser("validate", help="check the evaluation sets and scan them for personal data (SPEC-012)")
+    ev_run = evals.add_parser("run", help="run the evaluation sets against the real desks and write a report")
+    ev_run.add_argument("--set", dest="sets", action="append", choices=["extraction", "questions", "refusals"])
+    ev_run.add_argument("--against", dest="api", default=None, help="query API base URL (default HISHOB_API_URL)")
+    ev_run.add_argument("--report", default="out", help="folder for report.json and report.md")
+    ev_run.add_argument("--token", default=None, help="access token the desk reads with (default: public)")
+    ev_run.add_argument("--workers", type=int, default=4)
+    ev_run.add_argument("--cap-usd", type=int, default=8, help="spending cap for the extraction run, in dollars")
+    ev_run.add_argument("--commit", default=None)
+    ev_gate = evals.add_parser("gate", help="compare a report with the baseline; fail on unapproved regressions")
+    ev_gate.add_argument("--report", default="out/report.json")
+    ev_base = evals.add_parser("baseline", help="record a report's scores as the baseline of the last release")
+    ev_base.add_argument("--report", default="out/report.json")
+
     workflow = groups.add_parser("workflow").add_subparsers(dest="command", required=True)
     wf_run = workflow.add_parser("run", help="start W1 for archived documents and wards (SPEC-009)")
     wf_run.add_argument("thread", help="a new, unique thread id")
@@ -141,6 +160,16 @@ def main(argv: list[str] | None = None) -> int:
         return _workflow(args, Settings.from_env())
     if args.group == "audit":
         return _audit(args, Settings.from_env())
+    if args.group == "eval":
+        return _eval(args, Settings.from_env())
+    if args.group == "alerts":
+        from hishob import alerts
+        from hishob.ledger import Loader
+
+        held = build_archive(Settings.from_env())
+        check = alerts.evaluate if args.command == "run" else alerts.evaluate_overdue
+        print(json.dumps({"queued": check(held.registry.conn, Loader(held.registry.conn, held, held.data))}))
+        return 0
     if args.group == "api":
         from hishob.api.app import openapi_document
 
@@ -309,7 +338,15 @@ def _graph(args: argparse.Namespace, store: Archive, settings: Settings) -> int:
         if args.command in {"apply", "rebuild"}:
             graph = GraphStore(driver, store.registry.conn, store.data, settings.graph_database)
             result = graph.apply() if args.command == "apply" else graph.rebuild()
-            print(json.dumps(asdict(result)))
+            applied = asdict(result)
+            if args.command == "apply":  # new facts were projected: queue street alerts for them (SPEC-010/R2)
+                from hishob import alerts
+                from hishob.ledger import Loader
+
+                applied["alerts_queued"] = alerts.evaluate(
+                    store.registry.conn, Loader(store.registry.conn, store, store.data)
+                )
+            print(json.dumps(applied))
             return 0
         views = Views(driver, settings.graph_database)
         if args.name == "who_is_responsible":
@@ -378,6 +415,78 @@ def _workflow(args: argparse.Namespace, settings: Settings) -> int:
     except GateError as err:
         print(f"refused: {err}", file=sys.stderr)
         return 2
+
+
+def _eval(args: argparse.Namespace, settings: Settings) -> int:
+    import os
+    from typing import Any
+
+    from hishob.evals import datasets, pii, report
+    from hishob.evals.run import SETS
+
+    if args.command == "validate":
+        problems = datasets.validate()
+        found = pii.scan()
+        for p in problems:
+            print(f"dataset: {p}", file=sys.stderr)
+        for f in found:
+            print(f"personal data: {f.path}: {f.kind}: {f.text}", file=sys.stderr)
+        if not problems and not found:
+            print("evaluation sets are valid and hold no personal data")
+        return 1 if problems or found else 0
+    if args.command in {"gate", "baseline"}:
+        data = report.reaggregate(json.loads(Path(args.report).read_text(encoding="utf-8")))
+        baseline = report.load_baseline()
+        if args.command == "baseline":
+            baseline["scores"] = {name: {k: v for k, v in s.items() if k != "n"} for name, s in data["sets"].items()}
+            baseline["note"] = f"Scores of the release recorded {data['created_at']}" + (
+                f" at {data['commit']}" if data.get("commit") else ""
+            )
+            (datasets.EVALS_DIR / "baseline.json").write_text(
+                json.dumps(baseline, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+            )
+            print("baseline recorded")
+            return 0
+        regressions = report.gate(data, baseline, report.load_approvals())
+        print(report.render_markdown(data, baseline, regressions))
+        stopped = report.blocking(regressions)
+        for r in stopped:
+            print(f"BLOCKED: {r.delta.key} fell from {r.delta.baseline:.2f} to {r.delta.score:.2f}", file=sys.stderr)
+        return 1 if stopped else 0
+
+    import httpx
+
+    from hishob.agentkit.client import make_client
+    from hishob.evals import live
+    from hishob.evals.run import Systems, run_sets
+    from hishob.ledger import Loader
+
+    which = tuple(args.sets or SETS)
+    api_url = args.api or os.environ.get("HISHOB_API_URL")
+    if {"questions", "refusals"} & set(which) and not api_url:
+        print("set --against (or HISHOB_API_URL): the desks read through the query API", file=sys.stderr)
+        return 2
+    client = make_client()
+    held = build_archive(settings) if "extraction" in which else None
+    with httpx.Client(base_url=api_url or "http://unused", timeout=180) as http:
+
+        def extract(items: list[datasets.ExtractionItem]) -> Any:
+            assert held is not None
+            return live.extract_all(
+                client, held, Loader(held.registry.conn, held, held.data), items, cap_usd=args.cap_usd
+            )
+
+        systems = Systems(extract=extract, ask=live.make_asker(client, http, args.token), workers=args.workers)
+        result = run_sets(systems, which, commit=args.commit)
+    out = Path(args.report)
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "report.json").write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    baseline = report.load_baseline()
+    regressions = report.gate(result, baseline, report.load_approvals())
+    markdown = report.render_markdown(result, baseline, regressions)
+    (out / "report.md").write_text(markdown, encoding="utf-8")
+    print(markdown)
+    return 0
 
 
 def _audit_token() -> str | None:

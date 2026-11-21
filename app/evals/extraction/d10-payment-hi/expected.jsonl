@@ -1,0 +1,2 @@
+{"label": "Payment", "match": {}, "props": {"amount": 4800000, "paid_on": "2026-10-05"}}
+{"label": "Contractor", "match": {"name": "M/s Anand Constructions Pvt. Ltd."}, "props": {}}

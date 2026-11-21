@@ -19,9 +19,11 @@ HOUSE = re.compile(
     re.IGNORECASE,
 )
 _NAME_WORD = r"[A-Z][a-z]+|[ऀ-ॿ]+"
+# A name is one word, or two; the second is never a conjunction ("कु. मीना आणि श्री …": आणि is "and").
+_SECOND = rf"(?:\s+(?!(?:आणि|आणी|और|व|तसेच)(?![ऀ-ॿ])|and\b)(?:{_NAME_WORD}))?"
 INTRODUCED = re.compile(
     rf"(?P<lead>\b(?:my name is|i am|this is)\s+|(?:माझे नाव|माझं नाव|मी)\s+|(?:मेरा नाम|मैं)\s+)"
-    rf"(?P<name>(?:{_NAME_WORD})(?:\s+(?:{_NAME_WORD}))?)",
+    rf"(?P<name>(?:{_NAME_WORD}){_SECOND})",
     re.IGNORECASE,
 )
 PLACE_WORDS = (
@@ -30,8 +32,10 @@ PLACE_WORDS = (
     r"मंदिर|नगर|रोड|मार्ग|पथ|चौक|गल्ली|रुग्णालय|शाळा|सोसायटी|उद्यान|मैदान|स्थानक|पूल|मंडई|वाडी|चाळ|अस्पताल|स्कूल"
 )
 HONORIFIC = re.compile(
-    rf"(?P<lead>\b(?:Mr|Mrs|Ms|Smt|Shri|Dr)\.?\s+|(?:श्रीमती|श्री|सौ\.?|कु\.?)\s*)"
-    rf"(?P<name>(?:{_NAME_WORD})(?:\s+(?:{_NAME_WORD}))?)"
+    # सौ and कु mean Mrs and Miss only as written abbreviations ("सौ. सुनीता"); bare, they are the number hundred
+    # and the start of कुछ (anything), so a full stop is required. A Devanagari honorific must not continue a word.
+    rf"(?P<lead>\b(?:Mr|Mrs|Ms|Smt|Shri|Dr)\.?\s+|(?<![ऀ-ॿ])(?:श्रीमती|श्री)\s*|(?<![ऀ-ॿ])(?:सौ|कु)\.\s*)"
+    rf"(?P<name>(?:{_NAME_WORD}){_SECOND})"
 )
 PLACE_SET = {w.lower() for w in PLACE_WORDS.split("|")}
 # Words that follow "I am" / "मी" without being a name.

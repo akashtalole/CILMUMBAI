@@ -14,7 +14,7 @@ from typing import Any
 
 from hishob.agentkit.definitions import AGENTS_DIR
 from hishob.agentkit.provision import read_lock
-from hishob.agentkit.session import follow
+from hishob.agentkit.session import follow, newest_by_name, read_file, session_files
 from hishob.archive import Archive
 from hishob.ledger import Loader
 from hishob.schema import whitelist as wl
@@ -140,7 +140,7 @@ def run_intake(
     report_text = ""
     for item in files:
         name = Path(item.filename).name
-        content = client.beta.files.download(item.id).read()
+        content = read_file(client, item.id, sleep)
         loader.data.put_new(f"staging/{run.run_id}/{name}", content, "application/octet-stream")
         run.outputs[name] = _sha256(content)
         if name == "facts.jsonl":
@@ -185,8 +185,7 @@ def _mount(client: Any, name: str, data: bytes, mime: str, mount_path: str) -> d
 
 def _session_files(client: Any, session_id: str, sleep: Callable[[float], None]) -> list[Any]:
     for attempt in range(4):
-        page = client.beta.files.list(scope_id=session_id, betas=["managed-agents-2026-04-01"])
-        files = [f for f in page.data if Path(f.filename).name in OUTPUT_FILES]
+        files = newest_by_name(session_files(client, session_id), OUTPUT_FILES)
         if files or attempt == 3:
             return files
         sleep(2)  # outputs are indexed a moment after the session goes idle

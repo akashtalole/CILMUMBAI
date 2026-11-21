@@ -20,7 +20,7 @@ from typing import Any
 from hishob.agentkit.definitions import AGENTS_DIR
 from hishob.agentkit.outputs import Arranged, OutputCheck, Violation, arrange, check_outputs, hold
 from hishob.agentkit.provision import read_lock
-from hishob.agentkit.session import follow
+from hishob.agentkit.session import follow, read_file, session_files
 from hishob.agentkit.tools import ApiTools
 
 OUTPUTS_ROOT = "/mnt/session/outputs/"
@@ -181,8 +181,7 @@ def _names(seen: list[Any]) -> dict[str, list[str]]:
 def _download(client: Any, session_id: str, sleep: Callable[[float], None]) -> dict[str, bytes]:
     """The session's output files by path relative to the outputs folder. A later file at the same path wins."""
     for attempt in range(4):
-        page = client.beta.files.list(scope_id=session_id, betas=["managed-agents-2026-04-01"])
-        items = sorted(page.data, key=lambda f: str(getattr(f, "created_at", "")))
+        items = session_files(client, session_id)
         if items or attempt == 3:
             break
         sleep(2)  # outputs are indexed a moment after the session goes idle
@@ -190,7 +189,7 @@ def _download(client: Any, session_id: str, sleep: Callable[[float], None]) -> d
     for item in items:
         name = str(item.filename)
         relative = name.split(OUTPUTS_ROOT, 1)[-1].lstrip("/") or PurePosixPath(name).name
-        out[relative] = client.beta.files.download(item.id).read()
+        out[relative] = read_file(client, item.id, sleep)
     return out
 
 

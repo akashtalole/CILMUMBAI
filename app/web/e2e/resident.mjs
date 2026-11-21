@@ -57,6 +57,30 @@ for (const [name, options] of [
   const page = await context.newPage();
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
+  let asks = 0;
+  page.on("request", (r) => r.method() === "POST" && new URL(r.url()).pathname === "/ask" && asks++);
+  // A stand-in for the browser's speech recogniser: headless Chrome has no microphone.
+  await page.addInitScript(() => {
+    window.__voice = { lang: null, mode: "ok", starts: 0 };
+    // Recent Chromium has the unprefixed name too, so replace both.
+    window.webkitSpeechRecognition = window.SpeechRecognition = class {
+      start() {
+        window.__voice.starts++;
+        window.__voice.lang = this.lang;
+        setTimeout(() => {
+          if (window.__voice.mode === "denied") {
+            this.onerror && this.onerror({ error: "not-allowed" });
+          } else {
+            const results = [Object.assign([{ transcript: "एस. व्ही. रोडवर खड्डा" }], { isFinal: true })];
+            this.onresult && this.onresult({ resultIndex: 0, results });
+          }
+          this.onend && this.onend();
+        }, 60);
+      }
+      stop() {}
+      abort() {}
+    };
+  });
   await page.goto(BASE);
 
   // AC4: Marathi first, all three languages, choice remembered
@@ -116,6 +140,85 @@ for (const [name, options] of [
   check((await page.locator(".answer-sources li").count()) === 2, `${name}: repeated sources shown once`);
   check(await page.getByRole("link", { name: "Share on WhatsApp" }).isVisible(), `${name}: letter can be shared`);
   if (SHOTS) await page.screenshot({ path: `${SHOTS}/${name}-ask.png`, fullPage: true });
+
+  // Photo report (SPEC-030): choose a photo, see what was found, get the sourced answer and a letter
+  const TINY_JPEG = Buffer.from("/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=", "base64");
+  let sentPhoto = null;
+  await page.route("**/report?**", async (route) => {
+    sentPhoto = { url: route.request().url(), type: route.request().headers()["content-type"], bytes: route.request().postDataBuffer()?.length ?? 0 };
+    await route.fulfill({ status: 202, contentType: "application/json", body: '{"id":"job2","status":"running"}' });
+  });
+  await page.route("**/report/job2", (route) => route.fulfill({ contentType: "application/json", body: JSON.stringify({
+    id: "job2", status: "done", elapsed_s: 6,
+    answer: { status: "answered", issue: "pothole", confidence: "high", location_from: "device", answer: MOCK.answer } }) }));
+  await page.getByRole("tab", { name: "Ask" }).click();
+  await page.getByTestId("photo-input").setInputFiles({ name: "pothole.jpg", mimeType: "image/jpeg", buffer: TINY_JPEG });
+  await page.getByText("We see:").waitFor({ timeout: 10000 });
+  check((await page.locator(".saw strong").innerText()) === "Pothole", `${name}: the photo's finding is shown`);
+  check(await page.locator(".photo .answer").isVisible(), `${name}: the photo report shows the sourced answer`);
+  check(await page.locator(".photo .answer a.whatsapp").isVisible(), `${name}: the letter can be shared`);
+  check(await page.locator(".photo-preview").isVisible(), `${name}: the chosen photo is previewed`);
+  check(sentPhoto !== null && sentPhoto.type === "image/jpeg" && sentPhoto.bytes > 0 && /language=en/.test(sentPhoto.url) && /lat=19\.11/.test(sentPhoto.url) && /lon=72\.8355/.test(sentPhoto.url),
+    `${name}: the photo goes up as an image with the language and the device's position`);
+  await page.unroute("**/report/job2");
+  await page.route("**/report/job2", (route) => route.fulfill({ contentType: "application/json", body: JSON.stringify({
+    id: "job2", status: "done", elapsed_s: 4, answer: { status: "unclear", issue: "none", confidence: "low", location_from: "device", answer: null } }) }));
+  await page.getByTestId("photo-input").setInputFiles({ name: "unclear.jpg", mimeType: "image/jpeg", buffer: TINY_JPEG });
+  await page.getByText("We could not tell what the photo shows").waitFor({ timeout: 10000 });
+  check(true, `${name}: an unclear photo says so and points to the other tab`);
+
+  // Voice input (SPEC-020/R10): speech fills the question box in the interface language and is never sent by itself
+  await page.getByRole("tab", { name: "Ask" }).click();
+  const asksBeforeSpeaking = asks;
+  await page.getByRole("button", { name: "Speak" }).click();
+  await page.waitForFunction(() => document.querySelector("textarea")?.value.includes("खड्डा"));
+  check((await page.evaluate(() => window.__voice.lang)) === "en-IN", `${name}: English listens for en-IN`);
+  await page.getByRole("button", { name: "मराठी" }).click();
+  await page.getByRole("button", { name: "बोला" }).click();
+  await page.waitForFunction(() => (document.querySelector("textarea")?.value.match(/खड्डा/g) ?? []).length === 2);
+  check((await page.evaluate(() => window.__voice.lang)) === "mr-IN", `${name}: Marathi listens for mr-IN`);
+  await page.getByRole("button", { name: "हिंदी" }).click();
+  await page.getByRole("button", { name: "बोलें" }).click();
+  await page.waitForFunction(() => (document.querySelector("textarea")?.value.match(/खड्डा/g) ?? []).length === 3);
+  check((await page.evaluate(() => window.__voice.lang)) === "hi-IN", `${name}: Hindi listens for hi-IN`);
+  check(asks === asksBeforeSpeaking, `${name}: speaking does not send the question`);
+  check(await page.getByText("आपकी आवाज़ को लिखित रूप में बदलने").isVisible(), `${name}: the page says the browser may send the voice to its speech service`);
+  await page.evaluate(() => (window.__voice.mode = "denied"));
+  await page.getByRole("button", { name: "बोलें" }).click();
+  await page.getByText("माइक्रोफ़ोन की अनुमति नहीं है").waitFor({ timeout: 5000 });
+  check(true, `${name}: a refused microphone is explained`);
+  await page.getByRole("button", { name: "English" }).click();
+  const plain = await context.newPage(); // a browser with no speech support
+  await plain.addInitScript(() => {
+    Object.defineProperty(window, "SpeechRecognition", { value: undefined, configurable: true });
+    Object.defineProperty(window, "webkitSpeechRecognition", { value: undefined, configurable: true });
+  });
+  await plain.goto(BASE);
+  await plain.getByRole("button", { name: "English" }).click();
+  await plain.getByRole("tab", { name: "Ask" }).click();
+  check((await plain.getByRole("button", { name: "Speak" }).count()) === 0, `${name}: no microphone button where the browser cannot listen`);
+  await plain.close();
+
+  // Street alerts (SPEC-010): asks for an access code, then lists saved areas and alerts, in the chosen language
+  await page.evaluate(() => localStorage.removeItem("hishob.token"));
+  await page.getByRole("tab", { name: "Alerts" }).click();
+  check(await page.getByLabel("Access code").isVisible(), `${name}: alerts ask for an access code first`);
+  const areas = [{ id: 1, kind: "point", lat: 19.11, lon: 72.83, radius_m: 300, road_ids: [], language: "en", created_at: "2026-11-01T00:00:00Z" }];
+  const feed = [{ id: 9, kind: "tender_published", created_at: "2026-11-02T00:00:00Z",
+    text: "A tender has been published for work on S. V. Road.\nTender no.: TEST/KW/ROADS/0001\nDate: 2026-11-02\nSource: https://hishob.example/sources/abc/pages/1" }];
+  await page.route("**/subscriptions", (route) => route.fulfill({ contentType: "application/json", body: JSON.stringify(areas) }));
+  await page.route("**/alerts", (route) => route.fulfill({ contentType: "application/json", body: JSON.stringify(feed) }));
+  await page.getByLabel("Access code").fill("contributor.acct_test.0123456789");
+  await page.getByRole("button", { name: "OK" }).click();
+  await page.getByText("Within 300 m of a point").waitFor({ timeout: 10000 });
+  check(await page.getByText("TEST/KW/ROADS/0001").isVisible(), `${name}: an alert shows its tender number`);
+  check((await page.getByRole("link", { name: "Open the source page" }).getAttribute("href")) === "https://hishob.example/sources/abc/pages/1", `${name}: alert links to its source`);
+  await page.getByRole("button", { name: "मराठी" }).click();
+  check(await page.getByText("जतन केलेले भाग").isVisible(), `${name}: alerts tab in Marathi`);
+  check((await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)) <= 0, `${name}: alerts tab has no horizontal scroll`);
+  await page.getByRole("button", { name: "हा कोड विसरा" }).click();
+  check(await page.getByLabel("प्रवेश कोड").isVisible(), `${name}: forgetting the code signs out`);
+  if (SHOTS) await page.screenshot({ path: `${SHOTS}/${name}-alerts.png`, fullPage: true });
 
   check(errors.length === 0, `${name}: no page errors ${errors.join("; ")}`);
   await context.close();

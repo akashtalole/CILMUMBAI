@@ -1,24 +1,32 @@
 import { useState } from "react";
+import { Alerts } from "./components/Alerts";
 import { Ask } from "./components/Ask";
 import { MapView } from "./components/MapView";
 import { MoneyTrail } from "./components/MoneyTrail";
 import { PlaceSearch, type Chosen } from "./components/PlaceSearch";
 import { Responsible } from "./components/Responsible";
+import { Review } from "./components/Review";
 import { LANG_NAMES, type Lang } from "./i18n";
 import { useLang } from "./lang";
+import { readToken, tierOf } from "./token";
 
-type Tab = "responsible" | "money" | "ask";
+type Tab = "responsible" | "money" | "ask" | "alerts" | "review";
 const NOTICE = import.meta.env.VITE_DATA_NOTICE as string | undefined;
 
 export function App() {
   const { t, lang, setLang } = useLang();
   const [tab, setTab] = useState<Tab>("responsible");
   const [place, setPlace] = useState<Chosen | null>(null);
+  // The review tab is for reviewers: it shows for a reviewer's access code, or a link ending in #review.
+  const [reviewer] = useState(() => tierOf(readToken()) === "reviewer" || window.location.hash.includes("review"));
   const tabs: [Tab, string][] = [
     ["responsible", t.tabResponsible],
     ["money", t.tabMoney],
     ["ask", t.tabAsk],
+    ["alerts", t.tabAlerts],
+    ...(reviewer ? ([["review", t.tabReview]] as [Tab, string][]) : []),
   ];
+  const wide = tab === "responsible" || tab === "money";
 
   return (
     <div className="app">
@@ -48,8 +56,8 @@ export function App() {
         ))}
       </nav>
 
-      <main className={`layout ${tab === "ask" ? "single" : ""}`}>
-        {tab !== "ask" && (
+      <main className={`layout ${wide ? "" : "single"}`}>
+        {wide && (
           <div className="pane">
             <PlaceSearch chosen={place} onChoose={setPlace} />
             {place && (
@@ -61,7 +69,7 @@ export function App() {
             {tab === "responsible" ? <Responsible placeId={place?.id ?? null} /> : <MoneyTrail placeId={place?.id ?? null} />}
           </div>
         )}
-        {tab !== "ask" && (
+        {wide && (
           <div className="pane map-pane">
             <MapView placeId={place?.id ?? null} />
           </div>
@@ -69,6 +77,16 @@ export function App() {
         {tab === "ask" && (
           <div className="pane">
             <Ask />
+          </div>
+        )}
+        {tab === "alerts" && (
+          <div className="pane">
+            <Alerts place={place} />
+          </div>
+        )}
+        {tab === "review" && (
+          <div className="pane">
+            <Review />
           </div>
         )}
       </main>

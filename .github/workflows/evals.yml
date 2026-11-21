@@ -1,0 +1,98 @@
+name: Evaluations
+
+# The promotion gate (SPEC-012). Runs when a change can alter behaviour: agent prompts and tools, the ontology,
+# the citation rules, the evaluation sets or the harness itself. A score that falls below the baseline by more
+# than the tolerance, overall or in any language, fails the job until an owner records an approval in
+# app/evals/approvals.jsonl with a reason.
+on:
+  pull_request:
+    paths:
+      - "app/agents/**"
+      - "app/ontology/**"
+      - "app/evals/**"
+      - "app/src/hishob/agentkit/**"
+      - "app/src/hishob/api/citations.py"
+      - "app/src/hishob/evals/**"
+      - ".github/workflows/evals.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: evals-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  datasets:
+    name: datasets and harness
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --locked
+      - name: Validate the sets and scan them for personal data
+        run: uv run hishob eval validate
+      - name: Harness tests
+        run: uv run pytest -q tests/unit/test_spec012_evals.py
+
+  evaluate:
+    name: evaluate against staging
+    needs: datasets
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: app
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_PASSWORD: hishob
+          POSTGRES_DB: hishob_eval
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.STAGING_ANTHROPIC_API_KEY }}
+      HISHOB_API_URL: ${{ vars.STAGING_API_URL }}
+      HISHOB_TOKEN: ${{ secrets.STAGING_EVAL_TOKEN }}
+      HISHOB_DATABASE_URL: postgresql://postgres:hishob@localhost:5432/hishob_eval
+      HISHOB_LOCAL_ROOT: var/eval
+    steps:
+      - uses: actions/checkout@v4
+      - name: Staging must be configured
+        # Fail closed: a behaviour change that cannot be measured is not released.
+        run: |
+          missing=""
+          [ -n "$ANTHROPIC_API_KEY" ] || missing="$missing secrets.STAGING_ANTHROPIC_API_KEY"
+          [ -n "$HISHOB_API_URL" ] || missing="$missing vars.STAGING_API_URL"
+          if [ -n "$missing" ]; then
+            echo "::error::Evaluation needs staging, and this repository has not set:$missing"
+            exit 1
+          fi
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --locked
+      - name: Restore the staging agent lock
+        uses: actions/cache@v4
+        with:
+          path: app/agents/.lock.json
+          key: agents-lock-${{ github.run_id }}
+          restore-keys: agents-lock-
+      - name: Apply the agents as changed by this pull request to the staging account
+        run: uv run hishob agents apply
+      - run: uv run hishob db migrate
+      - name: Run the evaluation sets
+        run: uv run hishob eval run --against "$HISHOB_API_URL" --token "$HISHOB_TOKEN" --report out --commit "${GITHUB_SHA::12}"
+      - name: Compare with the baseline
+        run: |
+          uv run hishob eval gate --report out/report.json | tee -a "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: evaluation-report
+          path: app/out/

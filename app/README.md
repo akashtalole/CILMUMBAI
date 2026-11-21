@@ -14,6 +14,10 @@ The implementation of [Aamcha Hishob](../mumbai-civic-platform/README.md), built
 | [SPEC-008](../aamcha-hishob-specs/specs/SPEC-008-citizen-desk.md) Citizen desk | All 8 acceptance criteria pass, plus a live run; awaiting review | One agent answers a resident in Marathi, Hindi or English through the API: redaction first, read-only tools, every reply checked in code (citations, language, no private names, liability date), one rewrite, then a fallback built in code. First live answer in Marathi cost $0.05 |
 | [SPEC-009](../aamcha-hishob-specs/specs/SPEC-009-workflow-engine.md) Workflow engine | All 7 acceptance criteria pass with stubbed desks; no live run of the whole workflow yet | LangGraph W1 checkpointed to Postgres: intake, a review gate when too many facts are held, one audit per ward in parallel, a release gate only a reviewer can answer (with a recorded reason), then publishing that is safe to repeat. Started from the command line or a queue. The audit step is the SPEC-011 desk |
 | [SPEC-011](../aamcha-hishob-specs/specs/SPEC-011-audit-desk-and-release.md) Audit desk | All 8 acceptance criteria pass, plus a live run; awaiting review | The audit lead reads the graph as a reviewer and writes a ward brief, case files, drafts and a gaps file. A Challenger reviews every case; code places cases by its verdict, checks every figure against the cited fact, bans conclusion words in three languages and names other than posts, asks the lead to fix problems once, then holds what still fails. First live run on K/W: $2.54, an honest brief on thin records, 8 RTI drafts |
+| [SPEC-010](../aamcha-hishob-specs/specs/SPEC-010-street-alerts.md) Street alerts | All 6 acceptance criteria pass; web page, no email yet | A resident saves a point and radius or named roads. When a tender in the area is published, awarded or changed, or a work passes its due date, one alert is queued, in their language, with the tender number, date and source link. A weak location match shows the work title so the resident can judge |
+| [SPEC-012](../aamcha-hishob-specs/specs/SPEC-012-evaluation-and-promotion-gate.md) Evaluation and promotion gate | All 7 acceptance criteria pass with a stub system | Ten labelled documents, thirty questions (ten each in Marathi, Hindi and English) and ten refusals, scored by field accuracy, quote match, key values, citation check, correct 'not known' replies and appropriate decline, and reported overall, by language and by route against the last release. A change to agents, the ontology or the rules fails CI if any language drops beyond the tolerance, until an owner records an approval with a reason |
+| [SPEC-021](../aamcha-hishob-specs/specs/SPEC-021-review-screen.md) Review screen (release slice) | All 6 acceptance criteria pass, including a browser run against the real stack | A reviewer opens `/#review`, sees each run waiting at a gate with its staged files (readable inline) and the held cases with reasons, and releases chosen wards or holds, with a required reason recorded. Held cases are never published. The API process can answer a gate a worker started and never runs the paid desks |
+| [SPEC-030](../aamcha-hishob-specs/specs/SPEC-030-photo-report.md) Photo report | All 7 acceptance criteria pass with a scripted vision model; plumbing checked live, accuracy on real photos not | A resident photographs a pothole. The photo is read safely (type, size, orientation, metadata dropped), a vision model names the problem from a fixed list, the phone's position finds the road, and the citizen desk answers with sources and a letter. The photo is never stored or logged, and the question to the desk is built in code so text in the photo cannot steer it |
 | [SPEC-005](../aamcha-hishob-specs/specs/SPEC-005-intake-desk.md) Intake desk | All 8 acceptance criteria pass (one only in the live test); awaiting review | Agent definitions in `agents/`, applied to a Claude account; intake sessions that read archived documents with extractor, verifier and resolver agents, then hand the facts to the loader and record the run. First live run: 3 documents read for $1.63 |
 | [SPEC-002](../aamcha-hishob-specs/specs/SPEC-002-ontology-and-schema.md) Ontology, shapes and generated schema | All 6 acceptance criteria pass; awaiting review | Mumbai Civic Ontology in Turtle (39 node labels, 32 relationship types, English and draft Marathi labels); SHACL shapes; generated record schema, whitelist and [reference page](ontology/REFERENCE.md); validators the loader will use |
 
@@ -40,7 +44,8 @@ uv run hishob place import-wards BMC_Wards.geojson --kind admin --name-property 
   --licence "..." --batch wards-1        # see src/hishob/place/README.md
 uv run hishob place find "SV road"
 uv run hishob place at 19.0988 72.8267
-uv run hishob graph apply               # project new ledger facts into the graph
+uv run hishob graph apply               # project new ledger facts into the graph and queue street alerts
+uv run hishob alerts overdue            # the daily check for works past their due date
 uv run hishob graph view trace_money road:sv
 uv run hishob graph view who_is_responsible road:sv --issue pothole
 uv run uvicorn hishob.api.app:serve --factory --port 8000   # the query API; set HISHOB_TOKEN_SECRET for tiers
@@ -52,6 +57,9 @@ uv run hishob audit run K/W --api http://127.0.0.1:8000 --cap-usd 10   # needs H
 uv run hishob workflow run t1 --hash <sha256> --ward K/W   # W1 to the release gate; set HISHOB_API_URL
 uv run hishob workflow status t1
 uv run hishob workflow resume t1 approve --reason "checked the brief" --token <reviewer token>
+uv run hishob eval validate             # evaluation sets are valid and hold no personal data
+uv run hishob eval run --against http://127.0.0.1:8000 --report out   # costs money: runs the real desks
+uv run hishob eval gate --report out/report.json                       # compare with evals/baseline.json
 uv run hishob ontology build            # after editing ontology/*.ttl
 uv run hishob ontology build --check    # CI fails if generated files are stale
 ```
@@ -68,6 +76,8 @@ By default documents are stored under `./var/` and events appended to `./var/eve
 | `HISHOB_FETCH_DELAY_S` | Seconds between requests to one host | `5` |
 | `HISHOB_TOKEN_SECRET` | Secret that signs access-tier tokens (API and `workflow resume`) | none: everyone is public |
 | `HISHOB_API_URL` | Query API the workflow's audit step reads through | none |
+| `HISHOB_PHOTO_ENABLED`, `HISHOB_PHOTO_PER_HOUR` | Photo reports (SPEC-030), on with Claude credentials; per-client limit | on, `5` |
+| `HISHOB_REVIEW_ENABLED` | The review endpoints (SPEC-021), on when `HISHOB_TOKEN_SECRET` is set | on |
 | `HISHOB_PUBLIC_BUCKET` | Where released outputs are published when `HISHOB_STORAGE=s3` (locally: `var/public/`) | none |
 
 The archive bucket must have versioning and object lock. Production buckets come from Terraform (SPEC-013); `hishob.archive.storage.create_archive_bucket` does the same for tests.
@@ -81,6 +91,7 @@ uv run python demo/seed.py                              # the synthetic S. V. Ro
 (cd web && npm ci && VITE_DATA_NOTICE="Demo data: invented test documents" npm run build)
 uv run uvicorn hishob.api.app:serve --factory --port 8000  # page at http://127.0.0.1:8000/
 node web/e2e/resident.mjs                               # browser check, phone and desktop
+uv run python demo/seed_review.py                       # a run waiting at the release gate, then: node web/e2e/review.mjs
 ```
 
 Set `ANTHROPIC_API_KEY` (and apply the agents) to switch on the Ask tab. For live reloading while editing the page, run `npm run dev` in `web/`; it proxies the API. The test suite empties the shared graph, so run `uv run hishob graph rebuild` with the demo settings afterwards.
