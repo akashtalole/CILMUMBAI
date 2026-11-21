@@ -159,6 +159,12 @@ def main(argv: list[str] | None = None) -> int:
     rupee_build.add_argument("--out", type=Path, default=Path("var/rupee"))
     rupee_build.add_argument("--claude", action="store_true", help="have Claude write the notes (needs an API key)")
     rupee_build.add_argument("--notes", type=Path, default=None, help="reuse checked notes from an earlier notes.json")
+    rupee_kml = rupee.add_parser(
+        "kml", help="write KML for Google Earth: wards and roads with the results, or any GeoJSON"
+    )
+    rupee_kml.add_argument("--bundle", type=Path, default=Path("var/rupee"))
+    rupee_kml.add_argument("--out", type=Path, default=Path("var/rupee/kml"))
+    rupee_kml.add_argument("--geojson", type=Path, nargs="*", default=None, help="just convert these GeoJSON files")
     rupee_export = rupee.add_parser("export", help="write the built results as static JSON for a plain web host")
     rupee_export.add_argument("--bundle", type=Path, default=Path("var/rupee"))
     rupee_export.add_argument("--out", type=Path, required=True)
@@ -560,6 +566,18 @@ def _rupee(args: argparse.Namespace) -> int:
     from hishob.rupee import build
     from hishob.rupee.data import DEFAULT_DIR
 
+    if args.command == "kml":
+        from hishob.rupee import kml
+
+        if args.geojson:
+            files = {f.with_suffix(".kml").name: kml.convert(json.loads(f.read_text(encoding="utf-8")), f.stem)
+                     for f in args.geojson}  # fmt: skip
+        else:
+            bundle = json.loads((args.bundle / "bundle.json").read_text(encoding="utf-8"))
+            files = kml.rupee_kml(bundle, Path(bundle["summary"].get("dataset") or DEFAULT_DIR))
+        for path in kml.write(files, args.out):
+            print(path)
+        return 0
     if args.command == "export":
         from hishob.rupee import export
 

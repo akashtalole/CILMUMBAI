@@ -126,6 +126,6 @@ web/                          static site (SPEC-020); a minimal page in SPEC-010
 | SPEC-020 | In progress | 10 | 10 |
 | SPEC-021 | In progress | 6 | 6 |
 | SPEC-030 | In progress | 7 | 7 |
-| SPEC-040 | In progress | 8 | 8 |
+| SPEC-040 | In progress | 9 | 9 |
 
 Update this table in the same pull request that changes a spec's status.

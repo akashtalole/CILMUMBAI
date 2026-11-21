@@ -334,3 +334,56 @@ def test_spec040_ac5_a_saved_note_is_reused_only_while_it_still_passes(data, bun
     again = build.compute(data, client=None, saved=saved)
     mine = next(x for x in again["contractors"] if x["contractor_id"] == c["contractor_id"])
     assert mine["note"]["by"] == "template"
+
+
+# AC9 · R10: KML from GeoJSON -------------------------------------------------------------------------------------
+
+KML_NS = {"k": "http://www.opengis.net/kml/2.2"}
+
+
+def test_spec040_ac9_any_geojson_becomes_valid_kml_with_coordinates_unchanged() -> None:
+    import xml.etree.ElementTree as ET
+
+    from hishob.rupee import kml
+
+    fc = {"type": "FeatureCollection", "features": [
+        {"type": "Feature", "properties": {"name": "A & B <x>"},
+         "geometry": {"type": "Point", "coordinates": [72.8, 19.0]}},
+        {"type": "Feature", "properties": {}, "geometry": {"type": "Polygon", "coordinates": [
+            [[72.0, 19.0], [72.1, 19.0], [72.1, 19.1]],
+            [[72.02, 19.02], [72.03, 19.02], [72.03, 19.03], [72.02, 19.02]]]}},
+        {"type": "Feature", "properties": {"id": 3}, "geometry": {"type": "MultiLineString", "coordinates": [
+            [[72.0, 19.0], [72.1, 19.1]], [[72.2, 19.2], [72.3, 19.3]]]}},
+    ]}  # fmt: skip
+    root = ET.fromstring(kml.convert(fc, "test").encode())
+    marks = root.findall(".//k:Placemark", KML_NS)
+    assert [m.findtext("k:name", namespaces=KML_NS) for m in marks] == ["A & B <x>", "Feature 2", "3"]
+    assert root.findtext(".//k:Point/k:coordinates", namespaces=KML_NS) == "72.8,19.0"  # longitude first, as GeoJSON
+    outer = root.findtext(".//k:outerBoundaryIs//k:coordinates", namespaces=KML_NS) or ""
+    assert outer.split()[0] == outer.split()[-1]  # the open ring was closed
+    assert len(root.findall(".//k:innerBoundaryIs", KML_NS)) == 1
+    assert len(root.findall(".//k:MultiGeometry/k:LineString", KML_NS)) == 2
+
+
+def test_spec040_ac9_the_rupee_kml_carries_the_results(bundle) -> None:  # type: ignore[no-untyped-def]
+    import xml.etree.ElementTree as ET
+
+    from hishob.rupee import kml
+
+    files = kml.rupee_kml(bundle, DEFAULT_DIR)
+    assert set(files) == {"wards.kml", "roads.kml", "follow-the-rupee.kml"}
+    root = ET.fromstring(files["follow-the-rupee.kml"].encode())
+    assert len(root.findall(".//k:Polygon", KML_NS)) == 24 and len(root.findall(".//k:LineString", KML_NS)) == 291
+    assert len(root.findall(".//k:Point", KML_NS)) == 72  # the top three fixes in each ward
+    grades = {w["ward_code"]: w["grade"] for w in bundle["wards"]}
+    for m in ET.fromstring(files["wards.kml"].encode()).findall(".//k:Placemark", KML_NS):
+        data = {d.get("name"): d.findtext("k:value", namespaces=KML_NS) for d in m.findall(".//k:Data", KML_NS)}
+        assert m.findtext("k:styleUrl", namespaces=KML_NS) == f"#grade-{grades[data['ward_code']]}"
+    flagged = {f["road_id"] for f in bundle["flags"] if f["rule"] in ("overbilled", "duplicate")}
+    for m in ET.fromstring(files["roads.kml"].encode()).findall(".//k:Placemark", KML_NS):
+        rid = next(
+            d.findtext("k:value", namespaces=KML_NS)
+            for d in m.findall(".//k:Data", KML_NS)
+            if d.get("name") == "road_id"
+        )
+        assert (m.findtext("k:styleUrl", namespaces=KML_NS) == "#road-flagged") == (rid in flagged)
