@@ -153,7 +153,15 @@ def main(argv: list[str] | None = None) -> int:
     build = ontology.add_parser("build", help="generate the record schema, whitelist and reference page")
     build.add_argument("--check", action="store_true", help="fail if the committed files are out of date")
 
+    rupee = groups.add_parser("rupee").add_subparsers(dest="command", required=True)
+    rupee_build = rupee.add_parser("build", help="audit, link, score and plan the Follow the Rupee dataset (SPEC-040)")
+    rupee_build.add_argument("--data", type=Path, default=None, help="dataset folder (default: the bundled one)")
+    rupee_build.add_argument("--out", type=Path, default=Path("var/rupee"))
+    rupee_build.add_argument("--claude", action="store_true", help="have Claude write the notes (needs an API key)")
+
     args = parser.parse_args(argv)
+    if args.group == "rupee":
+        return _rupee(args)
     if args.group == "ontology":
         return _ontology_build(check=args.check)
     if args.group == "workflow":
@@ -542,3 +550,18 @@ def _ontology_build(*, check: bool) -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+
+def _rupee(args: argparse.Namespace) -> int:
+    from hishob.rupee import build
+    from hishob.rupee.data import DEFAULT_DIR
+
+    client = None
+    if args.claude:
+        from hishob.agentkit.client import make_client
+
+        client = make_client()
+    bundle = build.run(args.data or DEFAULT_DIR, args.out, client)
+    print(build.headline(bundle))
+    print(f"written to {args.out}")
+    return 0

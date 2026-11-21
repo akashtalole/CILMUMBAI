@@ -247,3 +247,60 @@ select { font: inherit; color: inherit; background: var(--surface); border: 1px 
 .mic.on { background: var(--accent); color: #fff; border-color: var(--accent); animation: pulse 1.2s ease-in-out infinite; }
 @keyframes pulse { 50% { box-shadow: 0 0 0 6px rgb(217 72 15 / 22%); } }
 @media (prefers-reduced-motion: reduce) { .mic.on { animation: none; } }
+
+/* Follow the Rupee (SPEC-040) */
+.rupee .demo-banner { margin: 0 0 12px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 12px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; display: flex; flex-direction: column; box-shadow: var(--shadow); }
+.kpi.warn { background: var(--warn-bg); border-color: transparent; }
+.kpi-num { font-size: 1.45rem; font-weight: 700; letter-spacing: -0.01em; }
+.kpi-label { font-size: 0.85rem; color: var(--ink-2); }
+.tabs.sub { margin: 4px 0 12px; }
+.rupee-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 16px; align-items: start; }
+@media (max-width: 860px) { .rupee-grid { grid-template-columns: minmax(0, 1fr); } }
+.ward-map { height: 320px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); margin-bottom: 10px; }
+.grade { display: inline-grid; place-items: center; min-width: 28px; height: 28px; border-radius: 8px; color: #fff; font-weight: 700; }
+.bars { margin: 10px 0; }
+.bar-row { display: grid; grid-template-columns: 84px 1fr 32px; gap: 8px; align-items: center; font-size: 0.85rem; }
+.bar-label { color: var(--ink-2); text-transform: capitalize; }
+.bar { position: relative; height: 10px; background: var(--surface-2); border-radius: 6px; overflow: hidden; }
+.bar-fill { position: absolute; inset: 0 auto 0 0; border-radius: 6px; }
+.bar-mid { position: absolute; left: 50%; top: -2px; bottom: -2px; width: 2px; background: var(--ink-2); opacity: 0.5; }
+.bar-num { text-align: right; font-variant-numeric: tabular-nums; }
+.note { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; margin: 8px 0; }
+.note p { margin: 0 0 6px; white-space: pre-line; }
+.budget-bar { height: 12px; background: var(--surface-2); border-radius: 6px; overflow: hidden; }
+.budget-bar span { display: block; height: 100%; background: var(--brand); }
+.budget-bar span.over { background: var(--accent); }
+table.spend { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin: 6px 0; }
+table.spend td, table.spend th { padding: 5px 6px; border-bottom: 1px solid var(--line); text-align: left; }
+table.spend .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+table.spend .bad { color: var(--accent); font-weight: 700; }
+table.spend td.spark { width: 28%; }
+table.spend td.spark span { display: block; height: 8px; border-radius: 4px; background: var(--brand); opacity: 0.7; }
+table.wards tbody tr { cursor: pointer; }
+table.wards tbody tr.on { background: var(--surface-2); }
+.flag-list, .plan-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.flag, .plan-list > li { border: 1px solid var(--line); border-left: 4px solid var(--line); border-radius: 10px; padding: 8px 10px; background: var(--surface); }
+.flag p, .plan-list p { margin: 4px 0; }
+.flag-overbilled { border-left-color: #e03131; }
+.flag-duplicate { border-left-color: #ae3ec9; }
+.flag-dlp_paid { border-left-color: #f76707; }
+.flag-repeat_paid { border-left-color: #868e96; }
+.plan-list > li.funded { border-left-color: #2f9e44; }
+.flag-head { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.flag-amt { margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; }
+.chip-s { font-size: 0.75rem; background: var(--surface-2); border-radius: 999px; padding: 1px 8px; }
+.risk { display: inline-grid; place-items: center; min-width: 34px; height: 26px; border-radius: 6px; background: var(--accent); color: #fff; font-weight: 700; }
+.why { margin: 4px 0; padding-left: 18px; font-size: 0.9rem; }
+.cites { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.cite { font: 0.72rem/1.4 ui-monospace, monospace; background: var(--surface-2); border-radius: 4px; padding: 0 5px; color: var(--ink-2); text-decoration: none; }
+.cite:hover { color: var(--brand); text-decoration: underline; }
+.cards { display: grid; gap: 8px; }
+.card.contractor { text-align: left; width: 100%; border: 1px solid var(--line); }
+.card.contractor.on { outline: 2px solid var(--brand); }
+.chips select { border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; background: var(--surface); }
+.ward-label { font-size: 11px; font-weight: 700; color: #18201d; background: rgb(255 255 255 / 70%); border-radius: 4px; padding: 0 3px; cursor: pointer; }
+.layout.full { display: block; }
+.ward-map { height: 420px; }
+.example { margin-right: 10px; white-space: nowrap; }

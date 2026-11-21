@@ -59,6 +59,7 @@ class ApiConfig:
     photo: AskRun | None = None  # reads a photo report; None turns POST /report off (no Claude credentials)
     photo_per_hour: int = 5
     web_dir: Path | None = None  # the built web app (app/web/dist), served at /
+    rupee_dir: Path | None = None  # where `hishob rupee build` wrote its bundle; None turns /rupee off (SPEC-040)
 
 
 class AnswerCheck(BaseModel):
@@ -419,6 +420,11 @@ def create_app(config: ApiConfig) -> FastAPI:
             "unmatched": [asdict(c) for c in result.unmatched],
         }
 
+    if config.rupee_dir is not None:
+        from hishob.api.rupee import router as rupee_router
+
+        app.include_router(rupee_router(config.rupee_dir))
+
     if config.web_dir is not None and (config.web_dir / "index.html").exists():
         from fastapi.staticfiles import StaticFiles
 
@@ -537,6 +543,7 @@ def serve() -> FastAPI:
             photo=_live_photo() if os.environ.get("HISHOB_PHOTO_ENABLED", "1") != "0" else None,
             photo_per_hour=int(os.environ.get("HISHOB_PHOTO_PER_HOUR", "5")),
             web_dir=web,
+            rupee_dir=Path(os.environ.get("HISHOB_RUPEE_DIR") or settings.local_root / "rupee"),
         )
     )
 

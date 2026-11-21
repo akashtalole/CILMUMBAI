@@ -6,6 +6,7 @@ export type Lang = "mr" | "hi" | "en";
 const en = {
   tagline: "Mumbai's public records, with sources",
   tabResponsible: "Who is responsible?",
+  tabRupee: "Follow the Rupee",
   tabMoney: "Where did the money go?",
   tabAsk: "Ask",
   tabAlerts: "Alerts",
@@ -126,6 +127,7 @@ const mr: Strings = {
   ...en,
   tagline: "मुंबईच्या सार्वजनिक नोंदी, स्रोतांसह",
   tabResponsible: "जबाबदार कोण?",
+  tabRupee: "रुपयाचा माग",
   tabMoney: "पैसा कुठे गेला?",
   tabAsk: "विचारा",
   tabAlerts: "सूचना",
@@ -244,6 +246,7 @@ const hi: Strings = {
   ...en,
   tagline: "मुंबई के सार्वजनिक रिकॉर्ड, स्रोतों के साथ",
   tabResponsible: "ज़िम्मेदार कौन?",
+  tabRupee: "रुपये का हिसाब",
   tabMoney: "पैसा कहाँ गया?",
   tabAsk: "पूछें",
   tabAlerts: "सूचनाएँ",

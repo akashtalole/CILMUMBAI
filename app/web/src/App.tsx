@@ -6,20 +6,22 @@ import { MoneyTrail } from "./components/MoneyTrail";
 import { PlaceSearch, type Chosen } from "./components/PlaceSearch";
 import { Responsible } from "./components/Responsible";
 import { Review } from "./components/Review";
+import { Rupee } from "./components/Rupee";
 import { LANG_NAMES, type Lang } from "./i18n";
 import { useLang } from "./lang";
 import { readToken, tierOf } from "./token";
 
-type Tab = "responsible" | "money" | "ask" | "alerts" | "review";
+type Tab = "rupee" | "responsible" | "money" | "ask" | "alerts" | "review";
 const NOTICE = import.meta.env.VITE_DATA_NOTICE as string | undefined;
 
 export function App() {
   const { t, lang, setLang } = useLang();
-  const [tab, setTab] = useState<Tab>("responsible");
+  const [tab, setTab] = useState<Tab>("rupee");
   const [place, setPlace] = useState<Chosen | null>(null);
   // The review tab is for reviewers: it shows for a reviewer's access code, or a link ending in #review.
   const [reviewer] = useState(() => tierOf(readToken()) === "reviewer" || window.location.hash.includes("review"));
   const tabs: [Tab, string][] = [
+    ["rupee", t.tabRupee],
     ["responsible", t.tabResponsible],
     ["money", t.tabMoney],
     ["ask", t.tabAsk],
@@ -56,7 +58,7 @@ export function App() {
         ))}
       </nav>
 
-      <main className={`layout ${wide ? "" : "single"}`}>
+      <main className={`layout ${wide ? "" : tab === "rupee" ? "full" : "single"}`}>
         {wide && (
           <div className="pane">
             <PlaceSearch chosen={place} onChoose={setPlace} />
@@ -72,6 +74,11 @@ export function App() {
         {wide && (
           <div className="pane map-pane">
             <MapView placeId={place?.id ?? null} />
+          </div>
+        )}
+        {tab === "rupee" && (
+          <div className="pane">
+            <Rupee />
           </div>
         )}
         {tab === "ask" && (
