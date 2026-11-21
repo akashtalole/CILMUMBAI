@@ -1,0 +1,65 @@
+@prefix mco:  <https://akashtalole.github.io/CILMUMBAI/ontology/mco#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix org:  <http://www.w3.org/ns/org#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix geo:  <http://www.opengis.net/ont/geosparql#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Mumbai Civic Ontology: core. Marathi labels are drafts pending the language reviewer (SPEC-002, open question).
+
+<https://akashtalole.github.io/CILMUMBAI/ontology/mco> a owl:Ontology ;
+    rdfs:label "Mumbai Civic Ontology"@en , "मुंबई नागरी ज्ञानरचना"@mr ;
+    dcterms:description "Classes and relationships for a sourced knowledge graph of Mumbai's civic spending and works."@en ;
+    owl:versionInfo "0.2.0" .
+
+# Annotation properties the generator reads.
+mco:edgeType   a owl:AnnotationProperty ; rdfs:comment "Name of the relationship in the property graph, e.g. FOR_WORK." .
+mco:edgeFrom   a owl:AnnotationProperty ; rdfs:comment "The class a relationship starts from." .
+mco:edgeTo     a owl:AnnotationProperty ; rdfs:comment "The class a relationship ends at." .
+mco:jsonKey    a owl:AnnotationProperty ; rdfs:comment "Key used for this property in extracted records." .
+mco:propertyOf a owl:AnnotationProperty ; rdfs:comment "A class whose nodes may carry this property (inherited by subclasses)." .
+mco:module     a owl:AnnotationProperty ; rdfs:comment "The ontology module a class belongs to." .
+mco:abstract   a owl:AnnotationProperty ; rdfs:comment "True for classes that are never used as node labels." .
+
+mco:Fact a owl:Class ; mco:abstract true ; mco:module "core" ;
+    rdfs:label "Fact"@en , "तथ्य"@mr ;
+    rdfs:comment "Anything recorded in the graph. Every fact carries its source, page, quote, tier and confidence."@en ;
+    rdfs:subClassOf prov:Entity .
+
+mco:Node a owl:Class ; mco:abstract true ; mco:module "core" ; rdfs:subClassOf mco:Fact ;
+    rdfs:label "Node"@en , "घटक"@mr .
+
+mco:EdgeAssertion a owl:Class ; mco:abstract true ; mco:module "core" ; rdfs:subClassOf mco:Fact ;
+    rdfs:label "Relationship"@en , "संबंध"@mr .
+
+# Provenance, required on every fact (shapes/provenance.ttl).
+mco:source a owl:DatatypeProperty ; rdfs:domain mco:Fact ; rdfs:range xsd:string ; mco:jsonKey "source" ;
+    rdfs:label "source document"@en , "स्रोत दस्तऐवज"@mr ; rdfs:comment "SHA-256 of the archived document."@en ;
+    rdfs:subPropertyOf prov:wasDerivedFrom .
+mco:page a owl:DatatypeProperty ; rdfs:domain mco:Fact ; rdfs:range xsd:integer ; mco:jsonKey "page" ;
+    rdfs:label "page"@en , "पान"@mr .
+mco:quote a owl:DatatypeProperty ; rdfs:domain mco:Fact ; rdfs:range xsd:string ; mco:jsonKey "quote" ;
+    rdfs:label "quote"@en , "उद्धरण"@mr ; rdfs:comment "Verbatim words from the page that state the fact."@en .
+mco:tier a owl:DatatypeProperty ; rdfs:domain mco:Fact ; rdfs:range xsd:string ; mco:jsonKey "tier" ;
+    rdfs:label "tier"@en , "विश्वसनीयता स्तर"@mr ; rdfs:comment "official, reported, citizen or derived."@en .
+mco:confidence a owl:DatatypeProperty ; rdfs:domain mco:Fact ; rdfs:range xsd:decimal ; mco:jsonKey "confidence" ;
+    rdfs:label "confidence"@en , "खात्री"@mr .
+
+mco:edgeTypeValue a owl:DatatypeProperty ; rdfs:domain mco:EdgeAssertion ; rdfs:range xsd:string ;
+    rdfs:label "relationship type"@en , "संबंधाचा प्रकार"@mr .
+mco:edgeSubject a owl:ObjectProperty ; rdfs:domain mco:EdgeAssertion ; rdfs:range mco:Node ;
+    rdfs:label "from"@en , "पासून"@mr .
+mco:edgeObject a owl:ObjectProperty ; rdfs:domain mco:EdgeAssertion ; rdfs:range mco:Node ;
+    rdfs:label "to"@en , "पर्यंत"@mr .
+
+# Shared by every node.
+mco:name a owl:DatatypeProperty ; rdfs:range xsd:string ; mco:jsonKey "name" ; mco:propertyOf mco:Node ;
+    rdfs:label "name"@en , "नाव"@mr ; rdfs:comment "Name as written in the source, in its original script."@en .
+mco:nameEn a owl:DatatypeProperty ; rdfs:range xsd:string ; mco:jsonKey "name_en" ; mco:propertyOf mco:Node ;
+    rdfs:label "name in English"@en , "इंग्रजी नाव"@mr .
+mco:nameMr a owl:DatatypeProperty ; rdfs:range xsd:string ; mco:jsonKey "name_mr" ; mco:propertyOf mco:Node ;
+    rdfs:label "name in Marathi"@en , "मराठी नाव"@mr ; rdfs:comment "Added in 0.2.0."@en .

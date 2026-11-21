@@ -1,0 +1,4931 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Plans, architecture and starter code for a civic accountability platform for Mumbai, built for Claude Impact Lab Mumbai.">
+      
+      
+      
+        <link rel="canonical" href="https://akashtalole.github.io/CILMUMBAI/mumbai-civic-platform/06-user-personas/">
+      
+      
+        <link rel="prev" href="../05-implementation-plan/">
+      
+      
+        <link rel="next" href="../architecture/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>User personas - Aamcha Hishob</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#user-personas" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Aamcha Hishob" class="md-header__button md-logo" aria-label="Aamcha Hishob" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Aamcha Hishob
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              User personas
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="amber"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="amber"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/akashtalole/CILMUMBAI" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    akashtalole/CILMUMBAI
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Platform
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../aamcha-hishob-specs/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Build plan
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../mumbai-civic-graph/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  First slice
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../mumbai-civic-ideas/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Ideas
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Aamcha Hishob" class="md-nav__button md-logo" aria-label="Aamcha Hishob" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Aamcha Hishob
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/akashtalole/CILMUMBAI" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    akashtalole/CILMUMBAI
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Platform
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Platform
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-data-catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-ontology-and-graphs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ontology and graphs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-semantic-and-search-layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semantic and search layer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-intelligence-layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Intelligence layer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-implementation-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User personas
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User personas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-personas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Personas
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Personas">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-sunita-46-resident-of-a-chawl-in-a-dense-ward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Sunita, 46, resident of a chawl in a dense ward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-imran-31-salaried-commuter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Imran, 31, salaried commuter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-lata-58-secretary-of-a-cooperative-housing-society" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Lata, 58, secretary of a cooperative housing society
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-ramesh-52-head-of-a-family-displaced-by-a-road-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Ramesh, 52, head of a family displaced by a road project
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-farah-39-residents-association-volunteer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 Farah, 39, residents' association volunteer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26-kavita-44-rti-activist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.6 Kavita, 44, RTI activist
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#27-arjun-29-civic-reporter-at-a-marathi-daily" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.7 Arjun, 29, civic reporter at a Marathi daily
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#28-dr-meera-41-urban-policy-researcher" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.8 Dr Meera, 41, urban policy researcher
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#29-corporator-pawar-elected-representative" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.9 Corporator Pawar, elected representative
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#210-assistant-engineer-roads-ward-office" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.10 Assistant Engineer (Roads), ward office
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#211-deputy-secretary-state-urban-development-department" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.11 Deputy Secretary, state Urban Development Department
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#212-advocate-nair-reviewing-lawyer-for-the-platform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.12 Advocate Nair, reviewing lawyer for the platform
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-mapping-personas-to-the-platform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Mapping personas to the platform
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Mapping personas to the platform">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-features-by-persona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Features by persona
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-channels-and-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Channels and access
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-personas-by-agent-desk-and-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Personas by agent desk and workflow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-language-and-literacy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Language and literacy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-people-who-appear-in-the-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. People who appear in the records
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-anti-personas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Anti-personas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-priorities-for-the-first-slice" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Priorities for the first slice
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-validating-the-personas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Validating the personas
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../architecture/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design on AWS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decision records
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Decision records
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/adr/0001-facts-ledger-as-system-of-record/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0001 Facts ledger as system of record
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/adr/0002-claude-access-on-aws/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0002 Claude access on AWS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/adr/0003-agent-runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0003 Agent runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/adr/0004-graph-database/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0004 Graph database
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/adr/0005-ontology-and-rdf/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0005 Ontology and RDF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/adr/0006-relational-and-spatial-store/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0006 Relational and spatial store
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/adr/0007-search/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0007 Search
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/adr/0008-embedding-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0008 Embedding model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/adr/0009-document-parsing-and-ocr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0009 Document parsing and OCR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/adr/0010-workflow-orchestration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0010 Workflow orchestration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/adr/0011-graph-tools-for-agents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0011 Graph tools for agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/adr/0012-compute/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0012 Compute
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/adr/0013-eventing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0013 Eventing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/adr/0014-api-identity-and-access/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0014 API, identity and access
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/adr/0015-front-end-and-maps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0015 Front end and maps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/adr/0016-resident-channels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0016 Resident channels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/adr/0017-region-and-data-residency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0017 Region and data residency
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/adr/0018-security-and-privacy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0018 Security and privacy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/adr/0019-observability-and-evaluation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0019 Observability and evaluation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/adr/0020-infrastructure-as-code/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0020 Infrastructure as code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/adr/0021-cost-posture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0021 Cost posture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/adr/0022-backup-and-rebuild/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0022 Backup and rebuild
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../aamcha-hishob-specs/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Build plan
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Build plan
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../aamcha-hishob-specs/00-constitution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Constitution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../aamcha-hishob-specs/01-process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../aamcha-hishob-specs/02-spec-index/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spec index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../aamcha-hishob-specs/03-milestones/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Milestones
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_6" id="__nav_4_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Specs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../aamcha-hishob-specs/specs/SPEC-001-document-archive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPEC-001 Document archive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../aamcha-hishob-specs/specs/SPEC-002-ontology-and-schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPEC-002 Ontology and schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../aamcha-hishob-specs/specs/SPEC-003-facts-ledger-and-loader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPEC-003 Facts ledger and loader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../aamcha-hishob-specs/specs/SPEC-004-place-spine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPEC-004 Place spine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../aamcha-hishob-specs/specs/SPEC-005-intake-desk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPEC-005 Intake desk
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../aamcha-hishob-specs/specs/SPEC-006-graph-projection-and-views/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPEC-006 Graph projection and views
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../aamcha-hishob-specs/specs/SPEC-007-query-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPEC-007 Query API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../aamcha-hishob-specs/specs/SPEC-008-citizen-desk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPEC-008 Citizen desk
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../aamcha-hishob-specs/specs/SPEC-009-workflow-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPEC-009 Workflow engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../aamcha-hishob-specs/specs/SPEC-010-street-alerts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPEC-010 Street alerts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../aamcha-hishob-specs/specs/SPEC-011-audit-desk-and-release/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPEC-011 Audit desk and release
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../aamcha-hishob-specs/specs/SPEC-012-evaluation-and-promotion-gate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPEC-012 Evaluation and promotion gate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../aamcha-hishob-specs/specs/SPEC-013-aws-lean-infrastructure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPEC-013 AWS lean infrastructure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../app-ontology/REFERENCE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ontology reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_8" id="__nav_4_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Templates
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Templates
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../aamcha-hishob-specs/templates/spec-template/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spec template
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../aamcha-hishob-specs/templates/task-card/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task card
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../mumbai-civic-graph/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First slice
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    First slice
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-graph/00-shared-foundation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Shared foundation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-graph/01-paisa-trail/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Paisa Trail
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-graph/02-vachan-tracker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vachan Tracker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-graph/03-thekedar-graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Thekedar Graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-graph/04-jawabdar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Jawabdar
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-graph/05-ward-lens/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ward Lens
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-graph/06-prep-and-day-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prep and day plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-graph/07-tender-portals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tender portals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-graph/08-multi-agent-system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-agent system
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_11" id="__nav_5_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter code
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Starter code
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-graph/managed-agents/schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Record schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-graph/managed-agents/rubrics/ingest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ingest rubric
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-graph/managed-agents/rubrics/ward-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ward audit rubric
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_11_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_11_4" id="__nav_5_11_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent prompts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_11_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_11_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Agent prompts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-graph/managed-agents/agents/ingest-lead/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ingest lead
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-graph/managed-agents/agents/doc-extractor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Document extractor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-graph/managed-agents/agents/fact-verifier/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fact verifier
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-graph/managed-agents/agents/entity-resolver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Entity resolver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-graph/managed-agents/agents/audit-lead/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Audit lead
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-graph/managed-agents/agents/challenger/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Challenger
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-graph/managed-agents/agents/drafter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drafter
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-graph/managed-agents/agents/citizen-desk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Citizen desk
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../mumbai-civic-ideas/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ideas
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Ideas
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-ideas/01-money/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Money
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-ideas/02-works/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Works
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-ideas/03-services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-ideas/04-accountability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Accountability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-ideas/05-access-and-adoption/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Access and adoption
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../mumbai-civic-ideas/bmc-sra-jurisdiction/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BMC and SRA register
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6_7" id="__nav_6_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    BMC and SRA register
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-ideas/bmc-sra-jurisdiction/01-solution-design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Solution design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-ideas/bmc-sra-jurisdiction/02-agents-and-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agents and pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mumbai-civic-ideas/bmc-sra-jurisdiction/03-implementation-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implementation plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-personas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Personas
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Personas">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-sunita-46-resident-of-a-chawl-in-a-dense-ward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Sunita, 46, resident of a chawl in a dense ward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-imran-31-salaried-commuter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Imran, 31, salaried commuter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-lata-58-secretary-of-a-cooperative-housing-society" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Lata, 58, secretary of a cooperative housing society
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-ramesh-52-head-of-a-family-displaced-by-a-road-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Ramesh, 52, head of a family displaced by a road project
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-farah-39-residents-association-volunteer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 Farah, 39, residents' association volunteer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26-kavita-44-rti-activist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.6 Kavita, 44, RTI activist
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#27-arjun-29-civic-reporter-at-a-marathi-daily" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.7 Arjun, 29, civic reporter at a Marathi daily
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#28-dr-meera-41-urban-policy-researcher" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.8 Dr Meera, 41, urban policy researcher
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#29-corporator-pawar-elected-representative" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.9 Corporator Pawar, elected representative
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#210-assistant-engineer-roads-ward-office" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.10 Assistant Engineer (Roads), ward office
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#211-deputy-secretary-state-urban-development-department" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.11 Deputy Secretary, state Urban Development Department
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#212-advocate-nair-reviewing-lawyer-for-the-platform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.12 Advocate Nair, reviewing lawyer for the platform
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-mapping-personas-to-the-platform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Mapping personas to the platform
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Mapping personas to the platform">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-features-by-persona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Features by persona
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-channels-and-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Channels and access
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-personas-by-agent-desk-and-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Personas by agent desk and workflow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-language-and-literacy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Language and literacy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-people-who-appear-in-the-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. People who appear in the records
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-anti-personas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Anti-personas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-priorities-for-the-first-slice" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Priorities for the first slice
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-validating-the-personas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Validating the personas
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="user-personas">User personas<a class="headerlink" href="#user-personas" title="Permanent link">&para;</a></h1>
+<p>Who Aamcha Hishob serves, what each of them is trying to get done, and which parts of the platform do it for them.</p>
+<p>These personas are composites drawn from the challenge brief and the kinds of people it invites. They are not research. Before building, test each one with two or three real people who fit it, and rewrite what does not hold.</p>
+<h2 id="1-summary">1. Summary<a class="headerlink" href="#1-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Persona</th>
+<th>Group</th>
+<th>Main question</th>
+<th>Channel</th>
+<th>Tier</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Sunita, resident of a chawl</td>
+<td>Residents</td>
+<td>"Who will fix this, and how do I make them?"</td>
+<td>WhatsApp voice note, Marathi</td>
+<td>Public</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Imran, salaried commuter</td>
+<td>Residents</td>
+<td>"When will this road work end?"</td>
+<td>Web on phone, alerts</td>
+<td>Contributor</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Lata, housing society secretary</td>
+<td>Residents</td>
+<td>"What is planned for our lane, and is our building on any list?"</td>
+<td>Web, WhatsApp</td>
+<td>Contributor</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Ramesh, family awaiting a transit home</td>
+<td>Residents</td>
+<td>"When do we get our home, and who is holding it up?"</td>
+<td>WhatsApp, community worker</td>
+<td>Public</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Farah, residents' association volunteer</td>
+<td>Organisers</td>
+<td>"What do we ask at the ward meeting, with proof?"</td>
+<td>Web, printed briefs</td>
+<td>Contributor</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Kavita, RTI activist</td>
+<td>Organisers</td>
+<td>"Which record is missing, and how do I get it?"</td>
+<td>Web</td>
+<td>Contributor</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Arjun, civic reporter at a Marathi daily</td>
+<td>Watchdogs</td>
+<td>"What is the story this week, and can I stand behind it?"</td>
+<td>Weekly feed, web</td>
+<td>Researcher</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Dr Meera, urban policy researcher</td>
+<td>Watchdogs</td>
+<td>"Can I query the whole thing and cite it?"</td>
+<td>API, bulk downloads</td>
+<td>Researcher</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Corporator Pawar</td>
+<td>Representatives</td>
+<td>"What is happening in my ward that I should raise?"</td>
+<td>Web, ward brief</td>
+<td>Official</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Assistant Engineer, ward office</td>
+<td>Officials</td>
+<td>"Which defects can the contractor be made to fix, and which complaints are mine?"</td>
+<td>Web work list</td>
+<td>Official</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Deputy Secretary, state Urban Development Department</td>
+<td>Officials</td>
+<td>"What do both authorities' records actually show?"</td>
+<td>Briefs, register</td>
+<td>Official</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Advocate Nair, the platform's reviewing lawyer</td>
+<td>Platform team</td>
+<td>"Is this safe and fair to publish?"</td>
+<td>Review screen</td>
+<td>Reviewer</td>
+</tr>
+</tbody>
+</table>
+<p>Two further groups use the platform without being its audience: <strong>contractors and developers</strong>, who appear in the records and need a way to correct them and reply; and <strong>other builders</strong>, who use the public API. Both are covered in section 4.</p>
+<h2 id="2-personas">2. Personas<a class="headerlink" href="#2-personas" title="Permanent link">&para;</a></h2>
+<h3 id="21-sunita-46-resident-of-a-chawl-in-a-dense-ward">2.1 Sunita, 46, resident of a chawl in a dense ward<a class="headerlink" href="#21-sunita-46-resident-of-a-chawl-in-a-dense-ward" title="Permanent link">&para;</a></h3>
+<p><strong>Situation.</strong> Lives with her family in one room. Reads Marathi slowly, does not use English. Uses WhatsApp daily, mostly by voice. Her lane's drain overflows every monsoon and the open manhole near the tap has been reported twice.</p>
+<p><strong>Jobs to be done.</strong>
+- Find out who is responsible for the drain and the manhole.
+- Send a complaint that is not ignored, and know when to push again.</p>
+<p><strong>Pains today.</strong> Complaints are closed without the work being done. She is sent between offices. She does not know the names of departments or posts.</p>
+<p><strong>What she needs from the platform.</strong>
+- Send a voice note and a photo; get a short spoken or written reply in Marathi.
+- Be asked where it is if the location is missing, and have the place read back to her.
+- A complaint she can forward or have printed, addressed to the right office.
+- A reminder when the complaint's time limit passes, with the next step.</p>
+<p><strong>Features.</strong> Voice line (idea 37), Jawabdar (idea 2), Complaint Closure Audit (idea 31), citizen desk.</p>
+<p><strong>Design notes.</strong> No sign-in. Short replies. No jargon or abbreviations. Never ask her for more than one thing at a time. Faces and number plates removed from her photos; her phone number never stored with her report.</p>
+<p><strong>Success looks like.</strong> The manhole is covered, and she knows which office to call next time.</p>
+<h3 id="22-imran-31-salaried-commuter">2.2 Imran, 31, salaried commuter<a class="headerlink" href="#22-imran-31-salaried-commuter" title="Permanent link">&para;</a></h3>
+<p><strong>Situation.</strong> Rents a flat in the western suburbs. Comfortable with apps in English and Hindi. His road has been dug up for months.</p>
+<p><strong>Jobs to be done.</strong>
+- Know what is being built on his route, by whom, and by when.
+- Know when a deadline has passed.</p>
+<p><strong>Features.</strong> Work Coming to Your Street (idea 14), Site Board QR (idea 15), Paisa Trail (idea 1), Pothole Ledger (idea 18).</p>
+<p><strong>Design notes.</strong> Save a route or an area once; alerts arrive without asking. Every alert shows the tender number and a link to the source.</p>
+<p><strong>Success looks like.</strong> He can say, with the tender in hand, that the work is three months late, and to whom.</p>
+<h3 id="23-lata-58-secretary-of-a-cooperative-housing-society">2.3 Lata, 58, secretary of a cooperative housing society<a class="headerlink" href="#23-lata-58-secretary-of-a-cooperative-housing-society" title="Permanent link">&para;</a></h3>
+<p><strong>Situation.</strong> Handles the society's dealings with the ward office. The building is old. Redevelopment is being discussed.</p>
+<p><strong>Jobs to be done.</strong>
+- Know whether the building is on the dangerous-buildings list, and what that requires.
+- Know what is planned for the lane and the nearby reserved plot.
+- If redevelopment proceeds, know which authority has the file and at what stage.</p>
+<p><strong>Features.</strong> Safety List (idea 19), Reserved Plots Tracker (idea 22), Ek Plot Ek Record (idea 41), ward budget summary (idea 7).</p>
+<p><strong>Design notes.</strong> Pages she can print for a society meeting. Plain statements of what is official and what is not. Clear "this is not legal advice" wording on anything about approvals.</p>
+<p><strong>Success looks like.</strong> The society's meeting decides with the same facts in front of everyone.</p>
+<h3 id="24-ramesh-52-head-of-a-family-displaced-by-a-road-project">2.4 Ramesh, 52, head of a family displaced by a road project<a class="headerlink" href="#24-ramesh-52-head-of-a-family-displaced-by-a-road-project" title="Permanent link">&para;</a></h3>
+<p><strong>Situation.</strong> Moved out for a project, promised a permanent transit home. Rent was paid for a while, then stopped. Does not know which scheme his home is supposed to come from.</p>
+<p><strong>Jobs to be done.</strong>
+- Know which schemes owe transit homes near him, and how many have been handed over.
+- Know whom to approach, and with what.</p>
+<p><strong>Features.</strong> Tenement Ledger and resident's front door in Ek Plot Ek Record (idea 41), Stalled Rehab Tracker (idea 28), drafted letters.</p>
+<p><strong>Design notes.</strong> Reached most often through a community worker or housing rights group, so the platform must work well when someone else is operating it for him. Records are counts per scheme; the platform never holds allotment lists or names.</p>
+<p><strong>Success looks like.</strong> He knows the scheme, its due date and the office, and his group can raise it with numbers.</p>
+<h3 id="25-farah-39-residents-association-volunteer">2.5 Farah, 39, residents' association volunteer<a class="headerlink" href="#25-farah-39-residents-association-volunteer" title="Permanent link">&para;</a></h3>
+<p><strong>Situation.</strong> Organises a residents' group in her ward. Attends ward committee meetings. Writes letters on behalf of neighbours.</p>
+<p><strong>Jobs to be done.</strong>
+- Arrive at a meeting with a few questions that cannot be brushed aside.
+- Track what was promised for the ward, and whether it started.
+- Collect neighbours' reports into evidence.</p>
+<p><strong>Features.</strong> Ward brief and meeting questions (audit desk), Vachan Tracker (idea 3), Unspent Money Watch (idea 6), Committee Digest (idea 29), Complaint Closure Audit (idea 31).</p>
+<p><strong>Design notes.</strong> One-page outputs, each fact with its source in brackets. A way to share a page as an image on WhatsApp groups.</p>
+<p><strong>Success looks like.</strong> A question she asks gets a dated answer in the minutes.</p>
+<h3 id="26-kavita-44-rti-activist">2.6 Kavita, 44, RTI activist<a class="headerlink" href="#26-kavita-44-rti-activist" title="Permanent link">&para;</a></h3>
+<p><strong>Situation.</strong> Files dozens of right-to-information requests a year. Holds boxes of replies. Spends much of her time drafting and appealing.</p>
+<p><strong>Jobs to be done.</strong>
+- Ask for exactly the record that fills a gap.
+- Track the thirty-day clock and file appeals on time.
+- Make replies useful beyond one person.</p>
+<p><strong>Features.</strong> RTI Commons (idea 30), the gaps list from the audit desk, RTI loop workflow (W5), intake of replies.</p>
+<p><strong>Design notes.</strong> Applications drafted to ask for named records by period; appeal drafts ready on day thirty-one. Her name and address removed from any reply she shares.</p>
+<p><strong>Success looks like.</strong> Her replies close gaps in the graph and are reused by others.</p>
+<h3 id="27-arjun-29-civic-reporter-at-a-marathi-daily">2.7 Arjun, 29, civic reporter at a Marathi daily<a class="headerlink" href="#27-arjun-29-civic-reporter-at-a-marathi-daily" title="Permanent link">&para;</a></h3>
+<p><strong>Situation.</strong> Covers the corporation alone. Short of time. Cannot run a story on a hunch.</p>
+<p><strong>Jobs to be done.</strong>
+- Find the week's story in the committee agenda, tender awards and audit reports.
+- Check a claim fast, with the document behind it.</p>
+<p><strong>Features.</strong> Newsroom Feed (idea 38), Committee Digest (idea 29), Audit Para Tracker (idea 32), Mega Project Meter (idea 11), contractor record (idea 4, researcher tier).</p>
+<p><strong>Design notes.</strong> Every item carries its documents and the Challenger's counter-argument, so the other side's response is anticipated. The same feed goes to every outlet on the same terms. Clear marking of official record versus residents' report.</p>
+<p><strong>Success looks like.</strong> A published story that cites the platform and survives the corporation's reply.</p>
+<h3 id="28-dr-meera-41-urban-policy-researcher">2.8 Dr Meera, 41, urban policy researcher<a class="headerlink" href="#28-dr-meera-41-urban-policy-researcher" title="Permanent link">&para;</a></h3>
+<p><strong>Situation.</strong> Studies municipal finance and planning. Comfortable with data tools.</p>
+<p><strong>Jobs to be done.</strong>
+- Query across years, wards and departments.
+- Cite data with its provenance in published work.</p>
+<p><strong>Features.</strong> Public Data Service and API (idea 40), bulk exports in JSON lines, Parquet and Turtle, analyst desk, metric definitions.</p>
+<p><strong>Design notes.</strong> Stable identifiers, documented ontology, release versions she can cite, and a statement of coverage and gaps with each release.</p>
+<p><strong>Success looks like.</strong> Her paper's numbers can be reproduced from a named release.</p>
+<h3 id="29-corporator-pawar-elected-representative">2.9 Corporator Pawar, elected representative<a class="headerlink" href="#29-corporator-pawar-elected-representative" title="Permanent link">&para;</a></h3>
+<p><strong>Situation.</strong> Represents an electoral ward. Hears residents' complaints daily. Has a discretionary fund.</p>
+<p><strong>Jobs to be done.</strong>
+- Know what is late or stuck in the ward before residents tell him.
+- Raise questions in committee with evidence.
+- Show residents what his fund paid for.</p>
+<p><strong>Features.</strong> Ward brief, Corporator Fund Tracker (idea 8), Corporator Report Card (idea 34), Ward Participatory Budget (idea 36).</p>
+<p><strong>Design notes.</strong> Identical measures for every corporator, regardless of party. A route to publish his own fund records. A right to correct his record.</p>
+<p><strong>Success looks like.</strong> He uses the brief in committee, and volunteers his fund data.</p>
+<h3 id="210-assistant-engineer-roads-ward-office">2.10 Assistant Engineer (Roads), ward office<a class="headerlink" href="#210-assistant-engineer-roads-ward-office" title="Permanent link">&para;</a></h3>
+<p><strong>Situation.</strong> Responsible for roads in one ward. Many complaints, some about roads that are not the corporation's. Contractors on recently built roads owe repairs under their defect liability periods.</p>
+<p><strong>Jobs to be done.</strong>
+- See which complaints are genuinely his and which belong to another agency.
+- See which defects are on roads still under contractor liability, grouped by contractor.
+- Correct the record where it is wrong.</p>
+<p><strong>Features.</strong> Liability watch (audit desk), Pothole Ledger (idea 18), complaint routing in Jawabdar (idea 2), correction workflow (W6).</p>
+<p><strong>Design notes.</strong> Addressed by post, never by name. A work list, not a scorecard. A correction button that is answered.</p>
+<p><strong>Success looks like.</strong> Repairs done at the contractor's cost that would otherwise have been paid from the ward's budget. This persona is the platform's best route to adoption.</p>
+<h3 id="211-deputy-secretary-state-urban-development-department">2.11 Deputy Secretary, state Urban Development Department<a class="headerlink" href="#211-deputy-secretary-state-urban-development-department" title="Permanent link">&para;</a></h3>
+<p><strong>Situation.</strong> Fields letters from both BMC and SRA on the same regulation. Needs to decide on evidence, not on correspondence.</p>
+<p><strong>Jobs to be done.</strong>
+- See every scheme in question, both authorities' actions on it, and delivery against the regulation's purpose.
+- Read both positions set out fairly, with the texts each relies on.</p>
+<p><strong>Features.</strong> Ek Plot Ek Record (idea 41): Scheme Register, Tenement Ledger, Concession Meter, dual-reading brief.</p>
+<p><strong>Design notes.</strong> Neutral language, equal treatment, every claim sourced. Both authorities invited to correct their own records before anything is public.</p>
+<p><strong>Success looks like.</strong> The next direction cites figures from the register.</p>
+<h3 id="212-advocate-nair-reviewing-lawyer-for-the-platform">2.12 Advocate Nair, reviewing lawyer for the platform<a class="headerlink" href="#212-advocate-nair-reviewing-lawyer-for-the-platform" title="Permanent link">&para;</a></h3>
+<p><strong>Situation.</strong> Volunteers part of her week. Signs off anything that names a party.</p>
+<p><strong>Jobs to be done.</strong>
+- Review findings, rules and briefs quickly, with the evidence and the challenge alongside.
+- Hold anything unsafe or unfair.</p>
+<p><strong>Features.</strong> Review screen at the release and rule-approval steps of the LangGraph workflows; Challenger reviews; correction and right-of-reply workflow.</p>
+<p><strong>Design notes.</strong> Each item shows the claim, the evidence table, the Challenger's review and the banned-word check. One-click hold with a reason that goes back to the audit desk.</p>
+<p><strong>Success looks like.</strong> Nothing published needs to be withdrawn.</p>
+<h2 id="3-mapping-personas-to-the-platform">3. Mapping personas to the platform<a class="headerlink" href="#3-mapping-personas-to-the-platform" title="Permanent link">&para;</a></h2>
+<h3 id="31-features-by-persona">3.1 Features by persona<a class="headerlink" href="#31-features-by-persona" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Sunita</th>
+<th>Imran</th>
+<th>Lata</th>
+<th>Ramesh</th>
+<th>Farah</th>
+<th>Kavita</th>
+<th>Arjun</th>
+<th>Meera</th>
+<th>Corporator</th>
+<th>Engineer</th>
+<th>UDD</th>
+<th>Lawyer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Who is responsible (Jawabdar)</td>
+<td>●</td>
+<td>●</td>
+<td>○</td>
+<td></td>
+<td>●</td>
+<td></td>
+<td></td>
+<td></td>
+<td>○</td>
+<td>●</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Street alerts</td>
+<td></td>
+<td>●</td>
+<td>●</td>
+<td></td>
+<td>○</td>
+<td></td>
+<td></td>
+<td></td>
+<td>○</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Money trail (Paisa Trail)</td>
+<td></td>
+<td>●</td>
+<td>○</td>
+<td></td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td>○</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Promise tracker</td>
+<td></td>
+<td>○</td>
+<td></td>
+<td></td>
+<td>●</td>
+<td></td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Ward brief and meeting questions</td>
+<td></td>
+<td></td>
+<td>○</td>
+<td></td>
+<td>●</td>
+<td></td>
+<td>●</td>
+<td></td>
+<td>●</td>
+<td>●</td>
+<td></td>
+<td>●</td>
+</tr>
+<tr>
+<td>Complaint closure and pothole ledger</td>
+<td>●</td>
+<td>●</td>
+<td>○</td>
+<td></td>
+<td>●</td>
+<td></td>
+<td>○</td>
+<td></td>
+<td>○</td>
+<td>●</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Liability watch</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>○</td>
+<td></td>
+<td>○</td>
+<td></td>
+<td>○</td>
+<td>●</td>
+<td></td>
+<td>●</td>
+</tr>
+<tr>
+<td>Safety list</td>
+<td>○</td>
+<td></td>
+<td>●</td>
+<td></td>
+<td>●</td>
+<td></td>
+<td>●</td>
+<td></td>
+<td>○</td>
+<td>○</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Ek Plot Ek Record</td>
+<td></td>
+<td></td>
+<td>●</td>
+<td>●</td>
+<td>○</td>
+<td>○</td>
+<td>●</td>
+<td>●</td>
+<td>○</td>
+<td></td>
+<td>●</td>
+<td>●</td>
+</tr>
+<tr>
+<td>RTI Commons and gaps</td>
+<td></td>
+<td></td>
+<td></td>
+<td>○</td>
+<td>●</td>
+<td>●</td>
+<td>○</td>
+<td>○</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Committee digest and audit paras</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td>●</td>
+<td></td>
+<td>○</td>
+<td></td>
+</tr>
+<tr>
+<td>Contractor record</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>○</td>
+<td>●</td>
+<td>●</td>
+<td></td>
+<td></td>
+<td></td>
+<td>●</td>
+</tr>
+<tr>
+<td>API and bulk data</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>○</td>
+<td>●</td>
+<td></td>
+<td></td>
+<td>○</td>
+<td></td>
+</tr>
+<tr>
+<td>Review and correction</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>○</td>
+<td>●</td>
+<td>○</td>
+<td>●</td>
+</tr>
+</tbody>
+</table>
+<p>● primary use · ○ occasional use</p>
+<h3 id="32-channels-and-access">3.2 Channels and access<a class="headerlink" href="#32-channels-and-access" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Channel</th>
+<th>Personas</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WhatsApp text and voice notes</td>
+<td>Sunita, Ramesh, Lata, Farah</td>
+<td>Marathi and Hindi first; voice transcribed and the place read back</td>
+</tr>
+<tr>
+<td>Mobile web</td>
+<td>Imran, Lata, Farah, Kavita, Arjun, Corporator</td>
+<td>Phone-first; pages work on slow connections</td>
+</tr>
+<tr>
+<td>Printed and shareable pages</td>
+<td>Lata, Farah, Corporator</td>
+<td>One page, sources in brackets, shareable as an image</td>
+</tr>
+<tr>
+<td>Weekly feed</td>
+<td>Arjun, Farah, Corporator</td>
+<td>Same terms for every outlet</td>
+</tr>
+<tr>
+<td>API, MCP tools and downloads</td>
+<td>Meera, other builders</td>
+<td>Public tier only in bulk</td>
+</tr>
+<tr>
+<td>Work list and review screen</td>
+<td>Engineer, UDD, Lawyer</td>
+<td>Approved accounts only</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Access tier (<a href="../03-semantic-and-search-layer/">03-semantic-and-search-layer.md</a>)</th>
+<th>Personas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Public</td>
+<td>Sunita, Ramesh, and anyone without an account</td>
+</tr>
+<tr>
+<td>Contributor</td>
+<td>Imran, Lata, Farah, Kavita</td>
+</tr>
+<tr>
+<td>Researcher</td>
+<td>Arjun, Meera</td>
+</tr>
+<tr>
+<td>Official</td>
+<td>Corporator, Engineer, UDD</td>
+</tr>
+<tr>
+<td>Reviewer</td>
+<td>Lawyer and the editorial board</td>
+</tr>
+</tbody>
+</table>
+<h3 id="33-personas-by-agent-desk-and-workflow">3.3 Personas by agent desk and workflow<a class="headerlink" href="#33-personas-by-agent-desk-and-workflow" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Desk or workflow</th>
+<th>Serves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Citizen desk; resident request workflow (W3)</td>
+<td>Sunita, Imran, Lata, Ramesh</td>
+</tr>
+<tr>
+<td>Audit desk; ingest and audit workflow (W1)</td>
+<td>Farah, Arjun, Corporator, Engineer</td>
+</tr>
+<tr>
+<td>Regulation desk; legal change workflow (W4)</td>
+<td>UDD, Lata, Ramesh</td>
+</tr>
+<tr>
+<td>RTI loop (W5)</td>
+<td>Kavita, Farah, Ramesh's group</td>
+</tr>
+<tr>
+<td>Correction and right of reply (W6)</td>
+<td>Engineer, Corporator, contractors, developers</td>
+</tr>
+<tr>
+<td>Analyst desk</td>
+<td>Arjun, Meera</td>
+</tr>
+<tr>
+<td>Steward desk (W7)</td>
+<td>Every persona, indirectly: it keeps the data true</td>
+</tr>
+<tr>
+<td>Release and promotion gates (W1, W8)</td>
+<td>Lawyer</td>
+</tr>
+</tbody>
+</table>
+<h3 id="34-language-and-literacy">3.4 Language and literacy<a class="headerlink" href="#34-language-and-literacy" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Need</th>
+<th>Personas</th>
+<th>Platform response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Marathi, spoken</td>
+<td>Sunita, Ramesh</td>
+<td>Voice notes in, text replies now; spoken Marathi replies once a voice is tested</td>
+</tr>
+<tr>
+<td>Marathi or Hindi, written</td>
+<td>Lata, Farah, Arjun, Corporator</td>
+<td>Every page and reply in the reader's language; glossary for official terms</td>
+</tr>
+<tr>
+<td>English</td>
+<td>Imran, Meera, UDD</td>
+<td>Same content, same sources</td>
+</tr>
+<tr>
+<td>Assisted use</td>
+<td>Ramesh, often Sunita</td>
+<td>Works when a community worker operates it; drafts are easy to read aloud</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-people-who-appear-in-the-records">4. People who appear in the records<a class="headerlink" href="#4-people-who-appear-in-the-records" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Group</th>
+<th>Need</th>
+<th>How the platform meets it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Contractors and developers</td>
+<td>Accuracy; a right to respond</td>
+<td>Records shown as stages and dates, not verdicts; correction requests answered; replies published beside the record</td>
+</tr>
+<tr>
+<td>Officials</td>
+<td>Not to be singled out personally</td>
+<td>Named by post only; work lists rather than rankings</td>
+</tr>
+<tr>
+<td>Elected representatives</td>
+<td>Equal treatment</td>
+<td>Identical measures for all; right to correct</td>
+</tr>
+<tr>
+<td>BMC, SRA and other agencies</td>
+<td>Fair representation</td>
+<td>Invited to correct their own records before release; positions set out in their own words</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-anti-personas">5. Anti-personas<a class="headerlink" href="#5-anti-personas" title="Permanent link">&para;</a></h2>
+<p>The platform is deliberately not built for these uses.</p>
+<table>
+<thead>
+<tr>
+<th>Use</th>
+<th>Why not, and what happens instead</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Someone seeking to target an individual official or resident</td>
+<td>No private individuals in the data; officials by post; harassment-shaped requests declined</td>
+</tr>
+<tr>
+<td>A campaign wanting one-sided material against a party or authority</td>
+<td>Same rules and measures for all; counter-arguments shown with every finding</td>
+</tr>
+<tr>
+<td>Someone wanting legal advice on their own case</td>
+<td>Plain statement that the platform summarises published records; pointed to the right office or to legal aid</td>
+</tr>
+<tr>
+<td>Someone wanting an official certificate or record</td>
+<td>The platform is not an official record; pointed to the issuing office</td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-priorities-for-the-first-slice">6. Priorities for the first slice<a class="headerlink" href="#6-priorities-for-the-first-slice" title="Permanent link">&para;</a></h2>
+<p>For the hackathon day and the first 30 days, design for three personas first and let the others follow:</p>
+<ol>
+<li><strong>Sunita</strong>, because if it works for her by voice in Marathi it works for nearly everyone.</li>
+<li><strong>Farah</strong>, because she turns the platform's output into action in a room where decisions are made.</li>
+<li><strong>The Assistant Engineer</strong>, because an officer who gains from it is how the city adopts it.</li>
+</ol>
+<p><strong>Arjun</strong> is the fourth: one published story reaches more residents than any feature.</p>
+<h2 id="7-validating-the-personas">7. Validating the personas<a class="headerlink" href="#7-validating-the-personas" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>How</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Interview</td>
+<td>Two or three people per persona before the 30-day mark; ask what they did the last time they had this problem</td>
+</tr>
+<tr>
+<td>Test the first slice</td>
+<td>Watch Sunita-type and Farah-type users complete one task each, in their language, without help</td>
+</tr>
+<tr>
+<td>Measure</td>
+<td>Task completed, time taken, whether the answer was correct, whether they would use it again</td>
+</tr>
+<tr>
+<td>Update</td>
+<td>Rewrite this file from what is learned; record what changed and why</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../05-implementation-plan/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Implementation plan">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Implementation plan
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../architecture/" class="md-footer__link md-footer__link--next" aria-label="Next: Overview">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Overview
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

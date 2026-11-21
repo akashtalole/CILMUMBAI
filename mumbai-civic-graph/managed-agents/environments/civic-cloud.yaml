@@ -1,0 +1,9 @@
+# Sandbox for every civic agent. No outbound hosts: documents arrive as mounted
+# files, and the graph is reached through tools answered outside the sandbox.
+name: civic-cloud
+config:
+  type: cloud
+  networking:
+    type: limited
+    allow_package_managers: true
+    allow_mcp_servers: false

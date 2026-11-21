@@ -1,0 +1,51 @@
+@prefix mco:  <https://akashtalole.github.io/CILMUMBAI/ontology/mco#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix org:  <http://www.w3.org/ns/org#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix geo:  <http://www.opengis.net/ont/geosparql#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+mco:FiscalYear a owl:Class ; mco:module "money" ; rdfs:subClassOf mco:Node ; skos:closeMatch time:Interval ;
+    rdfs:label "Fiscal year"@en , "आर्थिक वर्ष"@mr .
+mco:BudgetHead a owl:Class ; mco:module "money" ; rdfs:subClassOf mco:Node ; skos:closeMatch skos:Concept ;
+    rdfs:label "Budget head"@en , "अर्थसंकल्पीय शीर्ष"@mr .
+mco:Allocation a owl:Class ; mco:module "money" ; rdfs:subClassOf mco:Node ;
+    rdfs:label "Allocation"@en , "तरतूद"@mr .
+mco:Expenditure a owl:Class ; mco:module "money" ; rdfs:subClassOf mco:Node ;
+    rdfs:label "Expenditure"@en , "खर्च"@mr .
+mco:Payment a owl:Class ; mco:module "money" ; rdfs:subClassOf mco:Node ;
+    skos:closeMatch <https://standard.open-contracting.org/latest/en/schema/reference/#transaction> ;
+    rdfs:label "Payment"@en , "देयक"@mr .
+
+mco:yearLabel a owl:DatatypeProperty ; rdfs:range xsd:string ; mco:jsonKey "year_label" ; mco:propertyOf mco:FiscalYear ;
+    rdfs:label "year"@en , "वर्ष"@mr ; rdfs:comment "As printed, e.g. 2026-27."@en .
+mco:headKind a owl:DatatypeProperty ; rdfs:range xsd:string ; mco:jsonKey "kind" ; mco:propertyOf mco:BudgetHead ;
+    rdfs:label "kind"@en , "प्रकार"@mr ; rdfs:comment "capital or revenue."@en .
+mco:amountBe a owl:DatatypeProperty ; rdfs:range xsd:integer ; mco:jsonKey "amount_be" ; mco:propertyOf mco:Allocation ;
+    rdfs:label "budget estimate (rupees)"@en , "अर्थसंकल्पीय अंदाज (रुपये)"@mr .
+mco:amountRe a owl:DatatypeProperty ; rdfs:range xsd:integer ; mco:jsonKey "amount_re" ; mco:propertyOf mco:Allocation ;
+    rdfs:label "revised estimate (rupees)"@en , "सुधारित अंदाज (रुपये)"@mr .
+mco:amountActual a owl:DatatypeProperty ; rdfs:range xsd:integer ; mco:jsonKey "amount_actual" ; mco:propertyOf mco:Allocation ;
+    rdfs:label "actual (rupees)"@en , "प्रत्यक्ष खर्च (रुपये)"@mr .
+mco:amount a owl:DatatypeProperty ; rdfs:range xsd:integer ; mco:jsonKey "amount" ;
+    mco:propertyOf mco:Expenditure , mco:Payment , mco:Penalty ;
+    rdfs:label "amount (rupees)"@en , "रक्कम (रुपये)"@mr .
+mco:paidOn a owl:DatatypeProperty ; rdfs:range xsd:date ; mco:jsonKey "paid_on" ; mco:propertyOf mco:Payment ;
+    rdfs:label "paid on"@en , "प्रदान दिनांक"@mr .
+
+mco:parentOf a owl:ObjectProperty ; mco:edgeType "PARENT_OF" ; mco:edgeFrom mco:BudgetHead ; mco:edgeTo mco:BudgetHead ;
+    rdfs:label "parent of"@en , "मूळ शीर्ष"@mr .
+mco:allocationUnder a owl:ObjectProperty ; mco:edgeType "UNDER" ; mco:edgeFrom mco:Allocation ; mco:edgeTo mco:BudgetHead ;
+    rdfs:label "under"@en , "अंतर्गत"@mr .
+mco:expenditureUnder a owl:ObjectProperty ; mco:edgeType "UNDER" ; mco:edgeFrom mco:Expenditure ; mco:edgeTo mco:BudgetHead ;
+    rdfs:label "under"@en , "अंतर्गत"@mr .
+mco:forYear a owl:ObjectProperty ; mco:edgeType "FOR_YEAR" ; mco:edgeFrom mco:Allocation ; mco:edgeTo mco:FiscalYear ;
+    rdfs:label "for year"@en , "वर्षासाठी"@mr .
+mco:expenditureForYear a owl:ObjectProperty ; mco:edgeType "FOR_YEAR" ; mco:edgeFrom mco:Expenditure ; mco:edgeTo mco:FiscalYear ;
+    rdfs:label "for year"@en , "वर्षासाठी"@mr .
+mco:underContract a owl:ObjectProperty ; mco:edgeType "UNDER_CONTRACT" ; mco:edgeFrom mco:Payment ; mco:edgeTo mco:Contract ;
+    rdfs:label "under contract"@en , "कराराअंतर्गत"@mr .

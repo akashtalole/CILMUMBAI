@@ -1,0 +1,59 @@
+@prefix mco:  <https://akashtalole.github.io/CILMUMBAI/ontology/mco#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix org:  <http://www.w3.org/ns/org#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix geo:  <http://www.opengis.net/ont/geosparql#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+mco:Work a owl:Class ; mco:module "works" ; rdfs:subClassOf mco:Node ;
+    rdfs:label "Work"@en , "काम"@mr ; rdfs:comment "A project: what a tender and contract are for."@en .
+mco:Milestone a owl:Class ; mco:module "works" ; rdfs:subClassOf mco:Node ;
+    rdfs:label "Milestone"@en , "टप्पा"@mr .
+mco:Inspection a owl:Class ; mco:module "works" ; rdfs:subClassOf mco:Node ;
+    rdfs:label "Inspection"@en , "तपासणी"@mr .
+mco:DefectLiabilityPeriod a owl:Class ; mco:module "works" ; rdfs:subClassOf mco:Node ; skos:closeMatch time:Interval ;
+    rdfs:label "Defect liability period"@en , "दोष दायित्व कालावधी"@mr .
+mco:Asset a owl:Class ; mco:module "works" ; rdfs:subClassOf mco:Node , geo:Feature ;
+    rdfs:label "Asset"@en , "मालमत्ता"@mr .
+mco:Road a owl:Class ; mco:module "works" ; rdfs:subClassOf mco:Asset ; rdfs:label "Road"@en , "रस्ता"@mr .
+mco:Drain a owl:Class ; mco:module "works" ; rdfs:subClassOf mco:Asset ; rdfs:label "Drain"@en , "नाला"@mr .
+mco:Bridge a owl:Class ; mco:module "works" ; rdfs:subClassOf mco:Asset ; rdfs:label "Bridge"@en , "पूल"@mr .
+mco:Building a owl:Class ; mco:module "works" ; rdfs:subClassOf mco:Asset ; rdfs:label "Building"@en , "इमारत"@mr .
+mco:Toilet a owl:Class ; mco:module "works" ; rdfs:subClassOf mco:Asset ; rdfs:label "Toilet"@en , "शौचालय"@mr .
+mco:Garden a owl:Class ; mco:module "works" ; rdfs:subClassOf mco:Asset ; rdfs:label "Garden"@en , "उद्यान"@mr .
+mco:School a owl:Class ; mco:module "works" ; rdfs:subClassOf mco:Asset ; rdfs:label "School"@en , "शाळा"@mr .
+mco:Hospital a owl:Class ; mco:module "works" ; rdfs:subClassOf mco:Asset ; rdfs:label "Hospital"@en , "रुग्णालय"@mr .
+
+mco:title a owl:DatatypeProperty ; rdfs:range xsd:string ; mco:jsonKey "title" ;
+    mco:propertyOf mco:Work , mco:Tender , mco:Milestone , mco:Post , mco:SourceDocument ;
+    rdfs:label "title"@en , "शीर्षक"@mr .
+mco:status a owl:DatatypeProperty ; rdfs:range xsd:string ; mco:jsonKey "status" ; mco:propertyOf mco:Work , mco:Tender ;
+    rdfs:label "status"@en , "स्थिती"@mr .
+mco:dueOn a owl:DatatypeProperty ; rdfs:range xsd:date ; mco:jsonKey "due_on" ;
+    mco:propertyOf mco:Work , mco:Contract , mco:Milestone ;
+    rdfs:label "due on"@en , "पूर्णत्वाचा नियोजित दिनांक"@mr .
+mco:completedOn a owl:DatatypeProperty ; rdfs:range xsd:date ; mco:jsonKey "completed_on" ; mco:propertyOf mco:Work , mco:Milestone ;
+    rdfs:label "completed on"@en , "पूर्णत्व दिनांक"@mr .
+mco:lengthKm a owl:DatatypeProperty ; rdfs:range xsd:decimal ; mco:jsonKey "length_km" ; mco:propertyOf mco:Road , mco:Drain ;
+    rdfs:label "length (km)"@en , "लांबी (किमी)"@mr .
+mco:osmWayId a owl:DatatypeProperty ; rdfs:range xsd:string ; mco:jsonKey "osm_way_id" ; mco:propertyOf mco:Asset ;
+    rdfs:label "OpenStreetMap way id"@en , "ओपनस्ट्रीटमॅप मार्ग क्रमांक"@mr .
+mco:inspectedOn a owl:DatatypeProperty ; rdfs:range xsd:date ; mco:jsonKey "inspected_on" ; mco:propertyOf mco:Inspection ;
+    rdfs:label "inspected on"@en , "तपासणी दिनांक"@mr .
+mco:result a owl:DatatypeProperty ; rdfs:range xsd:string ; mco:jsonKey "result" ; mco:propertyOf mco:Inspection ;
+    rdfs:label "result"@en , "निष्कर्ष"@mr .
+
+mco:improves a owl:ObjectProperty ; mco:edgeType "IMPROVES" ; mco:edgeFrom mco:Work ; mco:edgeTo mco:Asset ;
+    rdfs:label "improves"@en , "सुधारणा करते"@mr .
+mco:fundedBy a owl:ObjectProperty ; mco:edgeType "FUNDED_BY" ; mco:edgeFrom mco:Work ; mco:edgeTo mco:Allocation ;
+    rdfs:label "funded by"@en , "निधी स्रोत"@mr .
+mco:hasDlp a owl:ObjectProperty ; mco:edgeType "HAS_DLP" ; mco:edgeFrom mco:Work ; mco:edgeTo mco:DefectLiabilityPeriod ;
+    rdfs:label "has defect liability period"@en , "दोष दायित्व कालावधी आहे"@mr .
+mco:milestoneOf a owl:ObjectProperty ; mco:edgeType "OF" ; mco:edgeFrom mco:Milestone ; mco:edgeTo mco:Work ;
+    rdfs:label "milestone of"@en , "कामाचा टप्पा"@mr .
+mco:inspectionOf a owl:ObjectProperty ; mco:edgeType "OF" ; mco:edgeFrom mco:Inspection ; mco:edgeTo mco:Asset ;
+    rdfs:label "inspection of"@en , "ची तपासणी"@mr .
